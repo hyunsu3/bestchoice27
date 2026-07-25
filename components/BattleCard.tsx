@@ -1,21 +1,32 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { getCardAccent } from "@/lib/cardColor";
+import { useEffect, useRef, useState } from "react";
+import { darkenHex, getCardAccent, getCardGradient } from "@/lib/cardColor";
 import { renderWithBold } from "@/lib/formatText";
 import type { UniversityCard } from "@/lib/types";
 import { useUniversityColors } from "@/lib/universityColors";
 
+const FLY_IN_MS = 700;
+const HOLD_MS = 550;
+
 export default function BattleCard({
   card,
   origin,
-  onPick,
+  selected,
+  dimmed,
+  onHoldSelect,
 }: {
   card: UniversityCard;
   origin: "left" | "right";
-  onPick: () => void;
+  selected: boolean;
+  dimmed: boolean;
+  onHoldSelect: () => void;
 }) {
   const [entered, setEntered] = useState(false);
+  const [flipped, setFlipped] = useState(false);
+  const [holding, setHolding] = useState(false);
+  const holdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const holdTriggeredRef = useRef(false);
   const { colors } = useUniversityColors();
   const customColor = colors[card.universityName.trim()];
   const accentClass = customColor ? "" : getCardAccent(card.universityName);
@@ -32,44 +43,131 @@ export default function BattleCard({
     };
   }, []);
 
+  useEffect(() => {
+    if (!entered) return;
+    const timer = setTimeout(() => setFlipped(true), FLY_IN_MS);
+    return () => clearTimeout(timer);
+  }, [entered]);
+
+  useEffect(() => {
+    return () => {
+      if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
+    };
+  }, []);
+
+  function clearHoldTimer() {
+    if (holdTimerRef.current) {
+      clearTimeout(holdTimerRef.current);
+      holdTimerRef.current = null;
+    }
+  }
+
+  function handlePointerDown() {
+    holdTriggeredRef.current = false;
+    setHolding(true);
+    clearHoldTimer();
+    holdTimerRef.current = setTimeout(() => {
+      holdTriggeredRef.current = true;
+      setHolding(false);
+      onHoldSelect();
+    }, HOLD_MS);
+  }
+
+  function handlePointerUp() {
+    clearHoldTimer();
+    setHolding(false);
+    if (!holdTriggeredRef.current) {
+      setFlipped((f) => !f);
+    }
+  }
+
+  function handlePointerLeave() {
+    clearHoldTimer();
+    setHolding(false);
+  }
+
   return (
-    <button
-      onClick={onPick}
+    <div
+      role="button"
+      tabIndex={0}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      onPointerLeave={handlePointerLeave}
+      onPointerCancel={handlePointerLeave}
+      onContextMenu={(e) => e.preventDefault()}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          setFlipped((f) => !f);
+        }
+      }}
+      style={{ touchAction: "manipulation" }}
       className={`vs-card ${origin === "left" ? "vs-card-from-left" : "vs-card-from-right"} ${
         entered ? "vs-card-entered" : ""
-      } flex h-96 w-60 flex-col rounded-2xl border border-black/10 bg-white p-5 text-left shadow-lg transition-shadow hover:shadow-2xl dark:border-white/10 dark:bg-zinc-900 sm:h-[28rem] sm:w-72`}
+      } h-96 w-60 cursor-pointer select-none sm:h-[28rem] sm:w-72`}
     >
-      <p
-        className={`text-xs font-medium uppercase tracking-wide ${accentClass}`}
-        style={accentStyle}
+      <div
+        className={`flip-card h-full w-full rounded-2xl transition-[box-shadow,opacity,filter] duration-200 ${
+          selected ? "ring-4 ring-emerald-400 ring-offset-4 dark:ring-offset-zinc-950" : ""
+        } ${dimmed ? "opacity-40" : "opacity-100"} ${holding ? "brightness-90" : ""}`}
       >
-        {card.admissionType || "전형 미입력"}
-      </p>
-      <h3 className="mt-2 text-lg font-bold leading-tight">
-        {card.universityName}
-      </h3>
-      <p className="mt-1 text-sm text-black/70 dark:text-white/70">
-        {card.department}
-      </p>
-      <div className="mt-3 space-y-2 overflow-hidden text-xs text-black/60 dark:text-white/60">
-        <p>
-          <span className="font-semibold">모집인원</span> {card.capacity || "-"}
-        </p>
-        <p className="line-clamp-3">
-          <span className="font-semibold">전형요약</span>{" "}
-          {card.admissionSummary ? renderWithBold(card.admissionSummary) : "-"}
-        </p>
-        <p className="line-clamp-4">
-          <span className="font-semibold">입결요약</span>{" "}
-          {card.resultSummary ? renderWithBold(card.resultSummary) : "-"}
-        </p>
+        <div className={`flip-card-inner ${flipped ? "is-flipped" : ""}`}>
+          <div
+            className={`flip-card-face flip-card-front text-white ${
+              customColor ? "" : `bg-gradient-to-br ${getCardGradient(card.universityName)}`
+            }`}
+            style={
+              customColor
+                ? {
+                    backgroundImage: `linear-gradient(to bottom right, ${customColor}, ${darkenHex(customColor)})`,
+                  }
+                : undefined
+            }
+          >
+            <p className="text-xs font-medium uppercase tracking-wide text-white/70">
+              {card.admissionType || "전형 미입력"}
+            </p>
+            <h3 className="mt-2 text-xl font-bold leading-tight">
+              {card.universityName}
+            </h3>
+            <p className="mt-1 text-sm text-white/90">{card.department}</p>
+            <p className="mt-auto text-xs text-white/60">탭해서 뒤집기</p>
+          </div>
+          <div className="flip-card-face flip-card-back bg-white dark:bg-zinc-900">
+            <p
+              className={`text-xs font-medium uppercase tracking-wide ${accentClass}`}
+              style={accentStyle}
+            >
+              {card.admissionType || "전형 미입력"}
+            </p>
+            <h3 className="mt-2 text-lg font-bold leading-tight">
+              {card.universityName}
+            </h3>
+            <p className="mt-1 text-sm text-black/70 dark:text-white/70">
+              {card.department}
+            </p>
+            <div className="mt-3 min-h-0 flex-1 space-y-2 overflow-hidden text-xs text-black/60 dark:text-white/60">
+              <p>
+                <span className="font-semibold">모집인원</span> {card.capacity || "-"}
+              </p>
+              <p className="line-clamp-3">
+                <span className="font-semibold">전형요약</span>{" "}
+                {card.admissionSummary ? renderWithBold(card.admissionSummary) : "-"}
+              </p>
+              <p className="line-clamp-4">
+                <span className="font-semibold">입결요약</span>{" "}
+                {card.resultSummary ? renderWithBold(card.resultSummary) : "-"}
+              </p>
+            </div>
+            <span
+              className={`mt-auto pt-2 text-sm font-semibold ${accentClass}`}
+              style={accentStyle}
+            >
+              {selected ? "선택됨 ✓" : "길게 눌러 선택하기"}
+            </span>
+          </div>
+        </div>
       </div>
-      <span
-        className={`mt-auto pt-2 text-sm font-semibold ${accentClass}`}
-        style={accentStyle}
-      >
-        이 카드 선택하기 →
-      </span>
-    </button>
+    </div>
   );
 }

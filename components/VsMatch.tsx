@@ -16,6 +16,7 @@ export default function VsMatch({ cards }: { cards: UniversityCard[] }) {
   const [results, setResults] = useState<UniversityCard[]>([]);
   const [matchKey, setMatchKey] = useState(0);
   const [leftOrigin, setLeftOrigin] = useState<"left" | "right">("left");
+  const [candidateSide, setCandidateSide] = useState<"left" | "right" | null>(null);
 
   const canStart = cards.length > FINAL_COUNT;
   const currentItem = queue[queueIndex];
@@ -23,6 +24,7 @@ export default function VsMatch({ cards }: { cards: UniversityCard[] }) {
   function nextMatch() {
     setMatchKey((k) => k + 1);
     setLeftOrigin(Math.random() < 0.5 ? "left" : "right");
+    setCandidateSide(null);
   }
 
   function start() {
@@ -132,24 +134,58 @@ export default function VsMatch({ cards }: { cards: UniversityCard[] }) {
           </p>
         </div>
       ) : (
-        <div
-          key={matchKey}
-          className="flex w-full max-w-3xl items-center justify-center gap-6 overflow-hidden"
-        >
-          <BattleCard
-            card={currentItem.left}
-            origin={leftOrigin}
-            onPick={() => completeMatch(currentItem.left)}
-          />
-          <span className="text-2xl font-black text-black/30 dark:text-white/30">
-            VS
-          </span>
-          <BattleCard
-            card={currentItem.right}
-            origin={leftOrigin === "left" ? "right" : "left"}
-            onPick={() => completeMatch(currentItem.right)}
-          />
-        </div>
+        <>
+          <div
+            key={matchKey}
+            className="flex w-full max-w-3xl items-center justify-center gap-6 overflow-hidden"
+          >
+            <BattleCard
+              card={currentItem.left}
+              origin={leftOrigin}
+              selected={candidateSide === "left"}
+              dimmed={candidateSide === "right"}
+              onHoldSelect={() => setCandidateSide("left")}
+            />
+            <span className="text-2xl font-black text-black/30 dark:text-white/30">
+              VS
+            </span>
+            <BattleCard
+              card={currentItem.right}
+              origin={leftOrigin === "left" ? "right" : "left"}
+              selected={candidateSide === "right"}
+              dimmed={candidateSide === "left"}
+              onHoldSelect={() => setCandidateSide("right")}
+            />
+          </div>
+          <p className="text-xs text-black/40 dark:text-white/40">
+            탭하면 카드가 뒤집혀요 · 길게 누르면 선택돼요
+          </p>
+          {candidateSide && (
+            <div className="flex items-center gap-3 rounded-full border border-black/10 bg-white px-4 py-2 shadow-sm dark:border-white/10 dark:bg-white/5">
+              <p className="text-sm text-black/70 dark:text-white/70">
+                {(candidateSide === "left" ? currentItem.left : currentItem.right)
+                  .universityName}{" "}
+                선택하시겠어요?
+              </p>
+              <button
+                className="btn-primary px-4 py-1.5 text-sm"
+                onClick={() =>
+                  completeMatch(
+                    candidateSide === "left" ? currentItem.left : currentItem.right,
+                  )
+                }
+              >
+                제출하기
+              </button>
+              <button
+                className="text-sm font-medium text-black/50 hover:text-black dark:text-white/50 dark:hover:text-white"
+                onClick={() => setCandidateSide(null)}
+              >
+                다시 고르기
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
