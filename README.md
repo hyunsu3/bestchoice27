@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 수시 이상형 월드컵
 
-## Getting Started
+대학 수시 카드를 등록하고, 이상형 월드컵 방식으로 1:1 매치를 통해 최애 조합을 찾아보는 웹 앱입니다.
 
-First, run the development server:
+## 시작하기
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+브라우저에서 [http://localhost:3000](http://localhost:3000) 을 열면 됩니다.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 사용 방법
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 1. 카드 등록
 
-## Learn More
+"카드 등록" 탭에서 아래 정보를 입력해 수시 카드를 만들 수 있어요.
 
-To learn more about Next.js, take a look at the following resources:
+- 대학명 / 희망학과 (필수)
+- 전형명
+- 모집인원
+- 전형요약
+- 24-26년 입결 요약
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+전형요약, 입결요약은 `**텍스트**`처럼 별표 두 개로 감싸면 **굵게** 표시됩니다.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+카드 색은 대학명 기준으로 지정돼요. 컬러 피커나 추천 색상 중 하나를 고르면, 같은 대학명을 가진 모든 카드 색이 함께 바뀝니다. 색을 지정하지 않으면 대학명에 따라 자동으로 색이 정해집니다.
 
-## Deploy on Vercel
+### 2. 카드 모아보기
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+등록한 카드를 목록으로 볼 수 있어요. 카드를 탭하면 뒤집혀서 모집인원 / 전형요약 / 입결요약을 확인할 수 있고, 다시 탭하면 앞면으로 돌아갑니다. 뒷면에서 20초 동안 스크롤 등 조작이 없으면 자동으로 앞면으로 되돌아갑니다. 카드 수정·삭제도 이 화면에서 할 수 있어요.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 3. VS 대결
+
+카드가 6장보다 많이 등록되어 있으면 "VS 대결" 탭에서 이상형 월드컵을 시작할 수 있어요. 화면 좌우 밖에서 카드 두 장이 랜덤하게 날아들어오면 더 마음에 드는 카드를 선택합니다. 이렇게 뽑힌 카드들이 다시 2장씩 짝지어 겨루기를 반복하고, 최종적으로 6장이 남으면 결과를 보여줍니다.
+
+## 데이터 저장
+
+등록한 카드와 대학별 색상 설정은 브라우저의 로컬 스토리지에 저장됩니다. 서버로 전송되지 않으며, 브라우저 저장소를 지우거나 다른 브라우저/기기로 접속하면 데이터가 보이지 않으니 주의하세요.
+
+## 기술 스택
+
+- Next.js (App Router) / React / TypeScript
+- Tailwind CSS

@@ -24,3 +24,82 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.input {
+  border-radius: 0.75rem;
+  border: 1px solid rgb(0 0 0 / 0.15);
+  background: transparent;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  outline: none;
+}
+.input:focus {
+  border-color: rgb(79 70 229);
+}
+@media (prefers-color-scheme: dark) {
+  .input {
+    border-color: rgb(255 255 255 / 0.15);
+  }
+}
+
+.btn-primary {
+  border-radius: 9999px;
+  background: rgb(79 70 229);
+  color: white;
+  font-weight: 600;
+  padding: 0.65rem 1.5rem;
+  transition: background-color 0.15s ease;
+}
+.btn-primary:hover {
+  background: rgb(67 56 202);
+}
+
+/* Flip card */
+.flip-card {
+  perspective: 1200px;
+}
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+  transform-style: preserve-3d;
+}
+.flip-card-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+.flip-card-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: 1rem;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
+}
+.flip-card-back {
+  transform: rotateY(180deg);
+  border: 1px solid rgb(0 0 0 / 0.1);
+}
+@media (prefers-color-scheme: dark) {
+  .flip-card-back {
+    border-color: rgb(255 255 255 / 0.1);
+  }
+}
+
+/* VS battle fly-in animation */
+.vs-card {
+  opacity: 0;
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease;
+}
+.vs-card-from-left {
+  transform: translateX(-160vw) rotate(-10deg);
+}
+.vs-card-from-right {
+  transform: translateX(160vw) rotate(10deg);
+}
+.vs-card-entered {
+  transform: translateX(0) rotate(0deg);
+  opacity: 1;
+}
