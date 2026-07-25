@@ -1,11 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { toBlob } from "html-to-image";
 import type { UniversityCard } from "@/lib/types";
 import { FINAL_COUNT, buildRoundQueue, type MatchQueueItem } from "@/lib/tournament";
 import BattleCard from "./BattleCard";
+import ResultCardModal from "./ResultCardModal";
 
 type Phase = "idle" | "playing" | "done";
+
+const RESULT_FILE_NAME = "수시-이상형월드컵-결과.png";
+const EXPORT_TIMEOUT_MS = 8000;
+
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error("이미지 생성 시간이 초과됐어요.")), ms),
+    ),
+  ]);
+}
 
 export default function VsMatch({ cards }: { cards: UniversityCard[] }) {
   const [phase, setPhase] = useState<Phase>("idle");
@@ -17,6 +31,9 @@ export default function VsMatch({ cards }: { cards: UniversityCard[] }) {
   const [matchKey, setMatchKey] = useState(0);
   const [leftOrigin, setLeftOrigin] = useState<"left" | "right">("left");
   const [candidateSide, setCandidateSide] = useState<"left" | "right" | null>(null);
+  const [viewingCard, setViewingCard] = useState<UniversityCard | null>(null);
+  const [exporting, setExporting] = useState(false);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   const canStart = cards.length > FINAL_COUNT;
   const currentItem = queue[queueIndex];
@@ -66,6 +83,33 @@ export default function VsMatch({ cards }: { cards: UniversityCard[] }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, currentItem]);
 
+  function downloadBlob(blob: Blob) {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.download = RESULT_FILE_NAME;
+    link.href = url;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async function handleSaveImage() {
+    if (!resultsRef.current || exporting) return;
+    setExporting(true);
+    try {
+      const blob = await withTimeout(
+        toBlob(resultsRef.current, { pixelRatio: 2 }),
+        EXPORT_TIMEOUT_MS,
+      );
+      if (!blob) throw new Error("이미지 생성 실패");
+      downloadBlob(blob);
+    } catch (err) {
+      console.error(err);
+      alert("이미지 저장에 실패했어요. 다시 시도해주세요.");
+    } finally {
+      setExporting(false);
+    }
+  }
+
   if (!canStart && phase === "idle") {
     return (
       <p className="rounded-2xl border border-dashed border-black/15 p-8 text-center text-sm text-black/50 dark:border-white/15 dark:text-white/50">
@@ -93,26 +137,45 @@ export default function VsMatch({ cards }: { cards: UniversityCard[] }) {
   if (phase === "done") {
     return (
       <div className="flex flex-col items-center gap-6">
-        <h2 className="text-2xl font-bold">🏆 최종 {results.length}장</h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {results.map((card) => (
-            <div
-              key={card.id}
-              className="rounded-2xl border border-amber-400/60 bg-amber-50 p-5 shadow-sm dark:bg-amber-500/10"
-            >
-              <p className="text-xs font-medium uppercase tracking-wide text-amber-600">
-                {card.admissionType || "전형 미입력"}
-              </p>
-              <h3 className="mt-2 text-lg font-bold">{card.universityName}</h3>
-              <p className="mt-1 text-sm text-black/70 dark:text-white/70">
-                {card.department}
-              </p>
-            </div>
-          ))}
+        <div
+          ref={resultsRef}
+          className="flex flex-col items-center gap-6 rounded-3xl bg-white p-8 dark:bg-zinc-900"
+        >
+          <h2 className="text-2xl font-bold">🏆 최종 {results.length}장</h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {results.map((card) => (
+              <button
+                key={card.id}
+                type="button"
+                onClick={() => setViewingCard(card)}
+                className="rounded-2xl border border-amber-400/60 bg-amber-50 p-5 text-left shadow-sm transition hover:shadow-md dark:bg-amber-500/10"
+              >
+                <p className="text-xs font-medium uppercase tracking-wide text-amber-600">
+                  {card.admissionType || "전형 미입력"}
+                </p>
+                <h3 className="mt-2 text-lg font-bold">{card.universityName}</h3>
+                <p className="mt-1 text-sm text-black/70 dark:text-white/70">
+                  {card.department}
+                </p>
+              </button>
+            ))}
+          </div>
         </div>
-        <button className="btn-primary" onClick={start}>
-          다시 시작
-        </button>
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <button className="btn-primary" onClick={start}>
+            다시 시작
+          </button>
+          <button
+            className="rounded-full border border-black/15 px-4 py-2 text-sm font-semibold text-black/70 transition hover:bg-black/5 disabled:opacity-50 dark:border-white/15 dark:text-white/70 dark:hover:bg-white/10"
+            onClick={handleSaveImage}
+            disabled={exporting}
+          >
+            이미지로 저장
+          </button>
+        </div>
+        {viewingCard && (
+          <ResultCardModal card={viewingCard} onClose={() => setViewingCard(null)} />
+        )}
       </div>
     );
   }
@@ -137,14 +200,16 @@ export default function VsMatch({ cards }: { cards: UniversityCard[] }) {
         <>
           <div
             key={matchKey}
-            className="flex w-full max-w-3xl items-center justify-center gap-6 overflow-hidden"
+            className="flex w-full max-w-3xl items-center justify-center gap-6 overflow-x-hidden py-2"
           >
             <BattleCard
               card={currentItem.left}
               origin={leftOrigin}
               selected={candidateSide === "left"}
               dimmed={candidateSide === "right"}
-              onHoldSelect={() => setCandidateSide("left")}
+              onHoldSelect={() =>
+                setCandidateSide((prev) => (prev === "left" ? null : "left"))
+              }
             />
             <span className="text-2xl font-black text-black/30 dark:text-white/30">
               VS
@@ -154,7 +219,9 @@ export default function VsMatch({ cards }: { cards: UniversityCard[] }) {
               origin={leftOrigin === "left" ? "right" : "left"}
               selected={candidateSide === "right"}
               dimmed={candidateSide === "left"}
-              onHoldSelect={() => setCandidateSide("right")}
+              onHoldSelect={() =>
+                setCandidateSide((prev) => (prev === "right" ? null : "right"))
+              }
             />
           </div>
           <p className="text-xs text-black/40 dark:text-white/40">

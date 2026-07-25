@@ -163,7 +163,7 @@ export default function BattleCard({
               className={`mt-auto pt-2 text-sm font-semibold ${accentClass}`}
               style={accentStyle}
             >
-              {selected ? "선택됨 ✓" : "길게 눌러 선택하기"}
+              {selected ? "선택됨 ✓ (다시 길게 누르면 해제)" : "길게 눌러 선택하기"}
             </span>
           </div>
         </div>
