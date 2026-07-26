@@ -20,9 +20,13 @@ export default function CardList({
     );
   }
 
+  const sortedCards = [...cards].sort((a, b) =>
+    a.universityName.localeCompare(b.universityName, "ko")
+  );
+
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {cards.map((card) => (
+      {sortedCards.map((card) => (
         <FlipCard
           key={card.id}
           card={card}
