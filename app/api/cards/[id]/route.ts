@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { isAuthorized } from "@/lib/auth";
 import { deleteCardById, updateCardById } from "@/lib/cardsRepo";
 import type { NewUniversityCard } from "@/lib/types";
 
@@ -6,6 +7,12 @@ export async function PATCH(
   request: Request,
   ctx: RouteContext<"/api/cards/[id]">,
 ) {
+  if (!isAuthorized(request)) {
+    return NextResponse.json(
+      { error: "비밀번호가 올바르지 않습니다." },
+      { status: 401 },
+    );
+  }
   try {
     const { id } = await ctx.params;
     const body = (await request.json()) as NewUniversityCard;
@@ -21,9 +28,15 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _request: Request,
+  request: Request,
   ctx: RouteContext<"/api/cards/[id]">,
 ) {
+  if (!isAuthorized(request)) {
+    return NextResponse.json(
+      { error: "비밀번호가 올바르지 않습니다." },
+      { status: 401 },
+    );
+  }
   try {
     const { id } = await ctx.params;
     await deleteCardById(id);

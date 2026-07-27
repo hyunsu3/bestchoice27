@@ -1,10 +1,42 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { requestPassword } from "./passwordPrompt";
 import type { NewUniversityCard, UniversityCard } from "./types";
 
 const LEGACY_STORAGE_KEY = "bestchoice.cards.v1";
 const MIGRATED_KEY = "bestchoice.cards.migrated.v1";
+const PASSWORD_KEY = "bestchoice.editPassword";
+
+function getStoredPassword(): string | null {
+  if (typeof window === "undefined") return null;
+  return window.sessionStorage.getItem(PASSWORD_KEY);
+}
+
+async function promptForPassword(): Promise<string | null> {
+  const pw = await requestPassword();
+  if (pw) window.sessionStorage.setItem(PASSWORD_KEY, pw);
+  return pw;
+}
+
+async function authorizedFetch(url: string, init: RequestInit = {}) {
+  let pw = getStoredPassword() ?? (await promptForPassword());
+  if (!pw) throw new Error("비밀번호를 입력해야 합니다.");
+
+  const withAuth = (password: string): RequestInit => ({
+    ...init,
+    headers: { ...(init.headers ?? {}), "x-app-password": password },
+  });
+
+  let res = await fetch(url, withAuth(pw));
+  if (res.status === 401) {
+    window.sessionStorage.removeItem(PASSWORD_KEY);
+    pw = await promptForPassword();
+    if (!pw) throw new Error("비밀번호를 입력해야 합니다.");
+    res = await fetch(url, withAuth(pw));
+  }
+  return res;
+}
 
 async function migrateLegacyCards() {
   if (typeof window === "undefined") return;
@@ -61,7 +93,7 @@ export function useCards() {
   }, [refresh]);
 
   const addCard = useCallback(async (card: NewUniversityCard) => {
-    const res = await fetch("/api/cards", {
+    const res = await authorizedFetch("/api/cards", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(card),
@@ -72,13 +104,22 @@ export function useCards() {
   }, []);
 
   const removeCard = useCallback(async (id: string) => {
-    setCards((prev) => prev.filter((c) => c.id !== id));
-    await fetch(`/api/cards/${id}`, { method: "DELETE" });
+    try {
+      const res = await authorizedFetch(`/api/cards/${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("카드를 삭제하지 못했습니다.");
+      setCards((prev) => prev.filter((c) => c.id !== id));
+    } catch (err) {
+      window.alert(
+        err instanceof Error ? err.message : "카드를 삭제하지 못했습니다.",
+      );
+    }
   }, []);
 
   const updateCard = useCallback(
     async (id: string, patch: NewUniversityCard) => {
-      const res = await fetch(`/api/cards/${id}`, {
+      const res = await authorizedFetch(`/api/cards/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(patch),

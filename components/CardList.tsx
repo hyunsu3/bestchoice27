@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo } from "react";
-import { shuffle } from "@/lib/tournament";
 import type { UniversityCard } from "@/lib/types";
 import FlipCard from "./FlipCard";
 
@@ -14,7 +13,10 @@ export default function CardList({
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
 }) {
-  const shuffledCards = useMemo(() => shuffle(cards), [cards]);
+  const sortedCards = useMemo(
+    () => [...cards].sort((a, b) => b.createdAt - a.createdAt),
+    [cards],
+  );
 
   if (cards.length === 0) {
     return (
@@ -26,7 +28,7 @@ export default function CardList({
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {shuffledCards.map((card) => (
+      {sortedCards.map((card) => (
         <FlipCard
           key={card.id}
           card={card}

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useCards } from "@/lib/useCards";
 import CardForm from "./CardForm";
 import CardList from "./CardList";
+import PasswordPromptModal from "./PasswordPromptModal";
 import VsMatch from "./VsMatch";
 
 type Tab = "register" | "list" | "vs";
@@ -16,7 +17,7 @@ const TABS: { id: Tab; label: string }[] = [
 
 export default function GameApp() {
   const { cards, hydrated, addCard, removeCard, updateCard } = useCards();
-  const [tab, setTab] = useState<Tab>("register");
+  const [tab, setTab] = useState<Tab>("list");
   const [editingId, setEditingId] = useState<string | null>(null);
   const editingCard = cards.find((c) => c.id === editingId) ?? null;
 
@@ -32,6 +33,7 @@ export default function GameApp() {
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8 px-4 py-10 sm:px-8">
+      <PasswordPromptModal />
       <header className="text-center">
         <h1 className="text-3xl font-black tracking-tight">
           수시 이상형 월드컵
@@ -66,7 +68,10 @@ export default function GameApp() {
           <CardForm
             key={editingId ?? "new"}
             editingCard={editingCard}
-            onAdd={addCard}
+            onAdd={async (card) => {
+              await addCard(card);
+              setTab("list");
+            }}
             onUpdate={async (id, patch) => {
               await updateCard(id, patch);
               stopEdit();

@@ -61,8 +61,12 @@ export default function CardForm({
         await onAdd(form);
         setForm(emptyForm);
       }
-    } catch {
-      setError("저장에 실패했습니다. 잠시 후 다시 시도해주세요.");
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "저장에 실패했습니다. 잠시 후 다시 시도해주세요.",
+      );
     } finally {
       setSubmitting(false);
     }
