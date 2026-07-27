@@ -203,6 +203,9 @@ export default function VsMatch({ cards }: { cards: UniversityCard[] }) {
                 <p className="mt-0.5 text-xs text-black/60 dark:text-white/60">
                   {card.department}
                 </p>
+                {card.capacity && (
+                  <p className="mt-1 text-lg font-black">{card.capacity}</p>
+                )}
               </button>
             );
           })}
