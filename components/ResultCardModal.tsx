@@ -69,6 +69,16 @@ export default function ResultCardModal({
               {card.universityName}
             </h3>
             <p className="mt-1 text-base text-white/90">{card.department}</p>
+            {card.capacity && (
+              <div className="mt-4">
+                <p className="text-xs font-medium uppercase tracking-wide text-white/60">
+                  모집인원
+                </p>
+                <p className="text-4xl font-black leading-none">
+                  {card.capacity}
+                </p>
+              </div>
+            )}
             <p className="mt-auto text-xs text-white/60">탭해서 뒤집어보기 ↺</p>
           </div>
           <div className="flip-card-face flip-card-back cursor-pointer bg-white dark:bg-zinc-900">

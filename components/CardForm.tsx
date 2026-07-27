@@ -52,13 +52,21 @@ export default function CardForm({
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!form.universityName.trim() || !form.department.trim()) return;
+    const trimmed: NewUniversityCard = {
+      universityName: form.universityName.trim(),
+      department: form.department.trim(),
+      admissionType: form.admissionType.trim(),
+      capacity: form.capacity.trim(),
+      admissionSummary: form.admissionSummary.trim(),
+      resultSummary: form.resultSummary.trim(),
+    };
     setSubmitting(true);
     setError(null);
     try {
       if (editingCard && onUpdate) {
-        await onUpdate(editingCard.id, form);
+        await onUpdate(editingCard.id, trimmed);
       } else {
-        await onAdd(form);
+        await onAdd(trimmed);
         setForm(emptyForm);
       }
     } catch (err) {

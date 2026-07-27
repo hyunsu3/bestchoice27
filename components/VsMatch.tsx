@@ -172,9 +172,10 @@ export default function VsMatch({ cards }: { cards: UniversityCard[] }) {
     return (
       <div className="flex flex-col items-center gap-6">
         <div className="text-center">
-          <h2 className="text-lg font-bold">OUT시킬 카드를 선택하세요</h2>
+          <h2 className="text-lg font-bold">VS대결 전에 제외할 카드가 있나요?</h2>
           <p className="mt-1 text-sm text-black/50 dark:text-white/50">
-            제외할 카드를 탭하면 대결에서 빠져요 · 참여 {activeCards.length}장 / 전체{" "}
+            제외할 카드를 탭하면 대결에서 빠지고, 다시 탭하면 해제돼요 · 참여{" "}
+            {activeCards.length}장 / 보류 {excludedIds.size}장 / 전체{" "}
             {cards.length}장
           </p>
         </div>
@@ -186,25 +187,19 @@ export default function VsMatch({ cards }: { cards: UniversityCard[] }) {
                 key={card.id}
                 type="button"
                 onClick={() => toggleExclude(card.id)}
-                className={`relative rounded-2xl border p-4 text-left shadow-sm transition ${
-                  isOut
-                    ? "border-rose-400 bg-rose-50 opacity-60 dark:border-rose-500/50 dark:bg-rose-500/10"
-                    : "border-black/10 bg-white hover:shadow-md dark:border-white/10 dark:bg-white/5"
+                className={`relative rounded-2xl border border-black/10 bg-white p-4 text-left shadow-sm transition dark:border-white/10 dark:bg-white/5 ${
+                  isOut ? "opacity-40" : "hover:shadow-md"
                 }`}
               >
                 {isOut && (
-                  <span className="absolute right-2 top-2 rounded-full bg-rose-500 px-2 py-0.5 text-[10px] font-bold text-white">
-                    OUT
+                  <span className="absolute right-2 top-2 rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-bold text-white dark:bg-white/20">
+                    보류
                   </span>
                 )}
                 <p className="text-xs font-medium uppercase tracking-wide text-black/50 dark:text-white/50">
                   {card.admissionType || "전형 미입력"}
                 </p>
-                <h3
-                  className={`mt-1 text-sm font-bold ${isOut ? "line-through" : ""}`}
-                >
-                  {card.universityName}
-                </h3>
+                <h3 className="mt-1 text-sm font-bold">{card.universityName}</h3>
                 <p className="mt-0.5 text-xs text-black/60 dark:text-white/60">
                   {card.department}
                 </p>

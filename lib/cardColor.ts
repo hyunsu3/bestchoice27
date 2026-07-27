@@ -49,8 +49,9 @@ function hashString(str: string): number {
 }
 
 function indexFor(universityName: string, size: number): number {
-  if (!universityName) return 0;
-  return hashString(universityName) % size;
+  const key = universityName.trim();
+  if (!key) return 0;
+  return hashString(key) % size;
 }
 
 export function getCardGradient(universityName: string): string {
