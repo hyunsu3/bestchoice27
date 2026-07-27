@@ -67,8 +67,8 @@ export default function GameApp() {
             key={editingId ?? "new"}
             editingCard={editingCard}
             onAdd={addCard}
-            onUpdate={(id, patch) => {
-              updateCard(id, patch);
+            onUpdate={async (id, patch) => {
+              await updateCard(id, patch);
               stopEdit();
             }}
             onCancelEdit={stopEdit}

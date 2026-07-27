@@ -7,7 +7,7 @@ import { FINAL_COUNT, buildRoundQueue, type MatchQueueItem } from "@/lib/tournam
 import BattleCard from "./BattleCard";
 import ResultCardModal from "./ResultCardModal";
 
-type Phase = "idle" | "playing" | "done";
+type Phase = "idle" | "select" | "playing" | "done";
 
 const RESULT_FILE_NAME = "수시-이상형월드컵-결과.png";
 const EXPORT_TIMEOUT_MS = 8000;
@@ -28,24 +28,57 @@ export default function VsMatch({ cards }: { cards: UniversityCard[] }) {
   const [queueIndex, setQueueIndex] = useState(0);
   const [winners, setWinners] = useState<UniversityCard[]>([]);
   const [results, setResults] = useState<UniversityCard[]>([]);
+  const [excludedIds, setExcludedIds] = useState<Set<string>>(new Set());
   const [matchKey, setMatchKey] = useState(0);
   const [leftOrigin, setLeftOrigin] = useState<"left" | "right">("left");
-  const [candidateSide, setCandidateSide] = useState<"left" | "right" | null>(null);
+  const [selectedSides, setSelectedSides] = useState<Set<"left" | "right">>(
+    new Set(),
+  );
   const [viewingCard, setViewingCard] = useState<UniversityCard | null>(null);
   const [exporting, setExporting] = useState(false);
   const resultsRef = useRef<HTMLDivElement>(null);
 
   const canStart = cards.length > FINAL_COUNT;
   const currentItem = queue[queueIndex];
+  const activeCards = cards.filter((c) => !excludedIds.has(c.id));
 
   function nextMatch() {
     setMatchKey((k) => k + 1);
     setLeftOrigin(Math.random() < 0.5 ? "left" : "right");
-    setCandidateSide(null);
+    setSelectedSides(new Set());
+  }
+
+  function toggleSide(side: "left" | "right") {
+    setSelectedSides((prev) => {
+      const next = new Set(prev);
+      if (next.has(side)) {
+        next.delete(side);
+      } else {
+        next.add(side);
+      }
+      return next;
+    });
+  }
+
+  function goToSelect() {
+    setExcludedIds(new Set());
+    setPhase("select");
+  }
+
+  function toggleExclude(id: string) {
+    setExcludedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
   }
 
   function start() {
-    const q = buildRoundQueue(cards);
+    const q = buildRoundQueue(activeCards);
     setQueue(q);
     setQueueIndex(0);
     setWinners([]);
@@ -55,8 +88,8 @@ export default function VsMatch({ cards }: { cards: UniversityCard[] }) {
     nextMatch();
   }
 
-  function completeMatch(winner: UniversityCard) {
-    const newWinners = [...winners, winner];
+  function completeMatch(matchWinners: UniversityCard[]) {
+    const newWinners = [...winners, ...matchWinners];
     const nextIndex = queueIndex + 1;
     if (nextIndex < queue.length) {
       setWinners(newWinners);
@@ -78,7 +111,7 @@ export default function VsMatch({ cards }: { cards: UniversityCard[] }) {
 
   useEffect(() => {
     if (phase !== "playing" || !currentItem || currentItem.type !== "bye") return;
-    const timer = setTimeout(() => completeMatch(currentItem.card), 900);
+    const timer = setTimeout(() => completeMatch([currentItem.card]), 900);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, currentItem]);
@@ -127,9 +160,78 @@ export default function VsMatch({ cards }: { cards: UniversityCard[] }) {
           <br />
           최종 {FINAL_COUNT}장이 남을 때까지 마음에 드는 카드를 골라주세요.
         </p>
-        <button className="btn-primary" onClick={start}>
+        <button className="btn-primary" onClick={goToSelect}>
           VS 시작
         </button>
+      </div>
+    );
+  }
+
+  if (phase === "select") {
+    const canProceed = activeCards.length > FINAL_COUNT;
+    return (
+      <div className="flex flex-col items-center gap-6">
+        <div className="text-center">
+          <h2 className="text-lg font-bold">OUT시킬 카드를 선택하세요</h2>
+          <p className="mt-1 text-sm text-black/50 dark:text-white/50">
+            제외할 카드를 탭하면 대결에서 빠져요 · 참여 {activeCards.length}장 / 전체{" "}
+            {cards.length}장
+          </p>
+        </div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          {cards.map((card) => {
+            const isOut = excludedIds.has(card.id);
+            return (
+              <button
+                key={card.id}
+                type="button"
+                onClick={() => toggleExclude(card.id)}
+                className={`relative rounded-2xl border p-4 text-left shadow-sm transition ${
+                  isOut
+                    ? "border-rose-400 bg-rose-50 opacity-60 dark:border-rose-500/50 dark:bg-rose-500/10"
+                    : "border-black/10 bg-white hover:shadow-md dark:border-white/10 dark:bg-white/5"
+                }`}
+              >
+                {isOut && (
+                  <span className="absolute right-2 top-2 rounded-full bg-rose-500 px-2 py-0.5 text-[10px] font-bold text-white">
+                    OUT
+                  </span>
+                )}
+                <p className="text-xs font-medium uppercase tracking-wide text-black/50 dark:text-white/50">
+                  {card.admissionType || "전형 미입력"}
+                </p>
+                <h3
+                  className={`mt-1 text-sm font-bold ${isOut ? "line-through" : ""}`}
+                >
+                  {card.universityName}
+                </h3>
+                <p className="mt-0.5 text-xs text-black/60 dark:text-white/60">
+                  {card.department}
+                </p>
+              </button>
+            );
+          })}
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <button
+            className="rounded-full border border-black/15 px-4 py-2 text-sm font-semibold text-black/70 transition hover:bg-black/5 dark:border-white/15 dark:text-white/70 dark:hover:bg-white/10"
+            onClick={() => setPhase("idle")}
+          >
+            이전
+          </button>
+          <button
+            className="btn-primary disabled:opacity-50"
+            disabled={!canProceed}
+            onClick={start}
+          >
+            VS 시작 ({activeCards.length}장)
+          </button>
+        </div>
+        {!canProceed && (
+          <p className="text-xs text-rose-500">
+            최소 {FINAL_COUNT + 1}장이 참여해야 시작할 수 있어요.
+          </p>
+        )}
       </div>
     );
   }
@@ -162,7 +264,7 @@ export default function VsMatch({ cards }: { cards: UniversityCard[] }) {
           </div>
         </div>
         <div className="flex flex-wrap items-center justify-center gap-3">
-          <button className="btn-primary" onClick={start}>
+          <button className="btn-primary" onClick={goToSelect}>
             다시 시작
           </button>
           <button
@@ -205,11 +307,9 @@ export default function VsMatch({ cards }: { cards: UniversityCard[] }) {
             <BattleCard
               card={currentItem.left}
               origin={leftOrigin}
-              selected={candidateSide === "left"}
-              dimmed={candidateSide === "right"}
-              onHoldSelect={() =>
-                setCandidateSide((prev) => (prev === "left" ? null : "left"))
-              }
+              selected={selectedSides.has("left")}
+              dimmed={selectedSides.has("right") && !selectedSides.has("left")}
+              onHoldSelect={() => toggleSide("left")}
             />
             <span className="text-2xl font-black text-black/30 dark:text-white/30">
               VS
@@ -217,28 +317,35 @@ export default function VsMatch({ cards }: { cards: UniversityCard[] }) {
             <BattleCard
               card={currentItem.right}
               origin={leftOrigin === "left" ? "right" : "left"}
-              selected={candidateSide === "right"}
-              dimmed={candidateSide === "left"}
-              onHoldSelect={() =>
-                setCandidateSide((prev) => (prev === "right" ? null : "right"))
-              }
+              selected={selectedSides.has("right")}
+              dimmed={selectedSides.has("left") && !selectedSides.has("right")}
+              onHoldSelect={() => toggleSide("right")}
             />
           </div>
           <p className="text-xs text-black/40 dark:text-white/40">
-            탭하면 카드가 뒤집혀요 · 길게 누르면 선택돼요
+            탭하면 카드가 뒤집혀요 · 길게 누르면 선택돼요 · 둘 다 마음에 들면 둘 다 눌러주세요
           </p>
-          {candidateSide && (
+          {selectedSides.size > 0 && (
             <div className="flex items-center gap-3 rounded-full border border-black/10 bg-white px-4 py-2 shadow-sm dark:border-white/10 dark:bg-white/5">
               <p className="text-sm text-black/70 dark:text-white/70">
-                {(candidateSide === "left" ? currentItem.left : currentItem.right)
-                  .universityName}{" "}
-                선택하시겠어요?
+                {selectedSides.size === 2
+                  ? "두 카드 모두 선택하시겠어요?"
+                  : `${
+                      (selectedSides.has("left")
+                        ? currentItem.left
+                        : currentItem.right
+                      ).universityName
+                    } 선택하시겠어요?`}
               </p>
               <button
                 className="btn-primary px-4 py-1.5 text-sm"
                 onClick={() =>
                   completeMatch(
-                    candidateSide === "left" ? currentItem.left : currentItem.right,
+                    (["left", "right"] as const)
+                      .filter((side) => selectedSides.has(side))
+                      .map((side) =>
+                        side === "left" ? currentItem.left : currentItem.right,
+                      ),
                   )
                 }
               >
@@ -246,7 +353,7 @@ export default function VsMatch({ cards }: { cards: UniversityCard[] }) {
               </button>
               <button
                 className="text-sm font-medium text-black/50 hover:text-black dark:text-white/50 dark:hover:text-white"
-                onClick={() => setCandidateSide(null)}
+                onClick={() => setSelectedSides(new Set())}
               >
                 다시 고르기
               </button>

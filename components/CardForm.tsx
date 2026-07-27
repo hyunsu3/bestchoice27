@@ -21,8 +21,8 @@ export default function CardForm({
   onCancelEdit,
 }: {
   editingCard?: UniversityCard | null;
-  onAdd: (card: NewUniversityCard) => void;
-  onUpdate?: (id: string, card: NewUniversityCard) => void;
+  onAdd: (card: NewUniversityCard) => void | Promise<void>;
+  onUpdate?: (id: string, card: NewUniversityCard) => void | Promise<void>;
   onCancelEdit?: () => void;
 }) {
   const [form, setForm] = useState<NewUniversityCard>(() =>
@@ -37,6 +37,8 @@ export default function CardForm({
         }
       : emptyForm,
   );
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { colors, setUniversityColor } = useUniversityColors();
 
   const universityKey = form.universityName.trim();
@@ -47,14 +49,22 @@ export default function CardForm({
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!form.universityName.trim() || !form.department.trim()) return;
-    if (editingCard && onUpdate) {
-      onUpdate(editingCard.id, form);
-    } else {
-      onAdd(form);
-      setForm(emptyForm);
+    setSubmitting(true);
+    setError(null);
+    try {
+      if (editingCard && onUpdate) {
+        await onUpdate(editingCard.id, form);
+      } else {
+        await onAdd(form);
+        setForm(emptyForm);
+      }
+    } catch {
+      setError("저장에 실패했습니다. 잠시 후 다시 시도해주세요.");
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -166,9 +176,18 @@ export default function CardForm({
           placeholder="예: **최초합** 최고/평균/최저 1.07 / 1.33 / 1.49"
         />
       </Field>
+      {error && (
+        <p className="text-sm font-medium text-rose-500 sm:col-span-2">
+          {error}
+        </p>
+      )}
       <div className="flex gap-3 sm:col-span-2">
-        <button type="submit" className="btn-primary w-full sm:w-auto">
-          {editingCard ? "수정 완료" : "카드 등록"}
+        <button
+          type="submit"
+          disabled={submitting}
+          className="btn-primary w-full disabled:opacity-60 sm:w-auto"
+        >
+          {submitting ? "저장 중..." : editingCard ? "수정 완료" : "카드 등록"}
         </button>
         {editingCard && onCancelEdit && (
           <button

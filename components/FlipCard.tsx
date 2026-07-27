@@ -74,6 +74,17 @@ export default function FlipCard({
           <p className="mt-auto text-xs text-white/60">탭해서 뒤집어보기 ↺</p>
         </div>
         <div className="flip-card-face flip-card-back bg-white dark:bg-zinc-900">
+          <div className="mb-1 border-b border-black/10 pb-2 dark:border-white/10">
+            <p className="text-xs font-medium uppercase tracking-wide text-black/50 dark:text-white/50">
+              {card.admissionType || "전형 미입력"}
+            </p>
+            <h3 className="text-base font-bold leading-tight text-black dark:text-white">
+              {card.universityName}
+            </h3>
+            <p className="text-xs text-black/60 dark:text-white/60">
+              {card.department}
+            </p>
+          </div>
           <dl
             ref={backScrollRef}
             className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto text-sm"

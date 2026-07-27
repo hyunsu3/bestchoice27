@@ -8,6 +8,7 @@ import { useUniversityColors } from "@/lib/universityColors";
 
 const FLY_IN_MS = 700;
 const HOLD_MS = 550;
+const DRAG_THRESHOLD_PX = 10;
 
 export default function BattleCard({
   card,
@@ -27,6 +28,8 @@ export default function BattleCard({
   const [holding, setHolding] = useState(false);
   const holdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const holdTriggeredRef = useRef(false);
+  const draggedRef = useRef(false);
+  const startPosRef = useRef({ x: 0, y: 0 });
   const { colors } = useUniversityColors();
   const customColor = colors[card.universityName.trim()];
   const accentClass = customColor ? "" : getCardAccent(card.universityName);
@@ -62,8 +65,10 @@ export default function BattleCard({
     }
   }
 
-  function handlePointerDown() {
+  function handlePointerDown(e: React.PointerEvent) {
     holdTriggeredRef.current = false;
+    draggedRef.current = false;
+    startPosRef.current = { x: e.clientX, y: e.clientY };
     setHolding(true);
     clearHoldTimer();
     holdTimerRef.current = setTimeout(() => {
@@ -73,10 +78,21 @@ export default function BattleCard({
     }, HOLD_MS);
   }
 
+  function handlePointerMove(e: React.PointerEvent) {
+    if (draggedRef.current || !holdTimerRef.current) return;
+    const dx = e.clientX - startPosRef.current.x;
+    const dy = e.clientY - startPosRef.current.y;
+    if (Math.hypot(dx, dy) > DRAG_THRESHOLD_PX) {
+      draggedRef.current = true;
+      clearHoldTimer();
+      setHolding(false);
+    }
+  }
+
   function handlePointerUp() {
     clearHoldTimer();
     setHolding(false);
-    if (!holdTriggeredRef.current) {
+    if (!holdTriggeredRef.current && !draggedRef.current) {
       setFlipped((f) => !f);
     }
   }
@@ -91,6 +107,7 @@ export default function BattleCard({
       role="button"
       tabIndex={0}
       onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerLeave={handlePointerLeave}
       onPointerCancel={handlePointerLeave}
@@ -146,16 +163,21 @@ export default function BattleCard({
             <p className="mt-1 text-sm text-black/70 dark:text-white/70">
               {card.department}
             </p>
-            <div className="mt-3 min-h-0 flex-1 space-y-2 overflow-hidden text-xs text-black/60 dark:text-white/60">
+            <div
+              className="mt-3 min-h-0 flex-1 space-y-2 overflow-y-auto text-xs text-black/60 dark:text-white/60"
+              style={{ touchAction: "pan-y" }}
+            >
               <p>
                 <span className="font-semibold">모집인원</span> {card.capacity || "-"}
               </p>
-              <p className="line-clamp-3">
-                <span className="font-semibold">전형요약</span>{" "}
+              <p className="whitespace-pre-wrap">
+                <span className="font-semibold">전형요약</span>
+                <br />
                 {card.admissionSummary ? renderWithBold(card.admissionSummary) : "-"}
               </p>
-              <p className="line-clamp-4">
-                <span className="font-semibold">입결요약</span>{" "}
+              <p className="whitespace-pre-wrap">
+                <span className="font-semibold">입결요약</span>
+                <br />
                 {card.resultSummary ? renderWithBold(card.resultSummary) : "-"}
               </p>
             </div>

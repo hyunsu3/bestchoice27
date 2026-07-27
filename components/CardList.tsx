@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo } from "react";
+import { shuffle } from "@/lib/tournament";
 import type { UniversityCard } from "@/lib/types";
 import FlipCard from "./FlipCard";
 
@@ -12,6 +14,8 @@ export default function CardList({
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
 }) {
+  const shuffledCards = useMemo(() => shuffle(cards), [cards]);
+
   if (cards.length === 0) {
     return (
       <p className="rounded-2xl border border-dashed border-black/15 p-8 text-center text-sm text-black/50 dark:border-white/15 dark:text-white/50">
@@ -20,13 +24,9 @@ export default function CardList({
     );
   }
 
-  const sortedCards = [...cards].sort((a, b) =>
-    a.universityName.localeCompare(b.universityName, "ko")
-  );
-
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {sortedCards.map((card) => (
+      {shuffledCards.map((card) => (
         <FlipCard
           key={card.id}
           card={card}

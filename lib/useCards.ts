@@ -1,92 +1,94 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { NewUniversityCard, UniversityCard } from "./types";
 
-const STORAGE_KEY = "bestchoice.cards.v1";
+const LEGACY_STORAGE_KEY = "bestchoice.cards.v1";
+const MIGRATED_KEY = "bestchoice.cards.migrated.v1";
 
-type Listener = () => void;
-
-let cards: UniversityCard[] = [];
-let hydrated = false;
-const listeners = new Set<Listener>();
-
-function emit() {
-  for (const listener of listeners) listener();
-}
-
-function persist() {
+async function migrateLegacyCards() {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(cards));
-}
+  if (window.localStorage.getItem(MIGRATED_KEY)) return;
 
-function ensureHydrated() {
-  if (hydrated || typeof window === "undefined") return;
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    cards = raw ? (JSON.parse(raw) as UniversityCard[]) : [];
-  } catch {
-    cards = [];
+  const raw = window.localStorage.getItem(LEGACY_STORAGE_KEY);
+  if (!raw) {
+    window.localStorage.setItem(MIGRATED_KEY, "true");
+    return;
   }
-  hydrated = true;
-}
 
-function subscribe(listener: Listener) {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
-}
-
-function getCardsSnapshot() {
-  ensureHydrated();
-  return cards;
-}
-
-function getCardsServerSnapshot() {
-  return cards;
-}
-
-function getHydratedSnapshot() {
-  return hydrated;
-}
-
-function addCard(card: NewUniversityCard) {
-  cards = [
-    ...cards,
-    { ...card, id: crypto.randomUUID(), createdAt: Date.now() },
-  ];
-  persist();
-  emit();
-}
-
-function removeCard(id: string) {
-  cards = cards.filter((c) => c.id !== id);
-  persist();
-  emit();
-}
-
-function updateCard(id: string, patch: NewUniversityCard) {
-  cards = cards.map((c) => (c.id === id ? { ...c, ...patch } : c));
-  persist();
-  emit();
+  try {
+    const legacyCards = JSON.parse(raw) as UniversityCard[];
+    if (legacyCards.length > 0) {
+      const payload: NewUniversityCard[] = legacyCards.map((c) => ({
+        universityName: c.universityName,
+        department: c.department,
+        admissionType: c.admissionType,
+        capacity: c.capacity,
+        admissionSummary: c.admissionSummary,
+        resultSummary: c.resultSummary,
+      }));
+      const res = await fetch("/api/cards/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) return; // retry on next load
+    }
+    window.localStorage.setItem(MIGRATED_KEY, "true");
+    window.localStorage.removeItem(LEGACY_STORAGE_KEY);
+  } catch {
+    // Malformed legacy data or network error: leave it and retry next load.
+  }
 }
 
 export function useCards() {
-  const cardList = useSyncExternalStore(
-    subscribe,
-    getCardsSnapshot,
-    getCardsServerSnapshot,
-  );
-  const isHydrated = useSyncExternalStore(
-    subscribe,
-    getHydratedSnapshot,
-    () => false,
+  const [cards, setCards] = useState<UniversityCard[]>([]);
+  const [hydrated, setHydrated] = useState(false);
+
+  const refresh = useCallback(async () => {
+    const res = await fetch("/api/cards", { cache: "no-store" });
+    if (!res.ok) return;
+    const data = (await res.json()) as UniversityCard[];
+    setCards(data);
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      await migrateLegacyCards();
+      await refresh();
+      setHydrated(true);
+    })();
+  }, [refresh]);
+
+  const addCard = useCallback(async (card: NewUniversityCard) => {
+    const res = await fetch("/api/cards", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(card),
+    });
+    if (!res.ok) throw new Error("카드를 등록하지 못했습니다.");
+    const created = (await res.json()) as UniversityCard;
+    setCards((prev) => [...prev, created]);
+  }, []);
+
+  const removeCard = useCallback(async (id: string) => {
+    setCards((prev) => prev.filter((c) => c.id !== id));
+    await fetch(`/api/cards/${id}`, { method: "DELETE" });
+  }, []);
+
+  const updateCard = useCallback(
+    async (id: string, patch: NewUniversityCard) => {
+      const res = await fetch(`/api/cards/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(patch),
+      });
+      if (!res.ok) throw new Error("카드를 수정하지 못했습니다.");
+      const updated = (await res.json()) as UniversityCard;
+      setCards((prev) => prev.map((c) => (c.id === id ? updated : c)));
+    },
+    [],
   );
 
-  return {
-    cards: cardList,
-    hydrated: isHydrated,
-    addCard,
-    removeCard,
-    updateCard,
-  };
+  return { cards, hydrated, addCard, removeCard, updateCard, refresh };
 }

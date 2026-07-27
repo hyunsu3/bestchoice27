@@ -72,7 +72,20 @@ export default function ResultCardModal({
             <p className="mt-auto text-xs text-white/60">탭해서 뒤집어보기 ↺</p>
           </div>
           <div className="flip-card-face flip-card-back cursor-pointer bg-white dark:bg-zinc-900">
-            <dl className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto text-sm">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setFlipped((f) => !f);
+              }}
+              className="absolute right-3 top-3 z-10 rounded-full border border-black/10 bg-white/90 px-3 py-1 text-xs font-semibold text-black/70 shadow-sm hover:bg-white dark:border-white/10 dark:bg-zinc-800/90 dark:text-white/70"
+            >
+              ↺ 뒤집기
+            </button>
+            <dl
+              className="mt-7 flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto text-sm"
+              style={{ touchAction: "pan-y" }}
+            >
               <div>
                 <dt className="font-semibold text-black/60 dark:text-white/60">
                   모집인원
