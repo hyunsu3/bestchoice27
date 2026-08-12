@@ -6,7 +6,15 @@ create table if not exists cards (
   capacity text not null default '',
   admission_summary text not null default '',
   result_summary text not null default '',
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  view_count integer not null default 0
 );
 
 alter table cards enable row level security;
+
+create or replace function increment_card_view(card_id uuid)
+returns integer
+language sql
+as $$
+  update cards set view_count = view_count + 1 where id = card_id returning view_count;
+$$;

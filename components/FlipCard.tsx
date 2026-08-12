@@ -18,9 +18,20 @@ export default function FlipCard({
   onDelete?: () => void;
 }) {
   const [flipped, setFlipped] = useState(false);
+  const [viewCount, setViewCount] = useState(card.viewCount);
   const backScrollRef = useRef<HTMLDListElement>(null);
   const { colors } = useUniversityColors();
   const customColor = colors[card.universityName.trim()];
+
+  useEffect(() => {
+    if (!flipped) return;
+    fetch(`/api/cards/${card.id}/view`, { method: "POST" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.viewCount != null) setViewCount(data.viewCount);
+      })
+      .catch(() => {});
+  }, [flipped, card.id]);
 
   useEffect(() => {
     if (!flipped) return;
@@ -85,9 +96,14 @@ export default function FlipCard({
         </div>
         <div className="flip-card-face flip-card-back bg-white dark:bg-zinc-900">
           <div className="mb-1 border-b border-black/10 pb-2 dark:border-white/10">
-            <p className="text-xs font-medium uppercase tracking-wide text-black/50 dark:text-white/50">
-              {card.admissionType || "전형 미입력"}
-            </p>
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-medium uppercase tracking-wide text-black/50 dark:text-white/50">
+                {card.admissionType || "전형 미입력"}
+              </p>
+              <p className="text-[10px] text-black/40 dark:text-white/40">
+                조회 {viewCount}회
+              </p>
+            </div>
             <h3 className="text-base font-bold leading-tight text-black dark:text-white">
               {card.universityName}
             </h3>

@@ -10,6 +10,7 @@ type CardRow = {
   admission_summary: string;
   result_summary: string;
   created_at: string;
+  view_count: number;
 };
 
 function toCard(row: CardRow): UniversityCard {
@@ -22,6 +23,7 @@ function toCard(row: CardRow): UniversityCard {
     admissionSummary: row.admission_summary,
     resultSummary: row.result_summary,
     createdAt: new Date(row.created_at).getTime(),
+    viewCount: row.view_count ?? 0,
   };
 }
 
@@ -86,4 +88,12 @@ export async function updateCardById(
 export async function deleteCardById(id: string): Promise<void> {
   const { error } = await supabaseAdmin.from("cards").delete().eq("id", id);
   if (error) throw error;
+}
+
+export async function incrementCardView(id: string): Promise<number> {
+  const { data, error } = await supabaseAdmin.rpc("increment_card_view", {
+    card_id: id,
+  });
+  if (error) throw error;
+  return data as number;
 }
