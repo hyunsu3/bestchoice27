@@ -1,43 +1,42 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-
-const STORAGE_KEY = "bestchoice.universityColors.v1";
+import { authorizedFetch } from "./authorizedFetch";
 
 type ColorMap = Record<string, string>;
 type Listener = () => void;
 
 let colors: ColorMap = {};
 let hydrated = false;
+let hydrating: Promise<void> | null = null;
 const listeners = new Set<Listener>();
 
 function emit() {
   for (const listener of listeners) listener();
 }
 
-function persist() {
-  if (typeof window === "undefined") return;
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(colors));
-}
-
 function ensureHydrated() {
-  if (hydrated || typeof window === "undefined") return;
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    colors = raw ? (JSON.parse(raw) as ColorMap) : {};
-  } catch {
-    colors = {};
-  }
-  hydrated = true;
+  if (hydrated || hydrating || typeof window === "undefined") return;
+  hydrating = fetch("/api/university-colors", { cache: "no-store" })
+    .then((res) => (res.ok ? (res.json() as Promise<ColorMap>) : {}))
+    .then((data) => {
+      colors = data;
+    })
+    .catch(() => {})
+    .finally(() => {
+      hydrated = true;
+      hydrating = null;
+      emit();
+    });
 }
 
 function subscribe(listener: Listener) {
   listeners.add(listener);
+  ensureHydrated();
   return () => listeners.delete(listener);
 }
 
 function getColorsSnapshot() {
-  ensureHydrated();
   return colors;
 }
 
@@ -45,9 +44,10 @@ function getColorsServerSnapshot() {
   return colors;
 }
 
-function setUniversityColor(universityName: string, color: string | null) {
+async function setUniversityColor(universityName: string, color: string | null) {
   const key = universityName.trim();
   if (!key) return;
+  const prev = colors;
   const next = { ...colors };
   if (color) {
     next[key] = color;
@@ -55,8 +55,27 @@ function setUniversityColor(universityName: string, color: string | null) {
     delete next[key];
   }
   colors = next;
-  persist();
   emit();
+
+  try {
+    const res = color
+      ? await authorizedFetch("/api/university-colors", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ universityName: key, color }),
+        })
+      : await authorizedFetch(
+          `/api/university-colors/${encodeURIComponent(key)}`,
+          { method: "DELETE" },
+        );
+    if (!res.ok) throw new Error("색상을 저장하지 못했습니다.");
+  } catch (err) {
+    colors = prev;
+    emit();
+    window.alert(
+      err instanceof Error ? err.message : "색상 변경에 실패했습니다.",
+    );
+  }
 }
 
 export function useUniversityColors() {

@@ -48,6 +48,31 @@ function compareCards(
   }
 }
 
+// 최신순 정렬 시, 같은 학교 카드들이 흩어지지 않도록 학교별 최신 등록 시점
+// 기준으로 먼저 묶고 그 안에서 다시 최신순으로 정렬한다.
+function buildLatestGroupRanks(cards: UniversityCard[]): Map<string, number> {
+  const ranks = new Map<string, number>();
+  for (const c of cards) {
+    const key = c.universityName.trim();
+    const prev = ranks.get(key);
+    if (prev === undefined || c.createdAt > prev) ranks.set(key, c.createdAt);
+  }
+  return ranks;
+}
+
+function sortLatestGrouped(
+  cards: UniversityCard[],
+  desc: boolean,
+): UniversityCard[] {
+  const ranks = buildLatestGroupRanks(cards);
+  const dir = desc ? -1 : 1;
+  return [...cards].sort((a, b) => {
+    const ra = ranks.get(a.universityName.trim()) ?? a.createdAt;
+    const rb = ranks.get(b.universityName.trim()) ?? b.createdAt;
+    return dir * (rb - ra) || dir * (b.createdAt - a.createdAt);
+  });
+}
+
 export default function CardList({
   cards,
   onEdit,
@@ -69,10 +94,10 @@ export default function CardList({
     }
   }
 
-  const sortedCards = useMemo(
-    () => [...cards].sort((a, b) => compareCards(a, b, sortMode, sortDesc)),
-    [cards, sortMode, sortDesc],
-  );
+  const sortedCards = useMemo(() => {
+    if (sortMode === "latest") return sortLatestGrouped(cards, sortDesc);
+    return [...cards].sort((a, b) => compareCards(a, b, sortMode, sortDesc));
+  }, [cards, sortMode, sortDesc]);
 
   if (cards.length === 0) {
     return (
@@ -102,7 +127,7 @@ export default function CardList({
           </button>
         ))}
       </div>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {sortedCards.map((card) => (
           <FlipCard
             key={card.id}

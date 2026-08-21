@@ -79,10 +79,15 @@ body {
   inset: 0;
   backface-visibility: hidden;
   border-radius: 1rem;
-  padding: 1.25rem;
+  padding: 0.85rem;
   display: flex;
   flex-direction: column;
   box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
+}
+@media (min-width: 640px) {
+  .flip-card-face {
+    padding: 1.25rem;
+  }
 }
 .flip-card-back {
   transform: rotateY(180deg);

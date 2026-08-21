@@ -49,7 +49,7 @@ export default function FlipCard({
 
   return (
     <div
-      className="flip-card h-80 sm:h-96"
+      className="flip-card aspect-[3/4]"
       onClick={() => setFlipped((f) => !f)}
       role="button"
       tabIndex={0}
@@ -71,30 +71,27 @@ export default function FlipCard({
           }
         >
           <CardFrontFace card={card} />
-          <p className="mt-3 text-xs text-white/60">탭해서 뒤집어보기 ↺</p>
+          <p className="mt-1.5 text-[10px] text-white/60 sm:mt-3 sm:text-xs">
+            탭해서 뒤집어보기 ↺
+          </p>
         </div>
         <div className="flip-card-face flip-card-back bg-white dark:bg-zinc-900">
           <div className="mb-1 border-b border-black/10 pb-2 dark:border-white/10">
-            <p className="text-base font-medium uppercase tracking-wide text-black/50 dark:text-white/50">
+            <p className="text-xs font-medium uppercase tracking-wide text-black/50 dark:text-white/50 sm:text-base">
               {card.admissionType || "전형 미입력"}
             </p>
-            <h3 className="text-xl font-bold leading-tight text-black dark:text-white">
+            <h3 className="text-sm font-bold leading-tight text-black dark:text-white sm:text-xl">
               {card.universityName}
             </h3>
-            <p className="text-base text-black/60 dark:text-white/60">
+            <p className="text-xs text-black/60 dark:text-white/60 sm:text-base">
               {card.department}
+              {card.capacity && ` · ${card.capacity}`}
             </p>
           </div>
           <dl
             ref={backScrollRef}
-            className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto text-base"
+            className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto text-xs sm:gap-3 sm:text-base"
           >
-            <div>
-              <dt className="font-semibold text-black/60 dark:text-white/60">
-                모집인원
-              </dt>
-              <dd>{card.capacity || "-"}</dd>
-            </div>
             <div>
               <dt className="font-semibold text-black/60 dark:text-white/60">
                 전형요약

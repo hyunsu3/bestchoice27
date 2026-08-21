@@ -1,18 +1,27 @@
 import type { UniversityCard } from "@/lib/types";
 
-const INFO_BOX_PADDING = "px-5 py-6";
-
+// "md" scales down on narrow mobile grid cards (2-col) and grows back to
+// the original desktop sizing at sm/lg so the PC look is unchanged.
 const SIZE_STYLES = {
+  sm: {
+    badge: "text-xs px-2 py-1",
+    name: "mt-1.5 text-lg",
+    dept: "text-xs",
+    infoBox: "px-2.5 py-2",
+    infoValue: "text-xl",
+  },
   md: {
-    badge: "text-base px-3.5 py-1.5",
-    name: "mt-3 text-3xl",
-    dept: "text-xl",
-    infoValue: "text-4xl",
+    badge: "text-[10px] px-2 py-1 sm:text-sm sm:px-3 sm:py-1.5 lg:text-base lg:px-3.5",
+    name: "mt-1.5 text-base sm:mt-3 sm:text-2xl lg:text-3xl",
+    dept: "text-xs sm:text-lg lg:text-xl",
+    infoBox: "px-2.5 py-2 sm:px-4 sm:py-4 lg:px-5 lg:py-6",
+    infoValue: "text-xl sm:text-3xl lg:text-4xl",
   },
   lg: {
     badge: "text-lg px-4 py-2",
     name: "mt-3 text-4xl",
     dept: "text-2xl",
+    infoBox: "px-5 py-6",
     infoValue: "text-5xl",
   },
 } as const;
@@ -37,7 +46,7 @@ export default function CardFrontFace({
         {card.universityName}
       </h3>
       <div
-        className={`mt-auto rounded-2xl bg-black/15 backdrop-blur-sm ${INFO_BOX_PADDING}`}
+        className={`mt-auto rounded-2xl bg-black/15 backdrop-blur-sm ${s.infoBox}`}
       >
         <p className={`text-center font-bold leading-tight text-white ${s.dept}`}>
           {card.department}

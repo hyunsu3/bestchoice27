@@ -18,3 +18,11 @@ language sql
 as $$
   update cards set view_count = view_count + 1 where id = card_id returning view_count;
 $$;
+
+create table if not exists university_colors (
+  university_name text primary key,
+  color text not null,
+  updated_at timestamptz not null default now()
+);
+
+alter table university_colors enable row level security;

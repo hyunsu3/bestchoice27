@@ -77,16 +77,14 @@ export default function ResultCardModal({
             >
               ↺ 뒤집기
             </button>
+            <p className="mt-7 text-sm font-semibold text-black/70 dark:text-white/70">
+              {card.department}
+              {card.capacity && ` · ${card.capacity}`}
+            </p>
             <dl
-              className="mt-7 flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto text-base"
+              className="mt-3 flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto text-base"
               style={{ touchAction: "pan-y" }}
             >
-              <div>
-                <dt className="font-semibold text-black/60 dark:text-white/60">
-                  모집인원
-                </dt>
-                <dd>{card.capacity || "-"}</dd>
-              </div>
               <div>
                 <dt className="font-semibold text-black/60 dark:text-white/60">
                   전형요약

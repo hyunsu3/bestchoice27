@@ -157,14 +157,12 @@ export default function BattleCard({
             </h3>
             <p className="mt-1 text-base text-black/70 dark:text-white/70">
               {card.department}
+              {card.capacity && ` · ${card.capacity}`}
             </p>
             <div
               className="mt-3 min-h-0 flex-1 space-y-3 overflow-y-auto text-sm text-black/60 dark:text-white/60"
               style={{ touchAction: "pan-y" }}
             >
-              <p>
-                <span className="font-semibold">모집인원</span> {card.capacity || "-"}
-              </p>
               <p className="whitespace-pre-wrap">
                 <span className="font-semibold">전형요약</span>
                 <br />
