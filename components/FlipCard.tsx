@@ -5,6 +5,7 @@ import { darkenHex, getCardGradient } from "@/lib/cardColor";
 import { renderWithBold } from "@/lib/formatText";
 import type { UniversityCard } from "@/lib/types";
 import { useUniversityColors } from "@/lib/universityColors";
+import CardFrontFace from "./CardFrontFace";
 
 const AUTO_FLIP_BACK_MS = 20000;
 
@@ -18,19 +19,13 @@ export default function FlipCard({
   onDelete?: () => void;
 }) {
   const [flipped, setFlipped] = useState(false);
-  const [viewCount, setViewCount] = useState(card.viewCount);
   const backScrollRef = useRef<HTMLDListElement>(null);
   const { colors } = useUniversityColors();
   const customColor = colors[card.universityName.trim()];
 
   useEffect(() => {
     if (!flipped) return;
-    fetch(`/api/cards/${card.id}/view`, { method: "POST" })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (data?.viewCount != null) setViewCount(data.viewCount);
-      })
-      .catch(() => {});
+    fetch(`/api/cards/${card.id}/view`, { method: "POST" }).catch(() => {});
   }, [flipped, card.id]);
 
   useEffect(() => {
@@ -75,45 +70,24 @@ export default function FlipCard({
               : undefined
           }
         >
-          <p className="text-xs font-medium uppercase tracking-wide text-white/70">
-            {card.admissionType || "전형 미입력"}
-          </p>
-          <h3 className="mt-2 text-xl font-bold leading-tight">
-            {card.universityName}
-          </h3>
-          <p className="mt-1 text-sm text-white/90">{card.department}</p>
-          {card.capacity && (
-            <div className="mt-3">
-              <p className="text-[10px] font-medium uppercase tracking-wide text-white/60">
-                모집인원
-              </p>
-              <p className="text-3xl font-black leading-none">
-                {card.capacity}
-              </p>
-            </div>
-          )}
-          <p className="mt-auto text-xs text-white/60">탭해서 뒤집어보기 ↺</p>
+          <CardFrontFace card={card} />
+          <p className="mt-3 text-xs text-white/60">탭해서 뒤집어보기 ↺</p>
         </div>
         <div className="flip-card-face flip-card-back bg-white dark:bg-zinc-900">
           <div className="mb-1 border-b border-black/10 pb-2 dark:border-white/10">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-medium uppercase tracking-wide text-black/50 dark:text-white/50">
-                {card.admissionType || "전형 미입력"}
-              </p>
-              <p className="text-[10px] text-black/40 dark:text-white/40">
-                조회 {viewCount}회
-              </p>
-            </div>
-            <h3 className="text-base font-bold leading-tight text-black dark:text-white">
+            <p className="text-base font-medium uppercase tracking-wide text-black/50 dark:text-white/50">
+              {card.admissionType || "전형 미입력"}
+            </p>
+            <h3 className="text-xl font-bold leading-tight text-black dark:text-white">
               {card.universityName}
             </h3>
-            <p className="text-xs text-black/60 dark:text-white/60">
+            <p className="text-base text-black/60 dark:text-white/60">
               {card.department}
             </p>
           </div>
           <dl
             ref={backScrollRef}
-            className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto text-sm"
+            className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto text-base"
           >
             <div>
               <dt className="font-semibold text-black/60 dark:text-white/60">
@@ -141,7 +115,7 @@ export default function FlipCard({
           <div className="mt-2 flex gap-4">
             {onEdit && (
               <button
-                className="self-start text-xs font-medium text-indigo-500 hover:underline"
+                className="self-start text-sm font-medium text-indigo-500 hover:underline"
                 onClick={(e) => {
                   e.stopPropagation();
                   onEdit();
@@ -152,7 +126,7 @@ export default function FlipCard({
             )}
             {onDelete && (
               <button
-                className="self-start text-xs font-medium text-rose-500 hover:underline"
+                className="self-start text-sm font-medium text-rose-500 hover:underline"
                 onClick={(e) => {
                   e.stopPropagation();
                   onDelete();

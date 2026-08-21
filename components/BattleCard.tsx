@@ -5,6 +5,7 @@ import { darkenHex, getCardAccent, getCardGradient } from "@/lib/cardColor";
 import { renderWithBold } from "@/lib/formatText";
 import type { UniversityCard } from "@/lib/types";
 import { useUniversityColors } from "@/lib/universityColors";
+import CardFrontFace from "./CardFrontFace";
 
 const FLY_IN_MS = 700;
 const HOLD_MS = 550;
@@ -141,40 +142,24 @@ export default function BattleCard({
                 : undefined
             }
           >
-            <p className="text-xs font-medium uppercase tracking-wide text-white/70">
-              {card.admissionType || "전형 미입력"}
-            </p>
-            <h3 className="mt-2 text-xl font-bold leading-tight">
-              {card.universityName}
-            </h3>
-            <p className="mt-1 text-sm text-white/90">{card.department}</p>
-            {card.capacity && (
-              <div className="mt-3">
-                <p className="text-[10px] font-medium uppercase tracking-wide text-white/60">
-                  모집인원
-                </p>
-                <p className="text-3xl font-black leading-none">
-                  {card.capacity}
-                </p>
-              </div>
-            )}
-            <p className="mt-auto text-xs text-white/60">탭해서 뒤집기</p>
+            <CardFrontFace card={card} />
+            <p className="mt-3 text-xs text-white/60">탭해서 뒤집기</p>
           </div>
           <div className="flip-card-face flip-card-back bg-white dark:bg-zinc-900">
             <p
-              className={`text-xs font-medium uppercase tracking-wide ${accentClass}`}
+              className={`text-base font-medium uppercase tracking-wide ${accentClass}`}
               style={accentStyle}
             >
               {card.admissionType || "전형 미입력"}
             </p>
-            <h3 className="mt-2 text-lg font-bold leading-tight">
+            <h3 className="mt-2 text-2xl font-bold leading-tight">
               {card.universityName}
             </h3>
-            <p className="mt-1 text-sm text-black/70 dark:text-white/70">
+            <p className="mt-1 text-base text-black/70 dark:text-white/70">
               {card.department}
             </p>
             <div
-              className="mt-3 min-h-0 flex-1 space-y-2 overflow-y-auto text-xs text-black/60 dark:text-white/60"
+              className="mt-3 min-h-0 flex-1 space-y-3 overflow-y-auto text-sm text-black/60 dark:text-white/60"
               style={{ touchAction: "pan-y" }}
             >
               <p>
@@ -192,7 +177,7 @@ export default function BattleCard({
               </p>
             </div>
             <span
-              className={`mt-auto pt-2 text-sm font-semibold ${accentClass}`}
+              className={`mt-auto pt-2 text-base font-semibold ${accentClass}`}
               style={accentStyle}
             >
               {selected ? "선택됨 ✓ (다시 길게 누르면 해제)" : "길게 눌러 선택하기"}

@@ -32,7 +32,7 @@ export default function GameApp() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8 px-4 py-10 sm:px-8">
+    <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-8 px-4 py-10 sm:px-8">
       <PasswordPromptModal />
       <header className="text-center">
         <h1 className="text-3xl font-black tracking-tight">

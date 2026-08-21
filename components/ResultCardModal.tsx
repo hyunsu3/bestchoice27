@@ -5,6 +5,7 @@ import { darkenHex, getCardGradient } from "@/lib/cardColor";
 import { renderWithBold } from "@/lib/formatText";
 import type { UniversityCard } from "@/lib/types";
 import { useUniversityColors } from "@/lib/universityColors";
+import CardFrontFace from "./CardFrontFace";
 
 export default function ResultCardModal({
   card,
@@ -62,24 +63,8 @@ export default function ResultCardModal({
                 : undefined
             }
           >
-            <p className="text-xs font-medium uppercase tracking-wide text-white/70">
-              {card.admissionType || "전형 미입력"}
-            </p>
-            <h3 className="mt-2 text-2xl font-bold leading-tight">
-              {card.universityName}
-            </h3>
-            <p className="mt-1 text-base text-white/90">{card.department}</p>
-            {card.capacity && (
-              <div className="mt-4">
-                <p className="text-xs font-medium uppercase tracking-wide text-white/60">
-                  모집인원
-                </p>
-                <p className="text-4xl font-black leading-none">
-                  {card.capacity}
-                </p>
-              </div>
-            )}
-            <p className="mt-auto text-xs text-white/60">탭해서 뒤집어보기 ↺</p>
+            <CardFrontFace card={card} size="lg" />
+            <p className="mt-3 text-xs text-white/60">탭해서 뒤집어보기 ↺</p>
           </div>
           <div className="flip-card-face flip-card-back cursor-pointer bg-white dark:bg-zinc-900">
             <button
@@ -93,7 +78,7 @@ export default function ResultCardModal({
               ↺ 뒤집기
             </button>
             <dl
-              className="mt-7 flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto text-sm"
+              className="mt-7 flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto text-base"
               style={{ touchAction: "pan-y" }}
             >
               <div>
