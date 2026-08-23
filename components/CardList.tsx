@@ -4,13 +4,14 @@ import { useMemo, useState } from "react";
 import type { UniversityCard } from "@/lib/types";
 import FlipCard from "./FlipCard";
 
-type SortMode = "latest" | "name" | "admissionType" | "capacity";
+type SortMode = "latest" | "name" | "admissionType" | "capacity" | "favorite";
 
 const SORT_OPTIONS: { id: SortMode; label: string }[] = [
   { id: "latest", label: "최신순" },
   { id: "name", label: "가나다순" },
   { id: "admissionType", label: "전형별" },
   { id: "capacity", label: "모집인원순" },
+  { id: "favorite", label: "선택카드순" },
 ];
 
 function parseCapacity(capacity: string): number {
@@ -41,6 +42,15 @@ function compareCards(
       if (ca === Infinity) return 1;
       if (cb === Infinity) return -1;
       return dir * (cb - ca); // 기본(▼): 큰 인원부터
+    }
+    case "favorite": {
+      // 기본(▼): 선택(즐겨찾기)한 카드가 먼저.
+      const fa = a.isFavorite ? 0 : 1;
+      const fb = b.isFavorite ? 0 : 1;
+      return (
+        dir * (fa - fb) ||
+        dir * a.universityName.localeCompare(b.universityName, "ko")
+      );
     }
     case "latest":
     default:

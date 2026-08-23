@@ -37,10 +37,10 @@ export default function GameApp() {
       <PasswordPromptModal />
       <header className="text-center">
         <h1 className="text-3xl font-black tracking-tight">
-          수시 이상형 월드컵
+          수시 카드 정하기
         </h1>
         <p className="mt-2 text-black/60 dark:text-white/60">
-          내가 등록한 수시 카드로 최애 조합을 찾아보세요.
+          최선의 선택과 수능최저를 위한 노력, 그리고 행운을 위하여! 화이팅!!!
         </p>
       </header>
 
