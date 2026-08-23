@@ -8,9 +8,10 @@ export interface UniversityCard {
   resultSummary: string;
   createdAt: number;
   viewCount: number;
+  isFavorite: boolean;
 }
 
 export type NewUniversityCard = Omit<
   UniversityCard,
-  "id" | "createdAt" | "viewCount"
+  "id" | "createdAt" | "viewCount" | "isFavorite"
 >;

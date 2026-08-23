@@ -77,12 +77,14 @@ export default function CardList({
   cards,
   onEdit,
   onDelete,
+  onToggleFavorite,
 }: {
   cards: UniversityCard[];
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
+  onToggleFavorite: (id: string) => void;
 }) {
-  const [sortMode, setSortMode] = useState<SortMode>("latest");
+  const [sortMode, setSortMode] = useState<SortMode>("name");
   const [sortDesc, setSortDesc] = useState(false);
 
   function handleSortClick(mode: SortMode) {
@@ -127,13 +129,14 @@ export default function CardList({
           </button>
         ))}
       </div>
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-5 sm:gap-7 lg:grid-cols-4">
         {sortedCards.map((card) => (
           <FlipCard
             key={card.id}
             card={card}
             onEdit={() => onEdit(card.id)}
             onDelete={() => onDelete(card.id)}
+            onToggleFavorite={() => onToggleFavorite(card.id)}
           />
         ))}
       </div>

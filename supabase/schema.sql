@@ -7,8 +7,11 @@ create table if not exists cards (
   admission_summary text not null default '',
   result_summary text not null default '',
   created_at timestamptz not null default now(),
-  view_count integer not null default 0
+  view_count integer not null default 0,
+  is_favorite boolean not null default false
 );
+
+alter table cards add column if not exists is_favorite boolean not null default false;
 
 alter table cards enable row level security;
 

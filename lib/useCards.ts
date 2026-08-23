@@ -100,5 +100,39 @@ export function useCards() {
     [],
   );
 
-  return { cards, hydrated, addCard, removeCard, updateCard, refresh };
+  const toggleFavorite = useCallback(async (id: string) => {
+    let previous: boolean | undefined;
+    setCards((prev) =>
+      prev.map((c) => {
+        if (c.id !== id) return c;
+        previous = c.isFavorite;
+        return { ...c, isFavorite: !c.isFavorite };
+      }),
+    );
+    if (previous === undefined) return;
+    try {
+      const res = await fetch(`/api/cards/${id}/favorite`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isFavorite: !previous }),
+      });
+      if (!res.ok) throw new Error();
+      const updated = (await res.json()) as UniversityCard;
+      setCards((prev) => prev.map((c) => (c.id === id ? updated : c)));
+    } catch {
+      setCards((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, isFavorite: previous! } : c)),
+      );
+    }
+  }, []);
+
+  return {
+    cards,
+    hydrated,
+    addCard,
+    removeCard,
+    updateCard,
+    toggleFavorite,
+    refresh,
+  };
 }

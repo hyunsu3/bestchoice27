@@ -63,6 +63,10 @@ body {
 .flip-card {
   perspective: 1200px;
   overflow: hidden;
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 .flip-card-inner {
   position: relative;
@@ -97,6 +101,16 @@ body {
   .flip-card-back {
     border-color: rgb(255 255 255 / 0.1);
   }
+}
+
+/* Favorite card: thick ring in the app's own accent color, toggled by a
+   long press. A background-colored gap sits between the card and the ring
+   so it reads clearly no matter what hue the card itself is. */
+.card-favorite-glow {
+  border-radius: 1rem;
+  box-shadow:
+    0 0 0 3px var(--background),
+    0 0 0 7px #39ff14;
 }
 
 /* VS battle fly-in animation */

@@ -11,6 +11,7 @@ type CardRow = {
   result_summary: string;
   created_at: string;
   view_count: number;
+  is_favorite: boolean;
 };
 
 function toCard(row: CardRow): UniversityCard {
@@ -24,6 +25,7 @@ function toCard(row: CardRow): UniversityCard {
     resultSummary: row.result_summary,
     createdAt: new Date(row.created_at).getTime(),
     viewCount: row.view_count ?? 0,
+    isFavorite: row.is_favorite ?? false,
   };
 }
 
@@ -96,4 +98,18 @@ export async function incrementCardView(id: string): Promise<number> {
   });
   if (error) throw error;
   return data as number;
+}
+
+export async function setCardFavorite(
+  id: string,
+  isFavorite: boolean,
+): Promise<UniversityCard> {
+  const { data, error } = await supabaseAdmin
+    .from("cards")
+    .update({ is_favorite: isFavorite })
+    .eq("id", id)
+    .select()
+    .single();
+  if (error) throw error;
+  return toCard(data as CardRow);
 }
