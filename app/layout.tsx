@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "수시 이상형 월드컵",
+  title: "BESTCHOICE2027",
   description: "대학 수시 카드를 등록하고 이상형 월드컵으로 최애 조합을 찾아보세요.",
 };
 
