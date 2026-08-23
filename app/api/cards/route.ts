@@ -3,10 +3,14 @@ import { isAuthorized } from "@/lib/auth";
 import { insertCard, listCards } from "@/lib/cardsRepo";
 import type { NewUniversityCard } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const cards = await listCards();
-    return NextResponse.json(cards);
+    return NextResponse.json(cards, {
+      headers: { "Cache-Control": "no-store, must-revalidate" },
+    });
   } catch (error) {
     console.error(error);
     return NextResponse.json(
