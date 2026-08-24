@@ -111,8 +111,15 @@ body {
 .card-favorite-glow {
   border-radius: 1rem;
   box-shadow:
-    0 0 0 3px var(--background),
-    0 0 0 7px #39ff14;
+    0 0 0 2px var(--background),
+    0 0 0 4px #39ff14;
+}
+@media (min-width: 640px) {
+  .card-favorite-glow {
+    box-shadow:
+      0 0 0 3px var(--background),
+      0 0 0 7px #39ff14;
+  }
 }
 
 /* VS battle fly-in animation */

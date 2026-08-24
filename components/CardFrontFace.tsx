@@ -12,7 +12,7 @@ const SIZE_STYLES = {
   },
   md: {
     badge: "text-[10px] px-2 py-1 sm:text-sm sm:px-3 sm:py-1.5 lg:text-base lg:px-3.5",
-    name: "mt-1.5 text-base sm:mt-3 sm:text-2xl lg:text-3xl",
+    name: "mt-1.5 text-lg sm:mt-3 sm:text-2xl lg:text-3xl",
     dept: "text-xs sm:text-lg lg:text-xl",
     infoBox: "px-2.5 py-2 sm:px-4 sm:py-4 lg:px-5 lg:py-6",
     infoValue: "text-xl sm:text-3xl lg:text-4xl",
