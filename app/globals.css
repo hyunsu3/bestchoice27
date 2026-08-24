@@ -72,11 +72,11 @@ body {
   position: relative;
   width: 100%;
   height: 100%;
-  transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+  transition: transform 0.35s cubic-bezier(0.4, 0.2, 0.2, 1);
   transform-style: preserve-3d;
 }
 .flip-card-inner.is-flipped {
-  transform: rotateY(180deg);
+  transform: rotateY(-180deg);
 }
 .flip-card-face {
   position: absolute;
@@ -86,7 +86,6 @@ body {
   padding: 0.85rem;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
 }
 @media (min-width: 640px) {
   .flip-card-face {
@@ -94,12 +93,15 @@ body {
   }
 }
 .flip-card-back {
-  transform: rotateY(180deg);
-  border: 1px solid rgb(0 0 0 / 0.1);
+  transform: rotateY(-180deg);
+  /* inset shadow instead of border: a real border gets clipped mid-rotation
+     on some browsers where the rotated face's edge falls just inside the
+     rounded corner, making it flicker in and out during the flip. */
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.12);
 }
 @media (prefers-color-scheme: dark) {
   .flip-card-back {
-    border-color: rgb(255 255 255 / 0.1);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.12);
   }
 }
 

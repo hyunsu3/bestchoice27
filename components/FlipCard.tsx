@@ -131,6 +131,38 @@ export default function FlipCard({
             </p>
           </div>
           <div className="flip-card-face flip-card-back bg-white dark:bg-zinc-900">
+            {(onEdit || onDelete) && (
+              <div className="absolute right-2 top-2 flex gap-0">
+                {onEdit && (
+                  <button
+                    type="button"
+                    aria-label="카드 수정"
+                    title="카드 수정"
+                    className="flex h-5 w-5 items-center justify-center rounded-full text-base text-black/40 hover:font-bold hover:text-indigo-500 dark:text-white/40 dark:hover:text-indigo-400"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEdit();
+                    }}
+                  >
+                    ⓔ
+                  </button>
+                )}
+                {onDelete && (
+                  <button
+                    type="button"
+                    aria-label="카드 삭제"
+                    title="카드 삭제"
+                    className="flex h-5 w-5 items-center justify-center rounded-full text-base text-black/40 hover:font-bold hover:text-rose-500 dark:text-white/40 dark:hover:text-rose-400"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (window.confirm("이 카드를 삭제할까요?")) onDelete();
+                    }}
+                  >
+                    ⓓ
+                  </button>
+                )}
+              </div>
+            )}
             <div className="mb-1 border-b border-black/10 pb-2 dark:border-white/10">
               <p className="text-xs font-medium uppercase tracking-wide text-black/50 dark:text-white/50 sm:text-base">
                 {card.admissionType || "전형 미입력"}
@@ -145,7 +177,7 @@ export default function FlipCard({
             </div>
             <dl
               ref={backScrollRef}
-              className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto text-xs sm:gap-3 sm:text-base"
+              className="-mr-[0.85rem] flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pr-[0.85rem] text-xs sm:-mr-5 sm:gap-3 sm:pr-5 sm:text-base"
             >
               <div>
                 <dt className="font-semibold text-black/60 dark:text-white/60">
@@ -164,30 +196,6 @@ export default function FlipCard({
                 </dd>
               </div>
             </dl>
-            <div className="mt-2 flex gap-4">
-              {onEdit && (
-                <button
-                  className="self-start text-sm font-medium text-indigo-500 hover:underline"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onEdit();
-                  }}
-                >
-                  카드 수정
-                </button>
-              )}
-              {onDelete && (
-                <button
-                  className="self-start text-sm font-medium text-rose-500 hover:underline"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete();
-                  }}
-                >
-                  카드 삭제
-                </button>
-              )}
-            </div>
           </div>
         </div>
       </div>

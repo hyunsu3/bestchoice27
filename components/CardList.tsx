@@ -94,7 +94,7 @@ export default function CardList({
   onDelete: (id: string) => void;
   onToggleFavorite: (id: string) => void;
 }) {
-  const [sortMode, setSortMode] = useState<SortMode>("name");
+  const [sortMode, setSortMode] = useState<SortMode>("favorite");
   const [sortDesc, setSortDesc] = useState(false);
 
   function handleSortClick(mode: SortMode) {
