@@ -67,7 +67,7 @@ export default function VsMatch({ cards }: { cards: UniversityCard[] }) {
   const [viewingCard, setViewingCard] = useState<UniversityCard | null>(null);
   const [exporting, setExporting] = useState(false);
   const resultsRef = useRef<HTMLDivElement>(null);
-  const { colors } = useUniversityColors();
+  const { colors, ready: colorsReady } = useUniversityColors();
 
   const canStart = cards.length > FINAL_COUNT;
   const currentItem = queue[queueIndex];
@@ -440,14 +440,18 @@ export default function VsMatch({ cards }: { cards: UniversityCard[] }) {
                   onPointerDown={(e) => handleCardPointerDown(e, card.id)}
                   style={{
                     touchAction: "none",
-                    ...(customColor
+                    ...(colorsReady && customColor
                       ? {
                           backgroundImage: `linear-gradient(to bottom right, ${customColor}, ${darkenHex(customColor)})`,
                         }
                       : undefined),
                   }}
                   className={`relative flex aspect-[3/4] w-full flex-col overflow-hidden rounded-2xl p-1.5 text-left text-white shadow-sm transition-shadow sm:p-3 ${
-                    customColor ? "" : `bg-gradient-to-br ${getCardGradient(card.universityName)}`
+                    !colorsReady
+                      ? "animate-pulse bg-zinc-300 dark:bg-zinc-700"
+                      : customColor
+                        ? ""
+                        : `bg-gradient-to-br ${getCardGradient(card.universityName)}`
                   } ${isDragging ? "opacity-0" : "hover:shadow-md"} ${
                     isFinal ? "" : "opacity-70"
                   }`}
@@ -459,7 +463,7 @@ export default function VsMatch({ cards }: { cards: UniversityCard[] }) {
                   >
                     {index + 1}
                   </span>
-                  <CardFrontFace card={card} size="sm" />
+                  {colorsReady && <CardFrontFace card={card} size="sm" />}
                 </button>
               );
             })}
@@ -476,14 +480,18 @@ export default function VsMatch({ cards }: { cards: UniversityCard[] }) {
             return (
               <div
                 className={`pointer-events-none fixed z-50 flex scale-105 flex-col overflow-hidden rounded-2xl p-1.5 text-left text-white shadow-2xl sm:p-3 ${
-                  customColor ? "" : `bg-gradient-to-br ${getCardGradient(card.universityName)}`
+                  !colorsReady
+                    ? "animate-pulse bg-zinc-300 dark:bg-zinc-700"
+                    : customColor
+                      ? ""
+                      : `bg-gradient-to-br ${getCardGradient(card.universityName)}`
                 }`}
                 style={{
                   left: ghostRect.x,
                   top: ghostRect.y,
                   width: ghostRect.width,
                   height: ghostRect.height,
-                  ...(customColor
+                  ...(colorsReady && customColor
                     ? {
                         backgroundImage: `linear-gradient(to bottom right, ${customColor}, ${darkenHex(customColor)})`,
                       }
@@ -497,7 +505,7 @@ export default function VsMatch({ cards }: { cards: UniversityCard[] }) {
                 >
                   {dragIndex + 1}
                 </span>
-                <CardFrontFace card={card} size="sm" />
+                {colorsReady && <CardFrontFace card={card} size="sm" />}
               </div>
             );
           })()}

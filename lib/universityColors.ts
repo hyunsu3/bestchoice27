@@ -44,6 +44,14 @@ function getColorsServerSnapshot() {
   return colors;
 }
 
+function getReadySnapshot() {
+  return hydrated;
+}
+
+function getReadyServerSnapshot() {
+  return false;
+}
+
 async function setUniversityColor(universityName: string, color: string | null) {
   const key = universityName.trim();
   if (!key) return;
@@ -84,5 +92,10 @@ export function useUniversityColors() {
     getColorsSnapshot,
     getColorsServerSnapshot,
   );
-  return { colors: colorMap, setUniversityColor };
+  const ready = useSyncExternalStore(
+    subscribe,
+    getReadySnapshot,
+    getReadyServerSnapshot,
+  );
+  return { colors: colorMap, setUniversityColor, ready };
 }

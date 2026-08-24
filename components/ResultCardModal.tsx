@@ -15,7 +15,7 @@ export default function ResultCardModal({
   onClose: () => void;
 }) {
   const [flipped, setFlipped] = useState(false);
-  const { colors } = useUniversityColors();
+  const { colors, ready: colorsReady } = useUniversityColors();
   const customColor = colors[card.universityName.trim()];
 
   useEffect(() => {
@@ -53,17 +53,21 @@ export default function ResultCardModal({
         <div className={`flip-card-inner ${flipped ? "is-flipped" : ""}`}>
           <div
             className={`flip-card-face flip-card-front cursor-pointer text-white ${
-              customColor ? "" : `bg-gradient-to-br ${getCardGradient(card.universityName)}`
+              !colorsReady
+                ? "animate-pulse bg-zinc-300 dark:bg-zinc-700"
+                : customColor
+                  ? ""
+                  : `bg-gradient-to-br ${getCardGradient(card.universityName)}`
             }`}
             style={
-              customColor
+              colorsReady && customColor
                 ? {
                     backgroundImage: `linear-gradient(to bottom right, ${customColor}, ${darkenHex(customColor)})`,
                   }
                 : undefined
             }
           >
-            <CardFrontFace card={card} size="lg" />
+            {colorsReady && <CardFrontFace card={card} size="lg" />}
             <p className="mt-3 text-xs text-white/60">탭해서 뒤집어보기 ↺</p>
           </div>
           <div className="flip-card-face flip-card-back cursor-pointer bg-white dark:bg-zinc-900">

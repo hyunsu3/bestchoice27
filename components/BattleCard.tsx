@@ -31,10 +31,14 @@ export default function BattleCard({
   const holdTriggeredRef = useRef(false);
   const draggedRef = useRef(false);
   const startPosRef = useRef({ x: 0, y: 0 });
-  const { colors } = useUniversityColors();
+  const { colors, ready: colorsReady } = useUniversityColors();
   const customColor = colors[card.universityName.trim()];
-  const accentClass = customColor ? "" : getCardAccent(card.universityName);
-  const accentStyle = customColor ? { color: customColor } : undefined;
+  const accentClass = !colorsReady
+    ? "text-black/40 dark:text-white/40"
+    : customColor
+      ? ""
+      : getCardAccent(card.universityName);
+  const accentStyle = colorsReady && customColor ? { color: customColor } : undefined;
 
   useEffect(() => {
     let raf2 = 0;
@@ -132,17 +136,21 @@ export default function BattleCard({
         <div className={`flip-card-inner ${flipped ? "is-flipped" : ""}`}>
           <div
             className={`flip-card-face flip-card-front text-white ${
-              customColor ? "" : `bg-gradient-to-br ${getCardGradient(card.universityName)}`
+              !colorsReady
+                ? "animate-pulse bg-zinc-300 dark:bg-zinc-700"
+                : customColor
+                  ? ""
+                  : `bg-gradient-to-br ${getCardGradient(card.universityName)}`
             }`}
             style={
-              customColor
+              colorsReady && customColor
                 ? {
                     backgroundImage: `linear-gradient(to bottom right, ${customColor}, ${darkenHex(customColor)})`,
                   }
                 : undefined
             }
           >
-            <CardFrontFace card={card} />
+            {colorsReady && <CardFrontFace card={card} />}
             <p className="mt-3 text-xs text-white/60">탭해서 뒤집기</p>
           </div>
           <div className="flip-card-face flip-card-back bg-white dark:bg-zinc-900">

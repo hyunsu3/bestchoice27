@@ -24,7 +24,7 @@ export default function FlipCard({
 }) {
   const [flipped, setFlipped] = useState(false);
   const backScrollRef = useRef<HTMLDListElement>(null);
-  const { colors } = useUniversityColors();
+  const { colors, ready: colorsReady } = useUniversityColors();
   const customColor = colors[card.universityName.trim()];
 
   const pressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -115,17 +115,21 @@ export default function FlipCard({
         <div className={`flip-card-inner ${flipped ? "is-flipped" : ""}`}>
           <div
             className={`flip-card-face flip-card-front text-white ${
-              customColor ? "" : `bg-gradient-to-br ${getCardGradient(card.universityName)}`
+              !colorsReady
+                ? "animate-pulse bg-zinc-300 dark:bg-zinc-700"
+                : customColor
+                  ? ""
+                  : `bg-gradient-to-br ${getCardGradient(card.universityName)}`
             }`}
             style={
-              customColor
+              colorsReady && customColor
                 ? {
                     backgroundImage: `linear-gradient(to bottom right, ${customColor}, ${darkenHex(customColor)})`,
                   }
                 : undefined
             }
           >
-            <CardFrontFace card={card} />
+            {colorsReady && <CardFrontFace card={card} />}
             <p className="mt-1.5 text-[10px] text-white/60 sm:mt-3 sm:text-xs">
               탭해서 뒤집어보기 ↺
             </p>
