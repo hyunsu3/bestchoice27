@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { authorizedFetch } from "./authorizedFetch";
-import type { NewUniversityCard, UniversityCard } from "./types";
+import { nextPickTier } from "./pickTier";
+import type { NewUniversityCard, PickTier, UniversityCard } from "./types";
 
 const LEGACY_STORAGE_KEY = "bestchoice.cards.v1";
 const MIGRATED_KEY = "bestchoice.cards.migrated.v1";
@@ -101,28 +102,30 @@ export function useCards() {
     [],
   );
 
-  const toggleFavorite = useCallback(async (id: string) => {
-    let previous: boolean | undefined;
+  const cyclePickTier = useCallback(async (id: string) => {
+    let previous: PickTier | undefined;
+    let next: PickTier | undefined;
     setCards((prev) =>
       prev.map((c) => {
         if (c.id !== id) return c;
-        previous = c.isFavorite;
-        return { ...c, isFavorite: !c.isFavorite };
+        previous = c.pickTier;
+        next = nextPickTier(c.pickTier);
+        return { ...c, pickTier: next };
       }),
     );
-    if (previous === undefined) return;
+    if (previous === undefined || next === undefined) return;
     try {
-      const res = await fetch(`/api/cards/${id}/favorite`, {
+      const res = await fetch(`/api/cards/${id}/pick-tier`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isFavorite: !previous }),
+        body: JSON.stringify({ pickTier: next }),
       });
       if (!res.ok) throw new Error();
       const updated = (await res.json()) as UniversityCard;
       setCards((prev) => prev.map((c) => (c.id === id ? updated : c)));
     } catch {
       setCards((prev) =>
-        prev.map((c) => (c.id === id ? { ...c, isFavorite: previous! } : c)),
+        prev.map((c) => (c.id === id ? { ...c, pickTier: previous! } : c)),
       );
     }
   }, []);
@@ -133,7 +136,7 @@ export function useCards() {
     addCard,
     removeCard,
     updateCard,
-    toggleFavorite,
+    cyclePickTier,
     refresh,
   };
 }

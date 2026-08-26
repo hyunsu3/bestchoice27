@@ -16,7 +16,7 @@ const TABS: { id: Tab; label: string }[] = [
 ];
 
 export default function GameApp() {
-  const { cards, hydrated, addCard, removeCard, updateCard, toggleFavorite } =
+  const { cards, hydrated, addCard, removeCard, updateCard, cyclePickTier } =
     useCards();
   const [tab, setTab] = useState<Tab>("list");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -85,7 +85,7 @@ export default function GameApp() {
             cards={cards}
             onEdit={startEdit}
             onDelete={removeCard}
-            onToggleFavorite={toggleFavorite}
+            onCyclePickTier={cyclePickTier}
           />
         )}
         {tab === "vs" && hydrated && <VsMatch cards={cards} />}

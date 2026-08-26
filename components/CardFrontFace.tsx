@@ -40,11 +40,13 @@ export default function CardFrontFace({
 
   return (
     <>
-      <span
-        className={`inline-block self-start rounded-full bg-white/20 font-semibold tracking-wide text-white backdrop-blur-sm ${s.badge}`}
-      >
-        {card.admissionType || "전형 미입력"}
-      </span>
+      <div className="flex flex-wrap items-center gap-1.5 self-start">
+        <span
+          className={`inline-block rounded-full bg-white/20 font-semibold tracking-wide text-white backdrop-blur-sm ${s.badge}`}
+        >
+          {card.admissionType || "전형 미입력"}
+        </span>
+      </div>
       <h3 className={`font-black leading-tight drop-shadow-sm ${s.name}`}>
         {card.universityName}
       </h3>

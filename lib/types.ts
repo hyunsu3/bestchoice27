@@ -1,3 +1,5 @@
+export type PickTier = "none" | "reach" | "target" | "safe";
+
 export interface UniversityCard {
   id: string;
   universityName: string;
@@ -9,10 +11,10 @@ export interface UniversityCard {
   resultSummary: string;
   createdAt: number;
   viewCount: number;
-  isFavorite: boolean;
+  pickTier: PickTier;
 }
 
 export type NewUniversityCard = Omit<
   UniversityCard,
-  "id" | "createdAt" | "viewCount" | "isFavorite"
+  "id" | "createdAt" | "viewCount" | "pickTier"
 >;

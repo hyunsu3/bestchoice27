@@ -9,11 +9,16 @@ create table if not exists cards (
   result_summary text not null default '',
   created_at timestamptz not null default now(),
   view_count integer not null default 0,
-  is_favorite boolean not null default false
+  is_favorite boolean not null default false,
+  pick_tier text not null default 'none'
 );
 
 alter table cards add column if not exists is_favorite boolean not null default false;
 alter table cards add column if not exists min_requirement text not null default '';
+-- 즐겨찾기(on/off)를 상향/적정/안정 3단계 + 해제로 대체. 기존에 즐겨찾기로
+-- 표시해둔 카드는 정보 손실 없이 '적정'으로 옮겨서 계속 선택된 상태로 둔다.
+alter table cards add column if not exists pick_tier text not null default 'none';
+update cards set pick_tier = 'target' where is_favorite and pick_tier = 'none';
 
 alter table cards enable row level security;
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { toBlob } from "html-to-image";
-import { getCardGradient, getCardGradientStops } from "@/lib/cardColor";
+import { getAutoHex } from "@/lib/cardColor";
 import type { UniversityCard } from "@/lib/types";
 import { FINAL_COUNT, buildNextRoundQueue, type MatchQueueItem } from "@/lib/tournament";
 import { useUniversityColors } from "@/lib/universityColors";
@@ -445,18 +445,12 @@ export default function VsMatch({ cards }: { cards: UniversityCard[] }) {
                   onPointerDown={(e) => handleCardPointerDown(e, card.id)}
                   style={{
                     touchAction: "none",
-                    ...(colorsReady && customColor
-                      ? {
-                          backgroundImage: `linear-gradient(to bottom right, ${getCardGradientStops(customColor).join(", ")})`,
-                        }
+                    ...(colorsReady
+                      ? { backgroundColor: customColor || getAutoHex(card.universityName) }
                       : undefined),
                   }}
                   className={`relative flex aspect-[3/4] w-full flex-col overflow-hidden rounded-2xl p-1.5 text-left text-white shadow-sm transition-shadow sm:p-3 ${
-                    !colorsReady
-                      ? "animate-pulse bg-zinc-300 dark:bg-zinc-700"
-                      : customColor
-                        ? ""
-                        : `bg-gradient-to-br ${getCardGradient(card.universityName)}`
+                    !colorsReady ? "animate-pulse bg-zinc-300 dark:bg-zinc-700" : ""
                   } ${isDragging ? "opacity-0" : "hover:shadow-md"} ${
                     isFinal ? "" : "opacity-70"
                   }`}
@@ -485,21 +479,15 @@ export default function VsMatch({ cards }: { cards: UniversityCard[] }) {
             return (
               <div
                 className={`pointer-events-none fixed z-50 flex scale-105 flex-col overflow-hidden rounded-2xl p-1.5 text-left text-white shadow-2xl sm:p-3 ${
-                  !colorsReady
-                    ? "animate-pulse bg-zinc-300 dark:bg-zinc-700"
-                    : customColor
-                      ? ""
-                      : `bg-gradient-to-br ${getCardGradient(card.universityName)}`
+                  !colorsReady ? "animate-pulse bg-zinc-300 dark:bg-zinc-700" : ""
                 }`}
                 style={{
                   left: ghostRect.x,
                   top: ghostRect.y,
                   width: ghostRect.width,
                   height: ghostRect.height,
-                  ...(colorsReady && customColor
-                    ? {
-                        backgroundImage: `linear-gradient(to bottom right, ${getCardGradientStops(customColor).join(", ")})`,
-                      }
+                  ...(colorsReady
+                    ? { backgroundColor: customColor || getAutoHex(card.universityName) }
                     : undefined),
                 }}
               >

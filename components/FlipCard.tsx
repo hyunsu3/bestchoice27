@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState, type PointerEvent } from "react";
-import { getCardGradient, getCardGradientStops } from "@/lib/cardColor";
+import { getAutoHex } from "@/lib/cardColor";
 import { renderWithBold } from "@/lib/formatText";
+import { PICK_TIER_COLORS } from "@/lib/pickTier";
 import type { UniversityCard } from "@/lib/types";
 import { useUniversityColors } from "@/lib/universityColors";
 import CardFrontFace from "./CardFrontFace";
@@ -15,12 +16,12 @@ export default function FlipCard({
   card,
   onEdit,
   onDelete,
-  onToggleFavorite,
+  onCyclePickTier,
 }: {
   card: UniversityCard;
   onEdit?: () => void;
   onDelete?: () => void;
-  onToggleFavorite?: () => void;
+  onCyclePickTier?: () => void;
 }) {
   const [flipped, setFlipped] = useState(false);
   const backScrollRef = useRef<HTMLDListElement>(null);
@@ -41,7 +42,11 @@ export default function FlipCard({
   }
 
   function handlePointerDown(e: PointerEvent<HTMLDivElement>) {
-    if (!onToggleFavorite) return;
+    if (!onCyclePickTier) return;
+    // 멀티터치나 중복 pointerdown(모바일 브라우저에서 간혹 발생)으로 타이머가
+    // 두 개 걸리면 한 번의 롱프레스로 등급이 두 단계 넘어가 버린다. 이미 눌림
+    // 처리 중이면 무시해서 타이머가 항상 하나만 걸리도록 한다.
+    if (pressTimerRef.current || !e.isPrimary) return;
     pressStartRef.current = { x: e.clientX, y: e.clientY };
     longPressFiredRef.current = false;
     // 스크롤 중엔 손가락 이동량이 작아도(10px 미만) 길게 누르기가 발동하지
@@ -52,8 +57,9 @@ export default function FlipCard({
       passive: true,
     });
     pressTimerRef.current = setTimeout(() => {
+      pressTimerRef.current = null;
       longPressFiredRef.current = true;
-      onToggleFavorite();
+      onCyclePickTier();
     }, LONG_PRESS_MS);
   }
 
@@ -101,7 +107,12 @@ export default function FlipCard({
 
   return (
     <div
-      className={`rounded-2xl ${card.isFavorite ? "card-favorite-glow" : ""}`}
+      className={`rounded-2xl ${card.pickTier !== "none" ? "card-pick-glow" : ""}`}
+      style={
+        card.pickTier !== "none"
+          ? ({ "--pick-ring-color": PICK_TIER_COLORS[card.pickTier] } as React.CSSProperties)
+          : undefined
+      }
     >
       <div
         className="flip-card aspect-[3/4]"
@@ -112,7 +123,7 @@ export default function FlipCard({
         onPointerLeave={clearPressTimer}
         onPointerCancel={clearPressTimer}
         onContextMenu={(e) => {
-          if (onToggleFavorite) e.preventDefault();
+          if (onCyclePickTier) e.preventDefault();
         }}
         role="button"
         tabIndex={0}
@@ -123,17 +134,11 @@ export default function FlipCard({
         <div className={`flip-card-inner ${flipped ? "is-flipped" : ""}`}>
           <div
             className={`flip-card-face flip-card-front text-white ${
-              !colorsReady
-                ? "animate-pulse bg-zinc-300 dark:bg-zinc-700"
-                : customColor
-                  ? ""
-                  : `bg-gradient-to-br ${getCardGradient(card.universityName)}`
+              !colorsReady ? "animate-pulse bg-zinc-300 dark:bg-zinc-700" : ""
             }`}
             style={
-              colorsReady && customColor
-                ? {
-                    backgroundImage: `linear-gradient(to bottom right, ${getCardGradientStops(customColor).join(", ")})`,
-                  }
+              colorsReady
+                ? { backgroundColor: customColor || getAutoHex(card.universityName) }
                 : undefined
             }
           >

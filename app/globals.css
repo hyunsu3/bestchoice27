@@ -105,20 +105,15 @@ body {
   }
 }
 
-/* Favorite card: thick ring in the app's own accent color, toggled by a
-   long press. A background-colored gap sits between the card and the ring
-   so it reads clearly no matter what hue the card itself is. */
-.card-favorite-glow {
+/* Pick-tier card: thick ring colored per tier (안정/적정/상향), cycled by a
+   long press. Sits flush against the card edge, no gap. */
+.card-pick-glow {
   border-radius: 1rem;
-  box-shadow:
-    0 0 0 2px var(--background),
-    0 0 0 4px #39ff14;
+  box-shadow: 0 0 0 4px var(--pick-ring-color, #39ff14);
 }
 @media (min-width: 640px) {
-  .card-favorite-glow {
-    box-shadow:
-      0 0 0 3px var(--background),
-      0 0 0 7px #39ff14;
+  .card-pick-glow {
+    box-shadow: 0 0 0 7px var(--pick-ring-color, #39ff14);
   }
 }
 

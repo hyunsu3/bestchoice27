@@ -1,17 +1,18 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { PICK_TIER_ORDER } from "@/lib/pickTier";
 import type { UniversityCard } from "@/lib/types";
 import FlipCard from "./FlipCard";
 
-type SortMode = "latest" | "name" | "admissionType" | "capacity" | "favorite";
+type SortMode = "latest" | "name" | "admissionType" | "capacity" | "pickTier";
 
 const SORT_OPTIONS: { id: SortMode; label: string }[] = [
   { id: "latest", label: "최신순" },
   { id: "name", label: "가나다순" },
   { id: "admissionType", label: "전형별" },
   { id: "capacity", label: "모집인원순" },
-  { id: "favorite", label: "선택카드순" },
+  { id: "pickTier", label: "선택등급순" },
 ];
 
 function parseCapacity(capacity: string): number {
@@ -43,12 +44,12 @@ function compareCards(
       if (cb === Infinity) return -1;
       return dir * (cb - ca); // 기본(▼): 큰 인원부터
     }
-    case "favorite": {
-      // 기본(▼): 선택(즐겨찾기)한 카드가 먼저.
-      const fa = a.isFavorite ? 0 : 1;
-      const fb = b.isFavorite ? 0 : 1;
+    case "pickTier": {
+      // 기본(▼): 안정(1) → 적정(2) → 상향(3) → 해제 순.
+      const rank = (t: UniversityCard["pickTier"]) =>
+        t === "none" ? PICK_TIER_ORDER.length : PICK_TIER_ORDER.indexOf(t);
       return (
-        dir * (fa - fb) ||
+        dir * (rank(a.pickTier) - rank(b.pickTier)) ||
         dir * a.universityName.localeCompare(b.universityName, "ko")
       );
     }
@@ -87,14 +88,14 @@ export default function CardList({
   cards,
   onEdit,
   onDelete,
-  onToggleFavorite,
+  onCyclePickTier,
 }: {
   cards: UniversityCard[];
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
-  onToggleFavorite: (id: string) => void;
+  onCyclePickTier: (id: string) => void;
 }) {
-  const [sortMode, setSortMode] = useState<SortMode>("favorite");
+  const [sortMode, setSortMode] = useState<SortMode>("pickTier");
   const [sortDesc, setSortDesc] = useState(false);
 
   function handleSortClick(mode: SortMode) {
@@ -146,7 +147,7 @@ export default function CardList({
             card={card}
             onEdit={() => onEdit(card.id)}
             onDelete={() => onDelete(card.id)}
-            onToggleFavorite={() => onToggleFavorite(card.id)}
+            onCyclePickTier={() => onCyclePickTier(card.id)}
           />
         ))}
       </div>

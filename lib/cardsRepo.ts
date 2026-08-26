@@ -1,5 +1,5 @@
 import { supabaseAdmin } from "./supabaseAdmin";
-import type { NewUniversityCard, UniversityCard } from "./types";
+import type { NewUniversityCard, PickTier, UniversityCard } from "./types";
 
 type CardRow = {
   id: string;
@@ -12,7 +12,7 @@ type CardRow = {
   result_summary: string;
   created_at: string;
   view_count: number;
-  is_favorite: boolean;
+  pick_tier: PickTier;
 };
 
 function toCard(row: CardRow): UniversityCard {
@@ -27,7 +27,7 @@ function toCard(row: CardRow): UniversityCard {
     resultSummary: row.result_summary,
     createdAt: new Date(row.created_at).getTime(),
     viewCount: row.view_count ?? 0,
-    isFavorite: row.is_favorite ?? false,
+    pickTier: row.pick_tier ?? "none",
   };
 }
 
@@ -103,13 +103,13 @@ export async function incrementCardView(id: string): Promise<number> {
   return data as number;
 }
 
-export async function setCardFavorite(
+export async function setCardPickTier(
   id: string,
-  isFavorite: boolean,
+  pickTier: PickTier,
 ): Promise<UniversityCard> {
   const { data, error } = await supabaseAdmin
     .from("cards")
-    .update({ is_favorite: isFavorite })
+    .update({ pick_tier: pickTier })
     .eq("id", id)
     .select()
     .single();

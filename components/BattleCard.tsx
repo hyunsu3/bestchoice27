@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { getCardAccent, getCardGradient, getCardGradientStops } from "@/lib/cardColor";
+import { getAutoHex, getCardAccent } from "@/lib/cardColor";
 import { renderWithBold } from "@/lib/formatText";
 import type { UniversityCard } from "@/lib/types";
 import { useUniversityColors } from "@/lib/universityColors";
@@ -136,17 +136,11 @@ export default function BattleCard({
         <div className={`flip-card-inner ${flipped ? "is-flipped" : ""}`}>
           <div
             className={`flip-card-face flip-card-front text-white ${
-              !colorsReady
-                ? "animate-pulse bg-zinc-300 dark:bg-zinc-700"
-                : customColor
-                  ? ""
-                  : `bg-gradient-to-br ${getCardGradient(card.universityName)}`
+              !colorsReady ? "animate-pulse bg-zinc-300 dark:bg-zinc-700" : ""
             }`}
             style={
-              colorsReady && customColor
-                ? {
-                    backgroundImage: `linear-gradient(to bottom right, ${getCardGradientStops(customColor).join(", ")})`,
-                  }
+              colorsReady
+                ? { backgroundColor: customColor || getAutoHex(card.universityName) }
                 : undefined
             }
           >
