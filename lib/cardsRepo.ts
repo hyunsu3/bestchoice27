@@ -7,6 +7,7 @@ type CardRow = {
   department: string;
   admission_type: string;
   capacity: string;
+  min_requirement: string;
   admission_summary: string;
   result_summary: string;
   created_at: string;
@@ -21,6 +22,7 @@ function toCard(row: CardRow): UniversityCard {
     department: row.department,
     admissionType: row.admission_type,
     capacity: row.capacity,
+    minRequirement: row.min_requirement ?? "",
     admissionSummary: row.admission_summary,
     resultSummary: row.result_summary,
     createdAt: new Date(row.created_at).getTime(),
@@ -35,6 +37,7 @@ function toRow(card: NewUniversityCard) {
     department: card.department,
     admission_type: card.admissionType,
     capacity: card.capacity,
+    min_requirement: card.minRequirement,
     admission_summary: card.admissionSummary,
     result_summary: card.resultSummary,
   };

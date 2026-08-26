@@ -4,6 +4,7 @@ export interface UniversityCard {
   department: string;
   admissionType: string;
   capacity: string;
+  minRequirement: string;
   admissionSummary: string;
   resultSummary: string;
   createdAt: number;

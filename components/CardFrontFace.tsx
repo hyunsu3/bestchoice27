@@ -9,6 +9,7 @@ const SIZE_STYLES = {
     dept: "text-xs",
     infoBox: "px-2.5 py-2",
     infoValue: "text-xl",
+    minReq: "text-[9px]",
   },
   md: {
     badge: "text-[10px] px-2 py-1 sm:text-sm sm:px-3 sm:py-1.5 lg:text-base lg:px-3.5",
@@ -16,6 +17,7 @@ const SIZE_STYLES = {
     dept: "text-xs sm:text-lg lg:text-xl",
     infoBox: "px-2.5 py-2 sm:px-4 sm:py-4 lg:px-5 lg:py-6",
     infoValue: "text-xl sm:text-3xl lg:text-4xl",
+    minReq: "text-[9px] sm:text-sm lg:text-base",
   },
   lg: {
     badge: "text-lg px-4 py-2",
@@ -23,6 +25,7 @@ const SIZE_STYLES = {
     dept: "text-2xl",
     infoBox: "px-5 py-6",
     infoValue: "text-5xl",
+    minReq: "text-sm",
   },
 } as const;
 
@@ -54,6 +57,13 @@ export default function CardFrontFace({
         <p className={`mt-1.5 text-center font-black leading-none text-white ${s.infoValue}`}>
           {card.capacity || "-"}
         </p>
+        {card.minRequirement && (
+          <p
+            className={`mt-1.5 text-center font-semibold leading-tight text-white/90 ${s.minReq}`}
+          >
+            수능최저 {card.minRequirement}
+          </p>
+        )}
       </div>
     </>
   );

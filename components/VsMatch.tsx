@@ -386,6 +386,11 @@ export default function VsMatch({ cards }: { cards: UniversityCard[] }) {
                 {card.capacity && (
                   <p className="mt-1 text-lg font-black">{card.capacity}</p>
                 )}
+                {card.minRequirement && (
+                  <p className="mt-1 text-[11px] font-medium text-black/50 dark:text-white/50">
+                    수능최저 {card.minRequirement}
+                  </p>
+                )}
               </button>
             );
           })}

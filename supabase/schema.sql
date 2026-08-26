@@ -4,6 +4,7 @@ create table if not exists cards (
   department text not null,
   admission_type text not null default '',
   capacity text not null default '',
+  min_requirement text not null default '',
   admission_summary text not null default '',
   result_summary text not null default '',
   created_at timestamptz not null default now(),
@@ -12,6 +13,7 @@ create table if not exists cards (
 );
 
 alter table cards add column if not exists is_favorite boolean not null default false;
+alter table cards add column if not exists min_requirement text not null default '';
 
 alter table cards enable row level security;
 

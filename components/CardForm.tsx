@@ -10,6 +10,7 @@ const emptyForm: NewUniversityCard = {
   department: "",
   admissionType: "",
   capacity: "",
+  minRequirement: "",
   admissionSummary: "",
   resultSummary: "",
 };
@@ -32,6 +33,7 @@ export default function CardForm({
           department: editingCard.department,
           admissionType: editingCard.admissionType,
           capacity: editingCard.capacity,
+          minRequirement: editingCard.minRequirement,
           admissionSummary: editingCard.admissionSummary,
           resultSummary: editingCard.resultSummary,
         }
@@ -57,6 +59,7 @@ export default function CardForm({
       department: form.department.trim(),
       admissionType: form.admissionType.trim(),
       capacity: form.capacity.trim(),
+      minRequirement: form.minRequirement.trim(),
       admissionSummary: form.admissionSummary.trim(),
       resultSummary: form.resultSummary.trim(),
     };
@@ -117,6 +120,18 @@ export default function CardForm({
           value={form.capacity}
           onChange={(e) => update("capacity", e.target.value)}
           placeholder="예: 15명"
+        />
+      </Field>
+      <Field
+        label="수능최저"
+        full
+        hint="충족 시 카드 앞면에도 표시돼요"
+      >
+        <input
+          className="input"
+          value={form.minRequirement}
+          onChange={(e) => update("minRequirement", e.target.value)}
+          placeholder="예: 국,수,영,탐(2) 중 3개 합 6 (한국사 4)"
         />
       </Field>
       <Field

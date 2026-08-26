@@ -25,6 +25,7 @@ async function migrateLegacyCards() {
         department: c.department,
         admissionType: c.admissionType,
         capacity: c.capacity,
+        minRequirement: c.minRequirement ?? "",
         admissionSummary: c.admissionSummary,
         resultSummary: c.resultSummary,
       }));
