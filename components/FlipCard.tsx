@@ -37,12 +37,20 @@ export default function FlipCard({
       pressTimerRef.current = null;
     }
     pressStartRef.current = null;
+    window.removeEventListener("scroll", clearPressTimer, true);
   }
 
   function handlePointerDown(e: PointerEvent<HTMLDivElement>) {
     if (!onToggleFavorite) return;
     pressStartRef.current = { x: e.clientX, y: e.clientY };
     longPressFiredRef.current = false;
+    // 스크롤 중엔 손가락 이동량이 작아도(10px 미만) 길게 누르기가 발동하지
+    // 않도록, 어떤 스크롤(페이지든 카드 뒷면 내부든)이든 감지되면 즉시 취소한다.
+    // 모바일 브라우저는 스크롤 시작 시 pointercancel을 안정적으로 보내지 않는다.
+    window.addEventListener("scroll", clearPressTimer, {
+      capture: true,
+      passive: true,
+    });
     pressTimerRef.current = setTimeout(() => {
       longPressFiredRef.current = true;
       onToggleFavorite();
