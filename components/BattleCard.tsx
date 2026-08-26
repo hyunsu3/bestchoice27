@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { darkenHex, getCardAccent, getCardGradient } from "@/lib/cardColor";
+import { getCardAccent, getCardGradient, getCardGradientStops } from "@/lib/cardColor";
 import { renderWithBold } from "@/lib/formatText";
 import type { UniversityCard } from "@/lib/types";
 import { useUniversityColors } from "@/lib/universityColors";
@@ -145,7 +145,7 @@ export default function BattleCard({
             style={
               colorsReady && customColor
                 ? {
-                    backgroundImage: `linear-gradient(to bottom right, ${customColor}, ${darkenHex(customColor)})`,
+                    backgroundImage: `linear-gradient(to bottom right, ${getCardGradientStops(customColor).join(", ")})`,
                   }
                 : undefined
             }

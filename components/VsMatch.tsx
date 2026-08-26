@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { toBlob } from "html-to-image";
-import { darkenHex, getCardGradient } from "@/lib/cardColor";
+import { getCardGradient, getCardGradientStops } from "@/lib/cardColor";
 import type { UniversityCard } from "@/lib/types";
 import { FINAL_COUNT, buildNextRoundQueue, type MatchQueueItem } from "@/lib/tournament";
 import { useUniversityColors } from "@/lib/universityColors";
@@ -447,7 +447,7 @@ export default function VsMatch({ cards }: { cards: UniversityCard[] }) {
                     touchAction: "none",
                     ...(colorsReady && customColor
                       ? {
-                          backgroundImage: `linear-gradient(to bottom right, ${customColor}, ${darkenHex(customColor)})`,
+                          backgroundImage: `linear-gradient(to bottom right, ${getCardGradientStops(customColor).join(", ")})`,
                         }
                       : undefined),
                   }}
@@ -498,7 +498,7 @@ export default function VsMatch({ cards }: { cards: UniversityCard[] }) {
                   height: ghostRect.height,
                   ...(colorsReady && customColor
                     ? {
-                        backgroundImage: `linear-gradient(to bottom right, ${customColor}, ${darkenHex(customColor)})`,
+                        backgroundImage: `linear-gradient(to bottom right, ${getCardGradientStops(customColor).join(", ")})`,
                       }
                     : undefined),
                 }}

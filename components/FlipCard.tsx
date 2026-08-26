@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type PointerEvent } from "react";
-import { darkenHex, getCardGradient } from "@/lib/cardColor";
+import { getCardGradient, getCardGradientStops } from "@/lib/cardColor";
 import { renderWithBold } from "@/lib/formatText";
 import type { UniversityCard } from "@/lib/types";
 import { useUniversityColors } from "@/lib/universityColors";
@@ -132,7 +132,7 @@ export default function FlipCard({
             style={
               colorsReady && customColor
                 ? {
-                    backgroundImage: `linear-gradient(to bottom right, ${customColor}, ${darkenHex(customColor)})`,
+                    backgroundImage: `linear-gradient(to bottom right, ${getCardGradientStops(customColor).join(", ")})`,
                   }
                 : undefined
             }
