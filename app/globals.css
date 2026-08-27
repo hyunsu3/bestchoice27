@@ -103,24 +103,14 @@ body {
   }
 }
 
-/* 팝업 카드 바깥 크기: 비율(3:5)은 항상 고정 - 비율을 바꾸면 내부 요소끼리
-   겹치는 문제가 생긴다. 세로(portrait) 화면에서는 실제 보이는 높이 기준으로
-   딱 맞게 줄여서(주소창 유무와 상관없이) 화면을 벗어나 잘리지 않게 하고,
-   가로(landscape)에서는 그 값 자체가 너무 작아 카드가 과도하게 작아지므로
-   높이 제한을 풀고 바깥 컨테이너 스크롤(overflow-y: auto)로 전체를 보게
-   한다. --app-vh는 ResultCardModal이 visualViewport로 직접 측정해 넣는
-   값으로, 사파리에서 dvh가 툴바 상태와 실시간으로 안 맞는 경우를 보완한다
-   (JS 실행 전/미지원 브라우저는 100dvh로 폴백). */
+/* 팝업 카드 바깥 크기: 뷰포트 높이(dvh 등) 계산에 의존하지 않는 고정 크기.
+   비율(3:5)과 너비만 정해두고, 화면 중앙에 띄운 뒤 화면보다 카드가 크면
+   줄이지 않고 바깥 컨테이너를 스크롤해서 전체를 보게 한다(부모의
+   overflow-y: auto 참고). 뷰포트 단위 기반 계산은 사파리에서 주소창
+   상태와 어긋나 오히려 하단이 잘려 보이는 문제가 있어 걷어냈다. */
 .result-card-shell {
   aspect-ratio: 3 / 5;
-  width: min(92vw, calc(var(--app-vh, 100dvh) * 0.94 * 3 / 5), 24rem);
-  max-height: calc(var(--app-vh, 100dvh) * 0.94);
-}
-@media (orientation: landscape) {
-  .result-card-shell {
-    width: min(92vw, 24rem);
-    max-height: none;
-  }
+  width: min(92vw, 24rem);
 }
 .flip-card-back {
   transform: rotateY(-180deg);
