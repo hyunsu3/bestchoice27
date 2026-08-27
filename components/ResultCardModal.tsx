@@ -122,7 +122,12 @@ export default function ResultCardModal({
                   </h3>
                   <p className="mt-1 text-base font-semibold text-black/80 dark:text-white/80 sm:text-lg">
                     {card.department}
-                    {card.capacity && ` · ${card.capacity}`}
+                    {card.capacity && (
+                      <>
+                        {" · "}
+                        {renderWithSmall(card.capacity)}
+                      </>
+                    )}
                   </p>
                   {card.minRequirement && (
                     <p className="mt-1 text-lg font-medium text-black/60 dark:text-white/60 sm:text-xl">
