@@ -63,13 +63,6 @@ export default function ResultCardModal({
       onClick={onClose}
     >
       <div className="absolute inset-0 touch-none bg-black/60" />
-      <button
-        onClick={onClose}
-        aria-label="닫기"
-        className="absolute bottom-4 right-4 text-5xl leading-none text-white/80 hover:text-white"
-      >
-        ×
-      </button>
       <div
         className="flip-card relative"
         style={{
@@ -83,6 +76,18 @@ export default function ResultCardModal({
           setFlipped((f) => !f);
         }}
       >
+        <button
+          type="button"
+          aria-label="닫기"
+          title="닫기"
+          className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-zinc-200/90 text-lg leading-none text-black/60 shadow-sm hover:bg-zinc-300 dark:bg-zinc-700/90 dark:text-white/60 dark:hover:bg-zinc-600"
+          onClick={(e) => {
+            e.stopPropagation();
+            onClose();
+          }}
+        >
+          ×
+        </button>
         <div className={`flip-card-inner ${flipped ? "is-flipped" : ""}`}>
           <div
             className={`flip-card-face flip-card-front cursor-pointer text-white ${
@@ -98,92 +103,94 @@ export default function ResultCardModal({
                 : undefined
             }
           >
-            {card.pickTier !== "none" && (
-              <span
-                aria-hidden
-                className="absolute right-3 top-3 h-4 w-4 rounded-full"
-                style={{ backgroundColor: PICK_TIER_COLORS[card.pickTier] }}
-              />
-            )}
             <div className="mt-8 ml-1 flex flex-1 flex-col">
               {colorsReady && <CardFrontFace card={card} size="lg" />}
               <p className="mt-3 text-xs text-white/60">탭해서 뒤집어보기 ↺</p>
             </div>
           </div>
           <div className="flip-card-face flip-card-back cursor-pointer bg-white dark:bg-zinc-900">
-            {(onEdit || onDelete) && (
-              <div className="absolute right-3 top-3 z-10 flex gap-1">
-                {onEdit && (
-                  <button
-                    type="button"
-                    aria-label="카드 수정"
-                    title="카드 수정"
-                    className="rounded-full border border-black/10 bg-white/90 px-3 py-1 text-xs font-semibold text-black/70 shadow-sm hover:bg-white hover:text-indigo-500 dark:border-white/10 dark:bg-zinc-800/90 dark:text-white/70 dark:hover:text-indigo-400"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onEdit();
-                    }}
-                  >
-                    수정
-                  </button>
-                )}
-                {onDelete && (
-                  <button
-                    type="button"
-                    aria-label="카드 삭제"
-                    title="카드 삭제"
-                    className="rounded-full border border-black/10 bg-white/90 px-3 py-1 text-xs font-semibold text-black/70 shadow-sm hover:bg-white hover:text-rose-500 dark:border-white/10 dark:bg-zinc-800/90 dark:text-white/70 dark:hover:text-rose-400"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (window.confirm("이 카드를 삭제할까요?")) {
-                        onDelete();
-                        onClose();
-                      }
-                    }}
-                  >
-                    삭제
-                  </button>
-                )}
-              </div>
-            )}
-            <div className="mt-8 border-b border-black/10 pb-3 dark:border-white/10">
-              <p className="text-base font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
-                {card.admissionType || "전형 미입력"}
-              </p>
-              <h3 className="mt-1 text-2xl font-black leading-tight text-black dark:text-white">
-                {card.universityName}
-              </h3>
-              <p className="mt-1 text-lg font-semibold text-black/80 dark:text-white/80">
-                {card.department}
-                {card.capacity && ` · ${card.capacity}`}
-              </p>
-              {card.minRequirement && (
-                <p className="mt-1 text-base font-medium text-black/60 dark:text-white/60">
-                  수능최저 {card.minRequirement}
-                </p>
-              )}
-            </div>
-            <dl
-              className="mt-3 flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto text-lg"
+            <div
+              className="mt-8 min-h-0 flex-1 overflow-y-auto"
               style={{ touchAction: "pan-y" }}
             >
-              <div>
-                <dt className="font-semibold text-black/60 dark:text-white/60">
-                  전형요약
-                </dt>
-                <dd className="whitespace-pre-wrap">
-                  {card.admissionSummary ? renderWithBold(card.admissionSummary) : "-"}
-                </dd>
+              <div
+                className="sticky top-0 border-b border-black/10 bg-white pb-3 pl-3 dark:border-white/10 dark:bg-zinc-900"
+                style={{
+                  borderLeft: `4px solid ${
+                    card.pickTier !== "none" ? PICK_TIER_COLORS[card.pickTier] : "transparent"
+                  }`,
+                }}
+              >
+                <p className="text-base font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
+                  {card.admissionType || "전형 미입력"}
+                </p>
+                <h3 className="mt-1 text-2xl font-black leading-tight text-black dark:text-white">
+                  {card.universityName}
+                </h3>
+                <p className="mt-1 text-lg font-semibold text-black/80 dark:text-white/80">
+                  {card.department}
+                  {card.capacity && ` · ${card.capacity}`}
+                </p>
+                {card.minRequirement && (
+                  <p className="mt-1 text-base font-medium text-black/60 dark:text-white/60">
+                    수능최저 {card.minRequirement}
+                  </p>
+                )}
               </div>
-              <div>
-                <dt className="font-semibold text-black/60 dark:text-white/60">
-                  24-26년 입결 요약
-                </dt>
-                <dd className="whitespace-pre-wrap">
-                  {card.resultSummary ? renderWithBold(card.resultSummary) : "-"}
-                </dd>
-              </div>
-            </dl>
+              <dl className="mt-3 flex flex-col gap-3 text-lg">
+                <div>
+                  <dt className="font-semibold text-black/60 dark:text-white/60">
+                    전형요약
+                  </dt>
+                  <dd className="whitespace-pre-wrap">
+                    {card.admissionSummary ? renderWithBold(card.admissionSummary) : "-"}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="font-semibold text-black/60 dark:text-white/60">
+                    24-26년 입결 요약
+                  </dt>
+                  <dd className="whitespace-pre-wrap">
+                    {card.resultSummary ? renderWithBold(card.resultSummary) : "-"}
+                  </dd>
+                </div>
+                {(onEdit || onDelete) && (
+                  <div className="flex justify-end gap-1 pt-1">
+                    {onEdit && (
+                      <button
+                        type="button"
+                        aria-label="카드 수정"
+                        title="카드 수정"
+                        className="rounded-full border border-black/10 bg-white/90 px-3 py-1 text-xs font-semibold text-black/70 shadow-sm hover:bg-white hover:text-indigo-500 dark:border-white/10 dark:bg-zinc-800/90 dark:text-white/70 dark:hover:text-indigo-400"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEdit();
+                        }}
+                      >
+                        수정
+                      </button>
+                    )}
+                    {onDelete && (
+                      <button
+                        type="button"
+                        aria-label="카드 삭제"
+                        title="카드 삭제"
+                        className="rounded-full border border-black/10 bg-white/90 px-3 py-1 text-xs font-semibold text-black/70 shadow-sm hover:bg-white hover:text-rose-500 dark:border-white/10 dark:bg-zinc-800/90 dark:text-white/70 dark:hover:text-rose-400"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (window.confirm("이 카드를 삭제할까요?")) {
+                            onDelete();
+                            onClose();
+                          }
+                        }}
+                      >
+                        삭제
+                      </button>
+                    )}
+                  </div>
+                )}
+              </dl>
+            </div>
           </div>
         </div>
       </div>
