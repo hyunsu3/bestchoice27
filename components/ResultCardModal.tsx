@@ -58,8 +58,8 @@ export default function ResultCardModal({
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto" onClick={onClose}>
-      <div className="fixed inset-0 bg-black/90 sm:bg-black/60" />
+    <div className="fixed inset-0 z-50 h-dvh overflow-y-auto" onClick={onClose}>
+      <div className="fixed inset-0 h-dvh bg-black/90 sm:bg-black/60" />
       <div className="flex min-h-full items-center justify-center p-2">
         <div
           className="flip-card result-card-shell relative"
