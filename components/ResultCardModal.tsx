@@ -82,7 +82,7 @@ export default function ResultCardModal({
           </button>
           <div className={`flip-card-inner ${flipped ? "is-flipped" : ""}`}>
             <div
-              className={`flip-card-face flip-card-front cursor-pointer text-white ${
+              className={`flip-card-face flip-card-front cursor-pointer text-white result-card-flat ${
                 !colorsReady ? "animate-pulse bg-zinc-300 dark:bg-zinc-700" : ""
               }`}
               style={
@@ -99,7 +99,7 @@ export default function ResultCardModal({
                 {colorsReady && <CardFrontFace card={card} size="lg" />}
               </div>
             </div>
-            <div className="flip-card-face result-card-face flip-card-back cursor-pointer bg-white dark:bg-zinc-900">
+            <div className="flip-card-face result-card-face result-card-flat flip-card-back cursor-pointer bg-white dark:bg-zinc-900">
               <div className="flex h-[99%] min-h-0 flex-col">
                 <div className="mt-3 border-b border-black/10 pb-3 pl-3 pr-16 dark:border-white/10 sm:pl-0">
                   <p className="text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60 sm:text-base">
