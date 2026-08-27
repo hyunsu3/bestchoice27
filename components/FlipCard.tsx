@@ -108,7 +108,7 @@ export default function FlipCard({
                 ? {
                     backgroundColor: customColor || getAutoHex(card.universityName),
                     backgroundImage:
-                      "repeating-linear-gradient(45deg, rgba(255,255,255,0.14) 0px, rgba(255,255,255,0.14) 2px, transparent 2px, transparent 12px)",
+                      "repeating-linear-gradient(45deg, rgba(255,255,255,0.14) 0px, rgba(255,255,255,0.14) 2px, transparent 2px, transparent 7px)",
                   }
                 : undefined
             }
