@@ -16,8 +16,15 @@ const TABS: { id: Tab; label: string }[] = [
 ];
 
 export default function GameApp() {
-  const { cards, hydrated, addCard, removeCard, updateCard, cyclePickTier } =
-    useCards();
+  const {
+    cards,
+    hydrated,
+    addCard,
+    removeCard,
+    updateCard,
+    cyclePickTier,
+    movePickRank,
+  } = useCards();
   const [tab, setTab] = useState<Tab>("list");
   const [editingId, setEditingId] = useState<string | null>(null);
   const editingCard = cards.find((c) => c.id === editingId) ?? null;
@@ -86,6 +93,7 @@ export default function GameApp() {
             onEdit={startEdit}
             onDelete={removeCard}
             onCyclePickTier={cyclePickTier}
+            onMovePickRank={movePickRank}
           />
         )}
         {tab === "vs" && hydrated && <VsMatch cards={cards} />}

@@ -17,11 +17,15 @@ export default function FlipCard({
   onEdit,
   onDelete,
   onCyclePickTier,
+  onMoveLeft,
+  onMoveRight,
 }: {
   card: UniversityCard;
   onEdit?: () => void;
   onDelete?: () => void;
   onCyclePickTier?: () => void;
+  onMoveLeft?: () => void;
+  onMoveRight?: () => void;
 }) {
   const [flipped, setFlipped] = useState(false);
   const backScrollRef = useRef<HTMLDListElement>(null);
@@ -106,14 +110,7 @@ export default function FlipCard({
   useEffect(() => clearPressTimer, []);
 
   return (
-    <div
-      className={`rounded-2xl ${card.pickTier !== "none" ? "card-pick-glow" : ""}`}
-      style={
-        card.pickTier !== "none"
-          ? ({ "--pick-ring-color": PICK_TIER_COLORS[card.pickTier] } as React.CSSProperties)
-          : undefined
-      }
-    >
+    <div className="rounded-2xl">
       <div
         className="flip-card aspect-[3/4]"
         onClick={handleCardClick}
@@ -138,16 +135,55 @@ export default function FlipCard({
             }`}
             style={
               colorsReady
-                ? { backgroundColor: customColor || getAutoHex(card.universityName) }
+                ? {
+                    backgroundColor: customColor || getAutoHex(card.universityName),
+                    backgroundImage:
+                      "repeating-linear-gradient(45deg, rgba(255,255,255,0.14) 0px, rgba(255,255,255,0.14) 2px, transparent 2px, transparent 12px)",
+                  }
                 : undefined
             }
           >
+            {card.pickTier !== "none" && (
+              <span
+                aria-hidden
+                className="absolute right-2 top-2 h-3.5 w-3.5 rounded-full sm:right-3 sm:top-3 sm:h-4 sm:w-4"
+                style={{ backgroundColor: PICK_TIER_COLORS[card.pickTier] }}
+              />
+            )}
             {colorsReady && <CardFrontFace card={card} />}
             <p className="mt-1.5 text-[10px] text-white/60 sm:mt-3 sm:text-xs">
               탭해서 뒤집어보기 ↺
             </p>
           </div>
           <div className="flip-card-face flip-card-back bg-white dark:bg-zinc-900">
+            {onMoveLeft && (
+              <button
+                type="button"
+                aria-label="앞으로 이동"
+                title="앞으로 이동"
+                className="absolute bottom-1.5 left-1.5 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-black/5 text-sm font-bold text-black/25 hover:bg-black/20 hover:text-black dark:bg-white/5 dark:text-white/25 dark:hover:bg-white/20 dark:hover:text-white"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onMoveLeft();
+                }}
+              >
+                ◀
+              </button>
+            )}
+            {onMoveRight && (
+              <button
+                type="button"
+                aria-label="뒤로 이동"
+                title="뒤로 이동"
+                className="absolute bottom-1.5 right-1.5 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-black/5 text-sm font-bold text-black/25 hover:bg-black/20 hover:text-black dark:bg-white/5 dark:text-white/25 dark:hover:bg-white/20 dark:hover:text-white"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onMoveRight();
+                }}
+              >
+                ▶
+              </button>
+            )}
             {(onEdit || onDelete) && (
               <div className="absolute right-2 top-2 flex gap-0">
                 {onEdit && (
@@ -191,6 +227,11 @@ export default function FlipCard({
                 {card.department}
                 {card.capacity && ` · ${card.capacity}`}
               </p>
+              {process.env.NODE_ENV !== "production" && (
+                <p className="text-[10px] text-fuchsia-500 dark:text-fuchsia-400">
+                  DEV pickRank: {card.pickRank}
+                </p>
+              )}
             </div>
             <dl
               ref={backScrollRef}

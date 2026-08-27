@@ -1,3 +1,4 @@
+import { renderWithSmall } from "@/lib/formatText";
 import type { UniversityCard } from "@/lib/types";
 
 // "md" scales down on narrow mobile grid cards (2-col) and grows back to
@@ -48,7 +49,7 @@ export default function CardFrontFace({
         </span>
       </div>
       <h3 className={`font-black leading-tight drop-shadow-sm ${s.name}`}>
-        {card.universityName}
+        {renderWithSmall(card.universityName)}
       </h3>
       <div
         className={`mt-auto rounded-2xl bg-black/15 backdrop-blur-sm ${s.infoBox}`}
@@ -57,7 +58,7 @@ export default function CardFrontFace({
           {card.department}
         </p>
         <p className={`mt-1.5 text-center font-black leading-none text-white ${s.infoValue}`}>
-          {card.capacity || "-"}
+          {card.capacity ? renderWithSmall(card.capacity) : "-"}
         </p>
         {card.minRequirement && (
           <p

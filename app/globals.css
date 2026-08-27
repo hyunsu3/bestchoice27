@@ -105,18 +105,6 @@ body {
   }
 }
 
-/* Pick-tier card: thick ring colored per tier (안정/적정/상향), cycled by a
-   long press. Sits flush against the card edge, no gap. */
-.card-pick-glow {
-  border-radius: 1rem;
-  box-shadow: 0 0 0 4px var(--pick-ring-color, #39ff14);
-}
-@media (min-width: 640px) {
-  .card-pick-glow {
-    box-shadow: 0 0 0 7px var(--pick-ring-color, #39ff14);
-  }
-}
-
 /* VS battle fly-in animation */
 .vs-card {
   opacity: 0;

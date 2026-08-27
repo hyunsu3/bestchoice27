@@ -12,9 +12,10 @@ export interface UniversityCard {
   createdAt: number;
   viewCount: number;
   pickTier: PickTier;
+  pickRank: number;
 }
 
 export type NewUniversityCard = Omit<
   UniversityCard,
-  "id" | "createdAt" | "viewCount" | "pickTier"
+  "id" | "createdAt" | "viewCount" | "pickTier" | "pickRank"
 >;

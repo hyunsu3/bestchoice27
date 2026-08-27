@@ -1,9 +1,16 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { getAutoHex, HEXES } from "@/lib/cardColor";
 import type { NewUniversityCard, UniversityCard } from "@/lib/types";
 import { useUniversityColors } from "@/lib/universityColors";
+
+function normalizeHex(value: string): string | null {
+  let s = value.trim();
+  if (!s) return null;
+  if (!s.startsWith("#")) s = `#${s}`;
+  return /^#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})$/.test(s) ? s : null;
+}
 
 const emptyForm: NewUniversityCard = {
   universityName: "",
@@ -46,6 +53,8 @@ export default function CardForm({
   const universityKey = form.universityName.trim();
   const customColor = universityKey ? colors[universityKey] : undefined;
   const swatchColor = customColor || getAutoHex(form.universityName);
+  const [hexInput, setHexInput] = useState(swatchColor);
+  useEffect(() => setHexInput(swatchColor), [swatchColor]);
 
   function update<K extends keyof NewUniversityCard>(key: K, value: string) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -149,6 +158,18 @@ export default function CardForm({
             value={swatchColor}
             disabled={!universityKey}
             onChange={(e) => setUniversityColor(form.universityName, e.target.value)}
+          />
+          <input
+            type="text"
+            className="input w-28 font-mono text-xs uppercase disabled:cursor-not-allowed disabled:opacity-40"
+            value={hexInput}
+            disabled={!universityKey}
+            placeholder="#RRGGBB"
+            onChange={(e) => {
+              setHexInput(e.target.value);
+              const normalized = normalizeHex(e.target.value);
+              if (normalized) setUniversityColor(form.universityName, normalized);
+            }}
           />
           {customColor ? (
             <button

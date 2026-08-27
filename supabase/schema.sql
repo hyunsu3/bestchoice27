@@ -10,7 +10,8 @@ create table if not exists cards (
   created_at timestamptz not null default now(),
   view_count integer not null default 0,
   is_favorite boolean not null default false,
-  pick_tier text not null default 'none'
+  pick_tier text not null default 'none',
+  pick_rank double precision not null default 0
 );
 
 alter table cards add column if not exists is_favorite boolean not null default false;
@@ -19,6 +20,10 @@ alter table cards add column if not exists min_requirement text not null default
 -- 표시해둔 카드는 정보 손실 없이 '적정'으로 옮겨서 계속 선택된 상태로 둔다.
 alter table cards add column if not exists pick_tier text not null default 'none';
 update cards set pick_tier = 'target' where is_favorite and pick_tier = 'none';
+-- 선택등급순 보기에서 같은 등급 안 카드를 좌우 화살표로 직접 줄세우는 우선순위
+-- 값. 모든 카드는 0에서 시작하고, 앞으로 보내면 +1, 뒤로 보내면 -1씩 바뀐다.
+alter table cards add column if not exists pick_rank double precision not null default 0;
+update cards set pick_rank = 0;
 
 alter table cards enable row level security;
 

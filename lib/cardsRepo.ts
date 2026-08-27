@@ -13,6 +13,7 @@ type CardRow = {
   created_at: string;
   view_count: number;
   pick_tier: PickTier;
+  pick_rank: number;
 };
 
 function toCard(row: CardRow): UniversityCard {
@@ -28,6 +29,7 @@ function toCard(row: CardRow): UniversityCard {
     createdAt: new Date(row.created_at).getTime(),
     viewCount: row.view_count ?? 0,
     pickTier: row.pick_tier ?? "none",
+    pickRank: row.pick_rank ?? 0,
   };
 }
 
@@ -110,6 +112,20 @@ export async function setCardPickTier(
   const { data, error } = await supabaseAdmin
     .from("cards")
     .update({ pick_tier: pickTier })
+    .eq("id", id)
+    .select()
+    .single();
+  if (error) throw error;
+  return toCard(data as CardRow);
+}
+
+export async function setCardPickRank(
+  id: string,
+  pickRank: number,
+): Promise<UniversityCard> {
+  const { data, error } = await supabaseAdmin
+    .from("cards")
+    .update({ pick_rank: pickRank })
     .eq("id", id)
     .select()
     .single();

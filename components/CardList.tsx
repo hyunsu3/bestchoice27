@@ -45,11 +45,14 @@ function compareCards(
       return dir * (cb - ca); // 기본(▼): 큰 인원부터
     }
     case "pickTier": {
-      // 기본(▼): 안정(1) → 적정(2) → 상향(3) → 해제 순.
+      // 기본(▼): 안정(1) → 적정(2) → 상향(3) → 해제 순. 같은 등급 안에서는
+      // 좌우 화살표로 옮긴 우선순위(pickRank)가 큰 카드부터(앞으로 보낼수록
+      // 앞에 오도록) 보여주고, 값이 같으면 이름순으로 대체한다.
       const rank = (t: UniversityCard["pickTier"]) =>
         t === "none" ? PICK_TIER_ORDER.length : PICK_TIER_ORDER.indexOf(t);
       return (
         dir * (rank(a.pickTier) - rank(b.pickTier)) ||
+        dir * (b.pickRank - a.pickRank) ||
         dir * a.universityName.localeCompare(b.universityName, "ko")
       );
     }
@@ -89,16 +92,25 @@ export default function CardList({
   onEdit,
   onDelete,
   onCyclePickTier,
+  onMovePickRank,
 }: {
   cards: UniversityCard[];
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
   onCyclePickTier: (id: string) => void;
+  onMovePickRank: (id: string, delta: 1 | -1) => void;
 }) {
   const [sortMode, setSortMode] = useState<SortMode>("pickTier");
   const [sortDesc, setSortDesc] = useState(false);
 
   function handleSortClick(mode: SortMode) {
+    // 선택등급순은 항상 안정→적정→상향→해제 고정 순서만 보여준다. 선택/비선택
+    // 순서를 뒤집는 토글은 제공하지 않는다.
+    if (mode === "pickTier") {
+      setSortMode("pickTier");
+      setSortDesc(false);
+      return;
+    }
     if (mode === sortMode) {
       setSortDesc((d) => !d);
     } else {
@@ -141,15 +153,29 @@ export default function CardList({
         ))}
       </div>
       <div className="grid grid-cols-2 gap-5 sm:gap-7 lg:grid-cols-4">
-        {sortedCards.map((card) => (
-          <FlipCard
-            key={card.id}
-            card={card}
-            onEdit={() => onEdit(card.id)}
-            onDelete={() => onDelete(card.id)}
-            onCyclePickTier={() => onCyclePickTier(card.id)}
-          />
-        ))}
+        {sortedCards.map((card, i) => {
+          const prevCard = sortedCards[i - 1];
+          const nextCard = sortedCards[i + 1];
+          const canMoveLeft =
+            sortMode === "pickTier" && prevCard?.pickTier === card.pickTier;
+          const canMoveRight =
+            sortMode === "pickTier" && nextCard?.pickTier === card.pickTier;
+          return (
+            <FlipCard
+              key={card.id}
+              card={card}
+              onEdit={() => onEdit(card.id)}
+              onDelete={() => onDelete(card.id)}
+              onCyclePickTier={() => onCyclePickTier(card.id)}
+              onMoveLeft={
+                canMoveLeft ? () => onMovePickRank(card.id, 1) : undefined
+              }
+              onMoveRight={
+                canMoveRight ? () => onMovePickRank(card.id, -1) : undefined
+              }
+            />
+          );
+        })}
       </div>
     </div>
   );

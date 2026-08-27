@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { authorizedFetch } from "./authorizedFetch";
-import { nextPickTier } from "./pickTier";
+import { nextPickTier, PICK_TIER_RANK_DELTA } from "./pickTier";
 import type { NewUniversityCard, PickTier, UniversityCard } from "./types";
 
 const LEGACY_STORAGE_KEY = "bestchoice.cards.v1";
@@ -103,29 +103,75 @@ export function useCards() {
   );
 
   const cyclePickTier = useCallback(async (id: string) => {
-    let previous: PickTier | undefined;
-    let next: PickTier | undefined;
+    let previousTier: PickTier | undefined;
+    let nextTier: PickTier | undefined;
+    let previousRank: number | undefined;
+    let nextRank: number | undefined;
     setCards((prev) =>
       prev.map((c) => {
         if (c.id !== id) return c;
-        previous = c.pickTier;
-        next = nextPickTier(c.pickTier);
-        return { ...c, pickTier: next };
+        previousTier = c.pickTier;
+        nextTier = nextPickTier(c.pickTier);
+        previousRank = c.pickRank;
+        nextRank = c.pickRank + PICK_TIER_RANK_DELTA[nextTier];
+        return { ...c, pickTier: nextTier, pickRank: nextRank };
+      }),
+    );
+    if (
+      previousTier === undefined ||
+      nextTier === undefined ||
+      previousRank === undefined ||
+      nextRank === undefined
+    )
+      return;
+    try {
+      const [tierRes, rankRes] = await Promise.all([
+        fetch(`/api/cards/${id}/pick-tier`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ pickTier: nextTier }),
+        }),
+        fetch(`/api/cards/${id}/pick-rank`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ pickRank: nextRank }),
+        }),
+      ]);
+      if (!tierRes.ok || !rankRes.ok) throw new Error();
+    } catch {
+      setCards((prev) =>
+        prev.map((c) =>
+          c.id === id
+            ? { ...c, pickTier: previousTier!, pickRank: previousRank! }
+            : c,
+        ),
+      );
+    }
+  }, []);
+
+  // delta: +1(왼쪽/앞으로) 값을 올리고, -1(오른쪽/뒤로) 값을 내린다.
+  const movePickRank = useCallback(async (id: string, delta: 1 | -1) => {
+    let previous: number | undefined;
+    let next: number | undefined;
+    setCards((prev) =>
+      prev.map((c) => {
+        if (c.id !== id) return c;
+        previous = c.pickRank;
+        next = c.pickRank + delta;
+        return { ...c, pickRank: next };
       }),
     );
     if (previous === undefined || next === undefined) return;
     try {
-      const res = await fetch(`/api/cards/${id}/pick-tier`, {
+      const res = await fetch(`/api/cards/${id}/pick-rank`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pickTier: next }),
+        body: JSON.stringify({ pickRank: next }),
       });
       if (!res.ok) throw new Error();
-      const updated = (await res.json()) as UniversityCard;
-      setCards((prev) => prev.map((c) => (c.id === id ? updated : c)));
     } catch {
       setCards((prev) =>
-        prev.map((c) => (c.id === id ? { ...c, pickTier: previous! } : c)),
+        prev.map((c) => (c.id === id ? { ...c, pickRank: previous! } : c)),
       );
     }
   }, []);
@@ -137,6 +183,7 @@ export function useCards() {
     removeCard,
     updateCard,
     cyclePickTier,
+    movePickRank,
     refresh,
   };
 }
