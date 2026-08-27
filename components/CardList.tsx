@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { PICK_TIER_ORDER } from "@/lib/pickTier";
 import type { UniversityCard } from "@/lib/types";
 import FlipCard from "./FlipCard";
+import ResultCardModal from "./ResultCardModal";
 
 type SortMode = "latest" | "name" | "admissionType" | "capacity" | "pickTier";
 
@@ -102,6 +103,13 @@ export default function CardList({
 }) {
   const [sortMode, setSortMode] = useState<SortMode>("pickTier");
   const [sortDesc, setSortDesc] = useState(false);
+  const [viewingId, setViewingId] = useState<string | null>(null);
+  const viewingCard = cards.find((c) => c.id === viewingId) ?? null;
+
+  function openCard(card: UniversityCard) {
+    setViewingId(card.id);
+    fetch(`/api/cards/${card.id}/view`, { method: "POST" }).catch(() => {});
+  }
 
   function handleSortClick(mode: SortMode) {
     // 선택등급순은 항상 안정→적정→상향→해제 고정 순서만 보여준다. 선택/비선택
@@ -152,7 +160,7 @@ export default function CardList({
           </button>
         ))}
       </div>
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-7 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-5 sm:gap-7 lg:grid-cols-4">
         {sortedCards.map((card, i) => {
           const prevCard = sortedCards[i - 1];
           const nextCard = sortedCards[i + 1];
@@ -164,8 +172,7 @@ export default function CardList({
             <FlipCard
               key={card.id}
               card={card}
-              onEdit={() => onEdit(card.id)}
-              onDelete={() => onDelete(card.id)}
+              onOpen={() => openCard(card)}
               onCyclePickTier={() => onCyclePickTier(card.id)}
               onMoveLeft={
                 canMoveLeft ? () => onMovePickRank(card.id, 1) : undefined
@@ -177,6 +184,15 @@ export default function CardList({
           );
         })}
       </div>
+      {viewingCard && (
+        <ResultCardModal
+          card={viewingCard}
+          onClose={() => setViewingId(null)}
+          onEdit={() => onEdit(viewingCard.id)}
+          onDelete={() => onDelete(viewingCard.id)}
+          initialFlipped
+        />
+      )}
     </div>
   );
 }
