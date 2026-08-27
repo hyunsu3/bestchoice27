@@ -26,6 +26,19 @@ export default function ResultCardModal({
   const customColor = colors[card.universityName.trim()];
 
   useEffect(() => {
+    // 사파리의 dvh 단위는 주소창/툴바가 보이는 도중 실시간으로 안 맞을 때가
+    // 있어서, visualViewport로 실제 보이는 높이를 직접 재서 CSS 변수로
+    // 내려준다(팝업 크기 계산은 이 값을 우선 사용, 미지원 브라우저는 dvh로
+    // 자동 폴백).
+    function updateViewportHeight() {
+      const height = window.visualViewport?.height ?? window.innerHeight;
+      document.documentElement.style.setProperty("--app-vh", `${height}px`);
+    }
+    updateViewportHeight();
+    window.visualViewport?.addEventListener("resize", updateViewportHeight);
+    window.addEventListener("resize", updateViewportHeight);
+    window.addEventListener("orientationchange", updateViewportHeight);
+
     function onKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
     }
@@ -47,6 +60,9 @@ export default function ResultCardModal({
     body.style.width = "100%";
 
     return () => {
+      window.visualViewport?.removeEventListener("resize", updateViewportHeight);
+      window.removeEventListener("resize", updateViewportHeight);
+      window.removeEventListener("orientationchange", updateViewportHeight);
       window.removeEventListener("keydown", onKeyDown);
       html.style.overflow = prev.htmlOverflow;
       body.style.overflow = prev.bodyOverflow;
@@ -58,8 +74,15 @@ export default function ResultCardModal({
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 z-50 h-dvh overflow-y-auto" onClick={onClose}>
-      <div className="fixed inset-0 h-dvh bg-black/90 sm:bg-black/60" />
+    <div
+      className="fixed inset-0 z-50 overflow-y-auto"
+      style={{ height: "var(--app-vh, 100dvh)" }}
+      onClick={onClose}
+    >
+      <div
+        className="fixed inset-0 bg-black/90 sm:bg-black/60"
+        style={{ height: "var(--app-vh, 100dvh)" }}
+      />
       <div className="flex min-h-full items-center justify-center p-2">
         <div
           className="flip-card result-card-shell relative"
