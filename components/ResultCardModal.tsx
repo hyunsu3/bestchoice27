@@ -69,7 +69,6 @@ export default function ResultCardModal({
           aspectRatio: "3 / 5",
           width: "min(96vw, calc(92dvh * 3 / 5), 28rem)",
           maxHeight: "92dvh",
-          border: "1px solid red",
         }}
         onClick={(e) => {
           e.stopPropagation();
@@ -88,91 +87,80 @@ export default function ResultCardModal({
         >
           ×
         </button>
-        <div
-          className={`flip-card-inner ${flipped ? "is-flipped" : ""}`}
-          style={{ border: "1px solid red" }}
-        >
+        <div className={`flip-card-inner ${flipped ? "is-flipped" : ""}`}>
           <div
             className={`flip-card-face flip-card-front cursor-pointer text-white ${
               !colorsReady ? "animate-pulse bg-zinc-300 dark:bg-zinc-700" : ""
             }`}
-            style={{
-              border: "1px solid red",
-              ...(colorsReady
+            style={
+              colorsReady
                 ? {
                     backgroundColor: customColor || getAutoHex(card.universityName),
                     backgroundImage:
                       "repeating-linear-gradient(45deg, rgba(255,255,255,0.14) 0px, rgba(255,255,255,0.14) 2px, transparent 2px, transparent 12px)",
                   }
-                : {}),
-            }}
+                : undefined
+            }
           >
-            <div className="mt-3 ml-1 flex h-[90%] flex-col" style={{ border: "1px solid red" }}>
+            <div className="mt-3 ml-1 flex h-[90%] flex-col">
               {colorsReady && <CardFrontFace card={card} size="lg" />}
             </div>
           </div>
-          <div
-            className="flip-card-face result-card-face flip-card-back cursor-pointer bg-white dark:bg-zinc-900"
-            style={{ border: "1px solid red" }}
-          >
-            <div
-              className="mt-3 border-b border-black/10 pb-3 pl-3 pr-16 dark:border-white/10 sm:pl-0"
-              style={{ border: "1px solid red" }}
-            >
-              <p className="text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60 sm:text-base">
-                {card.admissionType || "전형 미입력"}
-              </p>
-              <h3 className="mt-1 flex items-center gap-1.5 text-xl font-black leading-tight text-black dark:text-white sm:text-2xl">
-                {renderWithSmall(card.universityName)}
-                {card.pickTier === "reach" && (
-                  <span aria-hidden className="text-lg sm:text-xl">
-                    {PICK_TIER_REACH_ICON}
-                  </span>
-                )}
-                {(card.pickTier === "safe" || card.pickTier === "target") && (
-                  <span
-                    aria-hidden
-                    className="h-3 w-3 shrink-0 rounded-full sm:h-3.5 sm:w-3.5"
-                    style={{ backgroundColor: PICK_TIER_COLORS[card.pickTier] }}
-                  />
-                )}
-              </h3>
-              <p className="mt-1 text-base font-semibold text-black/80 dark:text-white/80 sm:text-lg">
-                {card.department}
-                {card.capacity && ` · ${card.capacity}`}
-              </p>
-              {card.minRequirement && (
-                <p className="mt-1 text-lg font-medium text-black/60 dark:text-white/60 sm:text-xl">
-                  수능최저 {card.minRequirement}
+          <div className="flip-card-face result-card-face flip-card-back cursor-pointer bg-white dark:bg-zinc-900">
+            <div className="flex h-[95%] min-h-0 flex-col">
+              <div className="mt-3 border-b border-black/10 pb-3 pl-3 pr-16 dark:border-white/10 sm:pl-0">
+                <p className="text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60 sm:text-base">
+                  {card.admissionType || "전형 미입력"}
                 </p>
-              )}
-            </div>
-            <dl
-              className="thin-scrollbar mt-3 min-h-0 flex-1 overflow-y-auto text-base sm:text-lg"
-              style={{ touchAction: "pan-y", borderBottom: "1px solid silver" }}
-            >
-              <div style={{ border: "1px solid red" }}>
-                <dt className="font-semibold text-black/60 dark:text-white/60">
-                  전형요약
-                </dt>
-                <dd className="whitespace-pre-wrap">
-                  {card.admissionSummary ? renderWithBold(card.admissionSummary) : "-"}
-                </dd>
-                <dt className="mt-3 font-semibold text-black/60 dark:text-white/60">
-                  24-26년 입결 요약
-                </dt>
-                <dd className="whitespace-pre-wrap">
-                  {card.resultSummary ? renderWithBold(card.resultSummary) : "-"}
-                </dd>
+                <h3 className="mt-1 flex items-center gap-1.5 text-xl font-black leading-tight text-black dark:text-white sm:text-2xl">
+                  {renderWithSmall(card.universityName)}
+                  {card.pickTier === "reach" && (
+                    <span aria-hidden className="text-lg sm:text-xl">
+                      {PICK_TIER_REACH_ICON}
+                    </span>
+                  )}
+                  {(card.pickTier === "safe" || card.pickTier === "target") && (
+                    <span
+                      aria-hidden
+                      className="h-3 w-3 shrink-0 rounded-full sm:h-3.5 sm:w-3.5"
+                      style={{ backgroundColor: PICK_TIER_COLORS[card.pickTier] }}
+                    />
+                  )}
+                </h3>
+                <p className="mt-1 text-base font-semibold text-black/80 dark:text-white/80 sm:text-lg">
+                  {card.department}
+                  {card.capacity && ` · ${card.capacity}`}
+                </p>
+                {card.minRequirement && (
+                  <p className="mt-1 text-lg font-medium text-black/60 dark:text-white/60 sm:text-xl">
+                    수능최저 {card.minRequirement}
+                  </p>
+                )}
               </div>
-            </dl>
+              <dl
+                className="thin-scrollbar mt-3 min-h-0 flex-1 overflow-y-auto text-base sm:text-lg"
+                style={{ touchAction: "pan-y", borderBottom: "1px solid silver" }}
+              >
+                <div>
+                  <dt className="font-semibold text-black/60 dark:text-white/60">
+                    전형요약
+                  </dt>
+                  <dd className="whitespace-pre-wrap">
+                    {card.admissionSummary ? renderWithBold(card.admissionSummary) : "-"}
+                  </dd>
+                  <dt className="mt-3 font-semibold text-black/60 dark:text-white/60">
+                    24-26년 입결 요약
+                  </dt>
+                  <dd className="whitespace-pre-wrap">
+                    {card.resultSummary ? renderWithBold(card.resultSummary) : "-"}
+                  </dd>
+                </div>
+              </dl>
+            </div>
           </div>
         </div>
         {(onEdit || onDelete) && !flipped && (
-          <div
-            className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 gap-1"
-            style={{ border: "1px solid red" }}
-          >
+          <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 gap-1">
             {onEdit && (
               <button
                 type="button"
