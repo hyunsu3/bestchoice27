@@ -62,7 +62,7 @@ export default function ResultCardModal({
       className="fixed inset-0 z-50 flex items-center justify-center p-2"
       onClick={onClose}
     >
-      <div className="absolute inset-0 touch-none bg-black/60" />
+      <div className="absolute inset-0 touch-none bg-black/90 sm:bg-black/60" />
       <div
         className="flip-card relative"
         style={{
@@ -107,7 +107,7 @@ export default function ResultCardModal({
             </div>
           </div>
           <div className="flip-card-face result-card-face flip-card-back cursor-pointer bg-white dark:bg-zinc-900">
-            <div className="flex h-[95%] min-h-0 flex-col">
+            <div className="flex h-[99%] min-h-0 flex-col">
               <div className="mt-3 border-b border-black/10 pb-3 pl-3 pr-16 dark:border-white/10 sm:pl-0">
                 <p className="text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60 sm:text-base">
                   {card.admissionType || "전형 미입력"}
@@ -139,9 +139,9 @@ export default function ResultCardModal({
               </div>
               <dl
                 className="thin-scrollbar mt-3 min-h-0 flex-1 overflow-y-auto text-base sm:text-lg"
-                style={{ touchAction: "pan-y", borderBottom: "1px solid silver" }}
+                style={{ touchAction: "pan-y" }}
               >
-                <div>
+                <div className="ml-3 sm:ml-0">
                   <dt className="font-semibold text-black/60 dark:text-white/60">
                     전형요약
                   </dt>
