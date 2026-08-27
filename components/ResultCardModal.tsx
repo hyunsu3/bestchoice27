@@ -40,21 +40,24 @@ export default function ResultCardModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-2"
       onClick={onClose}
     >
+      <div className="absolute inset-0 touch-none bg-black/60" />
       <button
         onClick={onClose}
         aria-label="닫기"
-        className="absolute right-4 top-4 text-3xl leading-none text-white/80 hover:text-white"
+        className="absolute bottom-4 right-4 text-5xl leading-none text-white/80 hover:text-white"
       >
         ×
       </button>
       <div
-        className="flip-card"
+        className="flip-card relative"
         style={{
-          aspectRatio: "3 / 5",
-          width: "min(90vw, calc(94vh * 3 / 5), 24rem)",
+          aspectRatio: flipped ? "3 / 6.5" : "3 / 5",
+          width: "min(96vw, calc(97vh * 3 / 5), 28rem)",
+          maxHeight: "97vh",
+          transition: "aspect-ratio 0.35s cubic-bezier(0.4, 0.2, 0.2, 1)",
         }}
         onClick={(e) => {
           e.stopPropagation();
