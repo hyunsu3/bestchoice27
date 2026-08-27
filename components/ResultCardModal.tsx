@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getAutoHex } from "@/lib/cardColor";
-import { renderWithBold } from "@/lib/formatText";
+import { renderWithBold, renderWithSmall } from "@/lib/formatText";
 import { PICK_TIER_COLORS, PICK_TIER_ICONS } from "@/lib/pickTier";
 import type { UniversityCard } from "@/lib/types";
 import { useUniversityColors } from "@/lib/universityColors";
@@ -110,38 +110,42 @@ export default function ResultCardModal({
           <div className="flip-card-face flip-card-back cursor-pointer bg-white dark:bg-zinc-900">
             <div
               className="mt-10 min-h-0 flex-1 overflow-y-auto pr-3"
-              style={{ touchAction: "pan-y", scrollbarGutter: "stable" }}
+              style={{
+                touchAction: "pan-y",
+                scrollbarGutter: "stable",
+                WebkitOverflowScrolling: "touch",
+              }}
             >
               <div className="border-b border-black/10 pb-3 pr-16 dark:border-white/10">
-                <p className="text-base font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
+                <p className="text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60 sm:text-base">
                   {card.admissionType || "전형 미입력"}
                 </p>
-                <h3 className="mt-1 flex items-center gap-1.5 text-2xl font-black leading-tight text-black dark:text-white">
-                  {card.universityName}
+                <h3 className="mt-1 flex items-center gap-1.5 text-xl font-black leading-tight text-black dark:text-white sm:text-2xl">
+                  {renderWithSmall(card.universityName)}
                   {card.pickTier === "reach" && (
-                    <span aria-hidden className="text-xl">
+                    <span aria-hidden className="text-lg sm:text-xl">
                       {PICK_TIER_ICONS.reach}
                     </span>
                   )}
                   {(card.pickTier === "safe" || card.pickTier === "target") && (
                     <span
                       aria-hidden
-                      className="h-3.5 w-3.5 shrink-0 rounded-full"
+                      className="h-3 w-3 shrink-0 rounded-full sm:h-3.5 sm:w-3.5"
                       style={{ backgroundColor: PICK_TIER_COLORS[card.pickTier] }}
                     />
                   )}
                 </h3>
-                <p className="mt-1 text-lg font-semibold text-black/80 dark:text-white/80">
+                <p className="mt-1 text-base font-semibold text-black/80 dark:text-white/80 sm:text-lg">
                   {card.department}
                   {card.capacity && ` · ${card.capacity}`}
                 </p>
                 {card.minRequirement && (
-                  <p className="mt-1 text-base font-medium text-black/60 dark:text-white/60">
+                  <p className="mt-1 text-lg font-medium text-black/60 dark:text-white/60 sm:text-xl">
                     수능최저 {card.minRequirement}
                   </p>
                 )}
               </div>
-              <dl className="mt-3 flex flex-col gap-3 text-lg">
+              <dl className="mt-3 flex flex-col gap-3 pb-6 text-base sm:text-lg">
                 <div>
                   <dt className="font-semibold text-black/60 dark:text-white/60">
                     전형요약
@@ -165,7 +169,7 @@ export default function ResultCardModal({
                         type="button"
                         aria-label="카드 수정"
                         title="카드 수정"
-                        className="rounded-full border border-black/10 bg-white/90 px-3 py-1 text-xs font-semibold text-black/70 shadow-sm hover:bg-white hover:text-indigo-500 dark:border-white/10 dark:bg-zinc-800/90 dark:text-white/70 dark:hover:text-indigo-400"
+                        className="rounded-full border border-black/10 bg-white/90 px-3 py-1 text-xs font-semibold text-black/70 shadow-sm hover:bg-white hover:text-indigo-500 dark:border-white/10 dark:bg-zinc-800/90 dark:text-white/70 dark:hover:text-indigo-400 sm:text-sm"
                         onClick={(e) => {
                           e.stopPropagation();
                           onEdit();
@@ -179,7 +183,7 @@ export default function ResultCardModal({
                         type="button"
                         aria-label="카드 삭제"
                         title="카드 삭제"
-                        className="rounded-full border border-black/10 bg-white/90 px-3 py-1 text-xs font-semibold text-black/70 shadow-sm hover:bg-white hover:text-rose-500 dark:border-white/10 dark:bg-zinc-800/90 dark:text-white/70 dark:hover:text-rose-400"
+                        className="rounded-full border border-black/10 bg-white/90 px-3 py-1 text-xs font-semibold text-black/70 shadow-sm hover:bg-white hover:text-rose-500 dark:border-white/10 dark:bg-zinc-800/90 dark:text-white/70 dark:hover:text-rose-400 sm:text-sm"
                         onClick={(e) => {
                           e.stopPropagation();
                           if (window.confirm("이 카드를 삭제할까요?")) {

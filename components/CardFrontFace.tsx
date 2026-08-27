@@ -21,12 +21,12 @@ const SIZE_STYLES = {
     minReq: "text-[9px] sm:text-sm lg:text-base",
   },
   lg: {
-    badge: "text-xl px-5 py-2.5 tracking-wider ml-2",
-    name: "mt-6 mx-2 text-5xl tracking-tight",
-    dept: "text-2xl",
-    infoBox: "px-5 py-6",
-    infoValue: "text-5xl",
-    minReq: "text-sm",
+    badge: "text-base px-4 py-2 tracking-wider ml-2 sm:text-xl sm:px-5 sm:py-2.5",
+    name: "mt-4 mx-2 text-4xl tracking-tight sm:mt-6 sm:text-5xl",
+    dept: "text-lg sm:text-2xl",
+    infoBox: "px-4 py-4 sm:px-5 sm:py-6",
+    infoValue: "text-4xl sm:text-5xl",
+    minReq: "text-xs sm:text-sm",
   },
 } as const;
 
