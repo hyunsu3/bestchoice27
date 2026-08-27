@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { getAutoHex } from "@/lib/cardColor";
 import { renderWithBold } from "@/lib/formatText";
 import { PICK_TIER_COLORS } from "@/lib/pickTier";
@@ -24,40 +24,16 @@ export default function ResultCardModal({
   const [flipped, setFlipped] = useState(initialFlipped);
   const { colors, ready: colorsReady } = useUniversityColors();
   const customColor = colors[card.universityName.trim()];
-  const scrollAreaRef = useRef<HTMLDListElement>(null);
 
   useEffect(() => {
-    function insideScrollArea(target: EventTarget | null) {
-      return target instanceof Node && !!scrollAreaRef.current?.contains(target);
-    }
     function onKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
     }
-    // 뒷면 요약 내용을 스크롤하는 경우는 제외하고, 그 밖의 스크롤(휠을
-    // 아래로 굴리거나 화면을 위로 쓸어넘기는 것)은 팝업을 닫는 제스처로 본다.
-    function onWheel(e: WheelEvent) {
-      if (e.deltaY > 0 && !insideScrollArea(e.target)) onClose();
-    }
-    let touchStartY = 0;
-    function onTouchStart(e: TouchEvent) {
-      touchStartY = e.touches[0]?.clientY ?? 0;
-    }
-    function onTouchMove(e: TouchEvent) {
-      if (insideScrollArea(e.target)) return;
-      const currentY = e.touches[0]?.clientY ?? touchStartY;
-      if (touchStartY - currentY > 10) onClose();
-    }
     window.addEventListener("keydown", onKeyDown);
-    window.addEventListener("wheel", onWheel, { passive: true });
-    window.addEventListener("touchstart", onTouchStart, { passive: true });
-    window.addEventListener("touchmove", onTouchMove, { passive: true });
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
       window.removeEventListener("keydown", onKeyDown);
-      window.removeEventListener("wheel", onWheel);
-      window.removeEventListener("touchstart", onTouchStart);
-      window.removeEventListener("touchmove", onTouchMove);
       document.body.style.overflow = prevOverflow;
     };
   }, [onClose]);
@@ -75,7 +51,11 @@ export default function ResultCardModal({
         ×
       </button>
       <div
-        className="flip-card h-[32rem] w-80 sm:h-[36rem] sm:w-96 lg:h-[42rem] lg:w-[28rem]"
+        className="flip-card"
+        style={{
+          aspectRatio: "3 / 5",
+          width: "min(90vw, calc(94vh * 3 / 5), 24rem)",
+        }}
         onClick={(e) => {
           e.stopPropagation();
           setFlipped((f) => !f);
@@ -103,8 +83,10 @@ export default function ResultCardModal({
                 style={{ backgroundColor: PICK_TIER_COLORS[card.pickTier] }}
               />
             )}
-            {colorsReady && <CardFrontFace card={card} size="lg" />}
-            <p className="mt-3 text-xs text-white/60">탭해서 뒤집어보기 ↺</p>
+            <div className="mt-8 ml-1 flex flex-1 flex-col">
+              {colorsReady && <CardFrontFace card={card} size="lg" />}
+              <p className="mt-3 text-xs text-white/60">탭해서 뒤집어보기 ↺</p>
+            </div>
           </div>
           <div className="flip-card-face flip-card-back cursor-pointer bg-white dark:bg-zinc-900">
             {(onEdit || onDelete) && (
@@ -160,7 +142,6 @@ export default function ResultCardModal({
               )}
             </div>
             <dl
-              ref={scrollAreaRef}
               className="mt-3 flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto text-lg"
               style={{ touchAction: "pan-y" }}
             >
@@ -181,9 +162,6 @@ export default function ResultCardModal({
                 </dd>
               </div>
             </dl>
-            <p className="mt-2 text-xs text-black/40 dark:text-white/40">
-              탭해서 앞면으로
-            </p>
           </div>
         </div>
       </div>
