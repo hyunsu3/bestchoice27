@@ -9,11 +9,11 @@ import ResultCardModal from "./ResultCardModal";
 type SortMode = "latest" | "name" | "admissionType" | "capacity" | "pickTier";
 
 const SORT_OPTIONS: { id: SortMode; label: string }[] = [
-  { id: "latest", label: "최신순" },
-  { id: "name", label: "가나다순" },
+  { id: "latest", label: "최신" },
+  { id: "name", label: "가나다" },
   { id: "admissionType", label: "전형별" },
-  { id: "capacity", label: "모집인원순" },
-  { id: "pickTier", label: "선택기준순" },
+  { id: "capacity", label: "모집인원" },
+  { id: "pickTier", label: "선택" },
 ];
 
 function parseCapacity(capacity: string): number {
