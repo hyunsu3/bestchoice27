@@ -42,6 +42,7 @@ function toRow(card: NewUniversityCard) {
     min_requirement: card.minRequirement,
     admission_summary: card.admissionSummary,
     result_summary: card.resultSummary,
+    ...(card.pickRank !== undefined ? { pick_rank: card.pickRank } : {}),
   };
 }
 

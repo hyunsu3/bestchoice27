@@ -21,8 +21,8 @@ const SIZE_STYLES = {
     minReq: "text-[9px] sm:text-sm lg:text-base",
   },
   lg: {
-    badge: "text-xl px-5 py-2.5 tracking-wider",
-    name: "mt-4 text-5xl tracking-tight",
+    badge: "text-xl px-5 py-2.5 tracking-wider ml-2",
+    name: "mt-6 mx-2 text-5xl tracking-tight",
     dept: "text-2xl",
     infoBox: "px-5 py-6",
     infoValue: "text-5xl",

@@ -20,6 +20,7 @@ const emptyForm: NewUniversityCard = {
   minRequirement: "",
   admissionSummary: "",
   resultSummary: "",
+  pickRank: 0,
 };
 
 export default function CardForm({
@@ -43,6 +44,7 @@ export default function CardForm({
           minRequirement: editingCard.minRequirement,
           admissionSummary: editingCard.admissionSummary,
           resultSummary: editingCard.resultSummary,
+          pickRank: editingCard.pickRank,
         }
       : emptyForm,
   );
@@ -71,6 +73,7 @@ export default function CardForm({
       minRequirement: form.minRequirement.trim(),
       admissionSummary: form.admissionSummary.trim(),
       resultSummary: form.resultSummary.trim(),
+      pickRank: form.pickRank ?? 0,
     };
     setSubmitting(true);
     setError(null);
@@ -129,6 +132,19 @@ export default function CardForm({
           value={form.capacity}
           onChange={(e) => update("capacity", e.target.value)}
           placeholder="예: 15명"
+        />
+      </Field>
+      <Field
+        label="순서값"
+        hint="같은 등급(안정/적정/상향) 안에서 정렬 순서를 정해요. 클수록 앞에 표시돼요"
+      >
+        <input
+          type="number"
+          className="input"
+          value={form.pickRank ?? 0}
+          onChange={(e) =>
+            setForm((prev) => ({ ...prev, pickRank: Number(e.target.value) }))
+          }
         />
       </Field>
       <Field
@@ -206,7 +222,7 @@ export default function CardForm({
       </Field>
       <Field label="전형요약" full>
         <textarea
-          className="input min-h-20 resize-y"
+          className="input min-h-40 resize-y"
           value={form.admissionSummary}
           onChange={(e) => update("admissionSummary", e.target.value)}
           placeholder="서류 100% 또는 서류+면접 등 전형 방법 요약"

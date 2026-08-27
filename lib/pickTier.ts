@@ -17,6 +17,14 @@ export const PICK_TIER_COLORS: Record<PickTier, string> = {
   reach: "#ff4500",
 };
 
+// 안정(파랑 다이아몬드) → 적정(노랑 하트) → 상향(초록 클로버)
+export const PICK_TIER_ICONS: Record<PickTier, string> = {
+  none: "",
+  safe: "🔷",
+  target: "💛",
+  reach: "🍀",
+};
+
 // 롱프레스로 등급을 한 단계 올릴 때마다 pick_rank에 누적으로 더해주는 값
 // (안정→적정→상향 순서로 지나가며 100, 200, 300씩 더해짐). 상향에서 한 번 더
 // 눌러 해제로 돌아갈 때는 그 사이 쌓인 전체 합(100+200+300=600)을 빼서 한 바퀴

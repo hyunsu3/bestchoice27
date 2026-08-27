@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { getAutoHex } from "@/lib/cardColor";
 import { renderWithBold } from "@/lib/formatText";
-import { PICK_TIER_COLORS } from "@/lib/pickTier";
+import { PICK_TIER_COLORS, PICK_TIER_ICONS } from "@/lib/pickTier";
 import type { UniversityCard } from "@/lib/types";
 import { useUniversityColors } from "@/lib/universityColors";
 import CardFrontFace from "./CardFrontFace";
@@ -67,8 +67,8 @@ export default function ResultCardModal({
         className="flip-card relative"
         style={{
           aspectRatio: flipped ? "3 / 6.5" : "3 / 5",
-          width: "min(96vw, calc(97vh * 3 / 5), 28rem)",
-          maxHeight: "97vh",
+          width: "min(96vw, calc(92dvh * 3 / 5), 28rem)",
+          maxHeight: "92dvh",
           transition: "aspect-ratio 0.35s cubic-bezier(0.4, 0.2, 0.2, 1)",
         }}
         onClick={(e) => {
@@ -80,7 +80,7 @@ export default function ResultCardModal({
           type="button"
           aria-label="닫기"
           title="닫기"
-          className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-zinc-200/90 text-lg leading-none text-black/60 shadow-sm hover:bg-zinc-300 dark:bg-zinc-700/90 dark:text-white/60 dark:hover:bg-zinc-600"
+          className="absolute right-1 top-4 z-10 flex h-16 w-16 items-center justify-center text-7xl leading-none text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300"
           onClick={(e) => {
             e.stopPropagation();
             onClose();
@@ -103,29 +103,33 @@ export default function ResultCardModal({
                 : undefined
             }
           >
-            <div className="mt-8 ml-1 flex flex-1 flex-col">
+            <div className="mt-10 ml-1 flex flex-1 flex-col">
               {colorsReady && <CardFrontFace card={card} size="lg" />}
-              <p className="mt-3 text-xs text-white/60">탭해서 뒤집어보기 ↺</p>
             </div>
           </div>
           <div className="flip-card-face flip-card-back cursor-pointer bg-white dark:bg-zinc-900">
             <div
-              className="mt-8 min-h-0 flex-1 overflow-y-auto"
-              style={{ touchAction: "pan-y" }}
+              className="mt-10 min-h-0 flex-1 overflow-y-auto pr-3"
+              style={{ touchAction: "pan-y", scrollbarGutter: "stable" }}
             >
-              <div
-                className="sticky top-0 border-b border-black/10 bg-white pb-3 pl-3 dark:border-white/10 dark:bg-zinc-900"
-                style={{
-                  borderLeft: `4px solid ${
-                    card.pickTier !== "none" ? PICK_TIER_COLORS[card.pickTier] : "transparent"
-                  }`,
-                }}
-              >
+              <div className="border-b border-black/10 pb-3 pr-16 dark:border-white/10">
                 <p className="text-base font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
                   {card.admissionType || "전형 미입력"}
                 </p>
-                <h3 className="mt-1 text-2xl font-black leading-tight text-black dark:text-white">
+                <h3 className="mt-1 flex items-center gap-1.5 text-2xl font-black leading-tight text-black dark:text-white">
                   {card.universityName}
+                  {card.pickTier === "reach" && (
+                    <span aria-hidden className="text-xl">
+                      {PICK_TIER_ICONS.reach}
+                    </span>
+                  )}
+                  {(card.pickTier === "safe" || card.pickTier === "target") && (
+                    <span
+                      aria-hidden
+                      className="h-3.5 w-3.5 shrink-0 rounded-full"
+                      style={{ backgroundColor: PICK_TIER_COLORS[card.pickTier] }}
+                    />
+                  )}
                 </h3>
                 <p className="mt-1 text-lg font-semibold text-black/80 dark:text-white/80">
                   {card.department}
@@ -155,7 +159,7 @@ export default function ResultCardModal({
                   </dd>
                 </div>
                 {(onEdit || onDelete) && (
-                  <div className="flex justify-end gap-1 pt-1">
+                  <div className="flex justify-start gap-1 pt-1">
                     {onEdit && (
                       <button
                         type="button"

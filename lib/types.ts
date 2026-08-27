@@ -18,4 +18,6 @@ export interface UniversityCard {
 export type NewUniversityCard = Omit<
   UniversityCard,
   "id" | "createdAt" | "viewCount" | "pickTier" | "pickRank"
->;
+> & {
+  pickRank?: number;
+};
