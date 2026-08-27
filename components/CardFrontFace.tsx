@@ -24,9 +24,9 @@ const SIZE_STYLES = {
     badge: "text-base px-4 py-2 tracking-wider ml-2 sm:text-xl sm:px-5 sm:py-2.5",
     name: "mt-4 mx-2 text-4xl tracking-tight sm:mt-6 sm:text-5xl",
     dept: "text-lg sm:text-2xl",
-    infoBox: "px-4 py-4 sm:px-5 sm:py-6",
+    infoBox: "mb-6 px-4 py-4 sm:px-5 sm:py-6",
     infoValue: "text-4xl sm:text-5xl",
-    minReq: "text-xs sm:text-sm",
+    minReq: "text-sm sm:text-base",
   },
 } as const;
 

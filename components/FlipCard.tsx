@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, type PointerEvent } from "react";
 import { getAutoHex } from "@/lib/cardColor";
-import { PICK_TIER_COLORS, PICK_TIER_ICONS } from "@/lib/pickTier";
+import { PICK_TIER_COLORS, PICK_TIER_REACH_ICON } from "@/lib/pickTier";
 import type { UniversityCard } from "@/lib/types";
 import { useUniversityColors } from "@/lib/universityColors";
 import CardFrontFace from "./CardFrontFace";
@@ -118,7 +118,7 @@ export default function FlipCard({
                 aria-hidden
                 className="absolute right-1 top-2 text-2xl sm:right-2 sm:top-3 sm:text-3xl"
               >
-                {PICK_TIER_ICONS.reach}
+                {PICK_TIER_REACH_ICON}
               </span>
             )}
             {(card.pickTier === "safe" || card.pickTier === "target") && (

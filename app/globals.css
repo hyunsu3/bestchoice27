@@ -92,6 +92,16 @@ body {
     padding: 1.25rem;
   }
 }
+
+/* 팝업(ResultCardModal) 전용: 모바일에서는 카드 내부 여백을 더 좁게 */
+.result-card-face {
+  padding: 0.5rem;
+}
+@media (min-width: 640px) {
+  .result-card-face {
+    padding: 1.25rem;
+  }
+}
 .flip-card-back {
   transform: rotateY(-180deg);
   /* inset shadow instead of border: a real border gets clipped mid-rotation
@@ -102,6 +112,30 @@ body {
 @media (prefers-color-scheme: dark) {
   .flip-card-back {
     box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.12);
+  }
+}
+
+/* 얇고 플랫한 스크롤바 */
+.thin-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(0 0 0 / 0.2) transparent;
+}
+.thin-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+.thin-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgb(0 0 0 / 0.2);
+  border-radius: 9999px;
+}
+@media (prefers-color-scheme: dark) {
+  .thin-scrollbar {
+    scrollbar-color: rgb(255 255 255 / 0.25) transparent;
+  }
+  .thin-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgb(255 255 255 / 0.25);
   }
 }
 
