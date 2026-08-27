@@ -81,11 +81,13 @@ body {
 .flip-card-face {
   position: absolute;
   inset: 0;
+  overflow: hidden;
   backface-visibility: hidden;
   border-radius: 1rem;
   padding: 0.85rem;
   display: flex;
   flex-direction: column;
+  transform: translateZ(0);
 }
 @media (min-width: 640px) {
   .flip-card-face {
