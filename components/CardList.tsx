@@ -12,7 +12,7 @@ const SORT_OPTIONS: { id: SortMode; label: string }[] = [
   { id: "name", label: "가나다순" },
   { id: "admissionType", label: "전형별" },
   { id: "capacity", label: "모집인원순" },
-  { id: "pickTier", label: "선택등급순" },
+  { id: "pickTier", label: "선택기준순" },
 ];
 
 function parseCapacity(capacity: string): number {
@@ -152,7 +152,7 @@ export default function CardList({
           </button>
         ))}
       </div>
-      <div className="grid grid-cols-2 gap-5 sm:gap-7 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-7 lg:grid-cols-4">
         {sortedCards.map((card, i) => {
           const prevCard = sortedCards[i - 1];
           const nextCard = sortedCards[i + 1];
