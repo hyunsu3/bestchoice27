@@ -79,7 +79,7 @@ export default function FlipCard({
 
   return (
     <div
-      className={`rounded-2xl ${card.marked ? "ring-[5px] ring-yellow-400" : ""}`}
+      className={`rounded-2xl ${card.marked ? "ring-2 ring-yellow-400 sm:ring-[5px]" : ""}`}
     >
       <div
         className="flip-card aspect-[3/4]"

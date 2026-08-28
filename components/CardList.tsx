@@ -5,10 +5,9 @@ import type { UniversityCard } from "@/lib/types";
 import FlipCard from "./FlipCard";
 import ResultCardModal from "./ResultCardModal";
 
-type SortMode = "latest" | "name" | "admissionType" | "capacity";
+type SortMode = "name" | "admissionType" | "capacity";
 
 const SORT_OPTIONS: { id: SortMode; label: string }[] = [
-  { id: "latest", label: "최신" },
   { id: "name", label: "가나다" },
   { id: "admissionType", label: "전형별" },
   { id: "capacity", label: "모집인원" },
@@ -43,35 +42,7 @@ function compareCards(
       if (cb === Infinity) return -1;
       return dir * (cb - ca); // 기본(▼): 큰 인원부터
     }
-    case "latest":
-    default:
-      return dir * (b.createdAt - a.createdAt);
   }
-}
-
-// 최신순 정렬 시, 같은 학교 카드들이 흩어지지 않도록 학교별 최신 등록 시점
-// 기준으로 먼저 묶고 그 안에서 다시 최신순으로 정렬한다.
-function buildLatestGroupRanks(cards: UniversityCard[]): Map<string, number> {
-  const ranks = new Map<string, number>();
-  for (const c of cards) {
-    const key = c.universityName.trim();
-    const prev = ranks.get(key);
-    if (prev === undefined || c.createdAt > prev) ranks.set(key, c.createdAt);
-  }
-  return ranks;
-}
-
-function sortLatestGrouped(
-  cards: UniversityCard[],
-  desc: boolean,
-): UniversityCard[] {
-  const ranks = buildLatestGroupRanks(cards);
-  const dir = desc ? -1 : 1;
-  return [...cards].sort((a, b) => {
-    const ra = ranks.get(a.universityName.trim()) ?? a.createdAt;
-    const rb = ranks.get(b.universityName.trim()) ?? b.createdAt;
-    return dir * (rb - ra) || dir * (b.createdAt - a.createdAt);
-  });
 }
 
 export default function CardList({
@@ -110,10 +81,7 @@ export default function CardList({
   }
 
   const sortedCards = useMemo(() => {
-    const base =
-      sortMode === "latest"
-        ? sortLatestGrouped(cards, sortDesc)
-        : [...cards].sort((a, b) => compareCards(a, b, sortMode, sortDesc));
+    const base = [...cards].sort((a, b) => compareCards(a, b, sortMode, sortDesc));
     if (!prioritizeMarked) return base;
     return [...base.filter((c) => c.marked), ...base.filter((c) => !c.marked)];
   }, [cards, sortMode, sortDesc, prioritizeMarked]);
