@@ -18,9 +18,11 @@ const emptyForm: NewUniversityCard = {
   admissionType: "",
   capacity: "",
   minRequirement: "",
+  interviewDate: "",
+  resultAnnouncementDate: "",
   admissionSummary: "",
   resultSummary: "",
-  pickRank: 0,
+  departmentLink: "",
 };
 
 export default function CardForm({
@@ -42,9 +44,11 @@ export default function CardForm({
           admissionType: editingCard.admissionType,
           capacity: editingCard.capacity,
           minRequirement: editingCard.minRequirement,
+          interviewDate: editingCard.interviewDate,
+          resultAnnouncementDate: editingCard.resultAnnouncementDate,
           admissionSummary: editingCard.admissionSummary,
           resultSummary: editingCard.resultSummary,
-          pickRank: editingCard.pickRank,
+          departmentLink: editingCard.departmentLink,
         }
       : emptyForm,
   );
@@ -71,9 +75,11 @@ export default function CardForm({
       admissionType: form.admissionType.trim(),
       capacity: form.capacity.trim(),
       minRequirement: form.minRequirement.trim(),
+      interviewDate: form.interviewDate.trim(),
+      resultAnnouncementDate: form.resultAnnouncementDate.trim(),
       admissionSummary: form.admissionSummary.trim(),
       resultSummary: form.resultSummary.trim(),
-      pickRank: form.pickRank ?? 0,
+      departmentLink: form.departmentLink.trim(),
     };
     setSubmitting(true);
     setError(null);
@@ -134,17 +140,29 @@ export default function CardForm({
           placeholder="예: 15명"
         />
       </Field>
-      <Field
-        label="순서값"
-        hint="같은 등급(안정/적정/상향) 안에서 정렬 순서를 정해요. 클수록 앞에 표시돼요"
-      >
+      <Field label="학과 소개 링크" full hint="입력하면 카드에서 새 창으로 열리는 링크가 표시돼요">
         <input
-          type="number"
+          type="url"
           className="input"
-          value={form.pickRank ?? 0}
-          onChange={(e) =>
-            setForm((prev) => ({ ...prev, pickRank: Number(e.target.value) }))
-          }
+          value={form.departmentLink}
+          onChange={(e) => update("departmentLink", e.target.value)}
+          placeholder="예: https://dept.university.ac.kr"
+        />
+      </Field>
+      <Field label="면접일">
+        <input
+          className="input"
+          value={form.interviewDate}
+          onChange={(e) => update("interviewDate", e.target.value)}
+          placeholder="예: 11/15(토)"
+        />
+      </Field>
+      <Field label="합격자 발표">
+        <input
+          className="input"
+          value={form.resultAnnouncementDate}
+          onChange={(e) => update("resultAnnouncementDate", e.target.value)}
+          placeholder="예: 12/16(화)"
         />
       </Field>
       <Field

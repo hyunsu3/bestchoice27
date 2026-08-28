@@ -23,7 +23,7 @@ export default function GameApp() {
     removeCard,
     updateCard,
     cyclePickTier,
-    movePickRank,
+    toggleMarked,
   } = useCards();
   const [tab, setTab] = useState<Tab>("list");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -90,7 +90,7 @@ export default function GameApp() {
             onEdit={startEdit}
             onDelete={removeCard}
             onCyclePickTier={cyclePickTier}
-            onMovePickRank={movePickRank}
+            onToggleMarked={toggleMarked}
           />
         )}
         {tab === "vs" && hydrated && <VsMatch cards={cards} />}

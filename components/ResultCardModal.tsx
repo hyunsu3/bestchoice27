@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { getAutoHex } from "@/lib/cardColor";
 import { renderWithBold, renderWithSmall } from "@/lib/formatText";
-import { PICK_TIER_COLORS, PICK_TIER_REACH_ICON } from "@/lib/pickTier";
+import { PICK_TIER_COLORS } from "@/lib/pickTier";
 import type { UniversityCard } from "@/lib/types";
 import { useUniversityColors } from "@/lib/universityColors";
 import CardFrontFace from "./CardFrontFace";
@@ -33,18 +34,28 @@ export default function ResultCardModal({
 
     const scrollY = window.scrollY;
     const { body, documentElement: html } = document;
+    // 스크롤바가 사라지면서 본문 너비가 늘어나 화면이 옆으로 살짝
+    // 튀는 현상을 막기 위해, 사라지는 만큼 오른쪽 여백으로 메워준다.
+    const scrollbarWidth = window.innerWidth - html.clientWidth;
     const prev = {
       htmlOverflow: html.style.overflow,
       bodyOverflow: body.style.overflow,
       bodyPosition: body.style.position,
       bodyTop: body.style.top,
       bodyWidth: body.style.width,
+      bodyPaddingRight: body.style.paddingRight,
     };
     html.style.overflow = "hidden";
     body.style.overflow = "hidden";
     body.style.position = "fixed";
     body.style.top = `-${scrollY}px`;
     body.style.width = "100%";
+    if (scrollbarWidth > 0) {
+      const currentPaddingRight = parseFloat(
+        window.getComputedStyle(body).paddingRight || "0",
+      );
+      body.style.paddingRight = `${currentPaddingRight + scrollbarWidth}px`;
+    }
 
     return () => {
       window.removeEventListener("keydown", onKeyDown);
@@ -53,11 +64,12 @@ export default function ResultCardModal({
       body.style.position = prev.bodyPosition;
       body.style.top = prev.bodyTop;
       body.style.width = prev.bodyWidth;
+      body.style.paddingRight = prev.bodyPaddingRight;
       window.scrollTo(0, scrollY);
     };
   }, [onClose]);
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 overflow-y-auto" onClick={onClose}>
       <div className="fixed inset-0 bg-black/90 sm:bg-black/60" />
       <div className="flex min-h-full items-center justify-center p-2">
@@ -107,12 +119,7 @@ export default function ResultCardModal({
                   </p>
                   <h3 className="mt-1 flex items-center gap-1.5 text-xl font-black leading-tight text-black dark:text-white sm:text-2xl">
                     {renderWithSmall(card.universityName)}
-                    {card.pickTier === "reach" && (
-                      <span aria-hidden className="text-lg sm:text-xl">
-                        {PICK_TIER_REACH_ICON}
-                      </span>
-                    )}
-                    {(card.pickTier === "safe" || card.pickTier === "target") && (
+                    {card.pickTier !== "none" && (
                       <span
                         aria-hidden
                         className="h-3 w-3 shrink-0 rounded-full sm:h-3.5 sm:w-3.5"
@@ -133,6 +140,42 @@ export default function ResultCardModal({
                     <p className="mt-1 text-lg font-medium text-black/60 dark:text-white/60 sm:text-xl">
                       수능최저 {card.minRequirement}
                     </p>
+                  )}
+                  {(card.interviewDate || card.resultAnnouncementDate || card.departmentLink) && (
+                    <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                      {card.interviewDate && (
+                        <span
+                          aria-label={`면접일 ${card.interviewDate}`}
+                          className="inline-flex items-center gap-1 rounded-full bg-black/5 px-2.5 py-1 text-xs font-semibold text-black/70 dark:bg-white/10 dark:text-white/70 sm:text-sm"
+                        >
+                          <span aria-hidden>📅</span>
+                          면접 {card.interviewDate}
+                        </span>
+                      )}
+                      {card.resultAnnouncementDate && (
+                        <span
+                          aria-label={`합격자 발표 ${card.resultAnnouncementDate}`}
+                          className="inline-flex items-center gap-1 rounded-full bg-black/5 px-2.5 py-1 text-xs font-semibold text-black/70 dark:bg-white/10 dark:text-white/70 sm:text-sm"
+                        >
+                          <span aria-hidden>📢</span>
+                          {card.resultAnnouncementDate}
+                        </span>
+                      )}
+                      {card.departmentLink && (
+                        <a
+                          href={card.departmentLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          title="학과 소개 링크 (새 창)"
+                          aria-label="학과 소개 링크 새 창으로 열기"
+                          className="inline-flex items-center gap-1 rounded-full bg-indigo-500/10 px-2.5 py-1 text-xs font-semibold text-indigo-600 hover:bg-indigo-500/20 dark:bg-indigo-400/10 dark:text-indigo-400 sm:text-sm"
+                        >
+                          <span aria-hidden>🔗</span>
+                          학과 소개
+                        </a>
+                      )}
+                    </div>
                   )}
                 </div>
                 <dl
@@ -194,6 +237,7 @@ export default function ResultCardModal({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

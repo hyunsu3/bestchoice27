@@ -161,6 +161,20 @@ export default function BattleCard({
               {card.department}
               {card.capacity && ` · ${card.capacity}`}
             </p>
+            {card.departmentLink && (
+              <a
+                href={card.departmentLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
+                onPointerUp={(e) => e.stopPropagation()}
+                className={`mt-1 inline-block text-sm font-semibold underline ${accentClass}`}
+                style={accentStyle}
+              >
+                학과 소개 →
+              </a>
+            )}
             <div
               className="mt-3 min-h-0 flex-1 space-y-3 overflow-y-auto text-sm text-black/60 dark:text-white/60"
               style={{ touchAction: "pan-y" }}

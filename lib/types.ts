@@ -7,17 +7,18 @@ export interface UniversityCard {
   admissionType: string;
   capacity: string;
   minRequirement: string;
+  interviewDate: string;
+  resultAnnouncementDate: string;
   admissionSummary: string;
   resultSummary: string;
+  departmentLink: string;
   createdAt: number;
   viewCount: number;
   pickTier: PickTier;
-  pickRank: number;
+  marked: boolean;
 }
 
 export type NewUniversityCard = Omit<
   UniversityCard,
-  "id" | "createdAt" | "viewCount" | "pickTier" | "pickRank"
-> & {
-  pickRank?: number;
-};
+  "id" | "createdAt" | "viewCount" | "pickTier" | "marked"
+>;

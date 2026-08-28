@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, type PointerEvent } from "react";
 import { getAutoHex } from "@/lib/cardColor";
-import { PICK_TIER_COLORS, PICK_TIER_REACH_ICON } from "@/lib/pickTier";
+import { PICK_TIER_COLORS } from "@/lib/pickTier";
 import type { UniversityCard } from "@/lib/types";
 import { useUniversityColors } from "@/lib/universityColors";
 import CardFrontFace from "./CardFrontFace";
@@ -14,14 +14,12 @@ export default function FlipCard({
   card,
   onOpen,
   onCyclePickTier,
-  onMoveLeft,
-  onMoveRight,
+  onToggleMarked,
 }: {
   card: UniversityCard;
   onOpen: () => void;
   onCyclePickTier?: () => void;
-  onMoveLeft?: () => void;
-  onMoveRight?: () => void;
+  onToggleMarked?: () => void;
 }) {
   const { colors, ready: colorsReady } = useUniversityColors();
   const customColor = colors[card.universityName.trim()];
@@ -80,7 +78,9 @@ export default function FlipCard({
   useEffect(() => clearPressTimer, []);
 
   return (
-    <div className="rounded-2xl">
+    <div
+      className={`rounded-2xl ${card.marked ? "ring-[5px] ring-yellow-400" : ""}`}
+    >
       <div
         className="flip-card aspect-[3/4]"
         onClick={handleCardClick}
@@ -113,25 +113,35 @@ export default function FlipCard({
                 : undefined
             }
           >
-            {card.pickTier === "reach" && (
-              <span
-                aria-hidden
-                className="absolute right-1 top-2 text-2xl sm:right-2 sm:top-3 sm:text-3xl"
-              >
-                {PICK_TIER_REACH_ICON}
-              </span>
-            )}
-            {(card.pickTier === "safe" || card.pickTier === "target") && (
+            {card.pickTier !== "none" && (
               <span
                 aria-hidden
                 className="absolute right-2 top-2 h-3.5 w-3.5 rounded-full sm:right-3 sm:top-3 sm:h-4 sm:w-4"
                 style={{ backgroundColor: PICK_TIER_COLORS[card.pickTier] }}
               />
             )}
+            {onToggleMarked && (
+              <button
+                type="button"
+                aria-label={card.marked ? "카드 테두리 표시 끄기" : "카드 테두리 표시 켜기"}
+                title={card.marked ? "테두리 표시 끄기" : "테두리 표시 켜기"}
+                className="absolute bottom-2 right-2 z-50 flex h-6 w-6 items-center justify-center rounded-full bg-black/20 text-sm leading-none text-white/70 hover:bg-black/30 sm:bottom-3 sm:right-3 sm:h-7 sm:w-7 sm:text-base"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleMarked();
+                }}
+                onPointerDown={(e) => e.stopPropagation()}
+                onPointerUp={(e) => e.stopPropagation()}
+              >
+                📌
+              </button>
+            )}
             {colorsReady && <CardFrontFace card={card} />}
-            <p className="mt-1.5 text-[10px] text-white/60 sm:mt-3 sm:text-xs">
-              탭해서 자세히 보기
-            </p>
+            {card.interviewDate && (
+              <p className="mt-1.5 pl-[1em] text-[10px] text-white/60 sm:mt-3 sm:text-xs">
+                면접 {card.interviewDate}
+              </p>
+            )}
           </div>
         </div>
       </div>

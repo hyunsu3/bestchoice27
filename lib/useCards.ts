@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { authorizedFetch } from "./authorizedFetch";
-import { nextPickTier, PICK_TIER_RANK_DELTA } from "./pickTier";
+import { nextPickTier } from "./pickTier";
 import type { NewUniversityCard, PickTier, UniversityCard } from "./types";
 
 const LEGACY_STORAGE_KEY = "bestchoice.cards.v1";
@@ -27,8 +27,11 @@ async function migrateLegacyCards() {
         admissionType: c.admissionType,
         capacity: c.capacity,
         minRequirement: c.minRequirement ?? "",
+        interviewDate: c.interviewDate ?? "",
+        resultAnnouncementDate: c.resultAnnouncementDate ?? "",
         admissionSummary: c.admissionSummary,
         resultSummary: c.resultSummary,
+        departmentLink: c.departmentLink ?? "",
       }));
       const res = await fetch("/api/cards/bulk", {
         method: "POST",
@@ -105,73 +108,51 @@ export function useCards() {
   const cyclePickTier = useCallback(async (id: string) => {
     let previousTier: PickTier | undefined;
     let nextTier: PickTier | undefined;
-    let previousRank: number | undefined;
-    let nextRank: number | undefined;
     setCards((prev) =>
       prev.map((c) => {
         if (c.id !== id) return c;
         previousTier = c.pickTier;
         nextTier = nextPickTier(c.pickTier);
-        previousRank = c.pickRank;
-        nextRank = c.pickRank + PICK_TIER_RANK_DELTA[nextTier];
-        return { ...c, pickTier: nextTier, pickRank: nextRank };
+        return { ...c, pickTier: nextTier };
       }),
     );
-    if (
-      previousTier === undefined ||
-      nextTier === undefined ||
-      previousRank === undefined ||
-      nextRank === undefined
-    )
-      return;
+    if (previousTier === undefined || nextTier === undefined) return;
     try {
-      const [tierRes, rankRes] = await Promise.all([
-        fetch(`/api/cards/${id}/pick-tier`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ pickTier: nextTier }),
-        }),
-        fetch(`/api/cards/${id}/pick-rank`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ pickRank: nextRank }),
-        }),
-      ]);
-      if (!tierRes.ok || !rankRes.ok) throw new Error();
-    } catch {
-      setCards((prev) =>
-        prev.map((c) =>
-          c.id === id
-            ? { ...c, pickTier: previousTier!, pickRank: previousRank! }
-            : c,
-        ),
-      );
-    }
-  }, []);
-
-  // delta: +1(왼쪽/앞으로) 값을 올리고, -1(오른쪽/뒤로) 값을 내린다.
-  const movePickRank = useCallback(async (id: string, delta: 1 | -1) => {
-    let previous: number | undefined;
-    let next: number | undefined;
-    setCards((prev) =>
-      prev.map((c) => {
-        if (c.id !== id) return c;
-        previous = c.pickRank;
-        next = c.pickRank + delta;
-        return { ...c, pickRank: next };
-      }),
-    );
-    if (previous === undefined || next === undefined) return;
-    try {
-      const res = await fetch(`/api/cards/${id}/pick-rank`, {
+      const res = await fetch(`/api/cards/${id}/pick-tier`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pickRank: next }),
+        body: JSON.stringify({ pickTier: nextTier }),
       });
       if (!res.ok) throw new Error();
     } catch {
       setCards((prev) =>
-        prev.map((c) => (c.id === id ? { ...c, pickRank: previous! } : c)),
+        prev.map((c) => (c.id === id ? { ...c, pickTier: previousTier! } : c)),
+      );
+    }
+  }, []);
+
+  const toggleMarked = useCallback(async (id: string) => {
+    let previous: boolean | undefined;
+    let next: boolean | undefined;
+    setCards((prev) =>
+      prev.map((c) => {
+        if (c.id !== id) return c;
+        previous = c.marked;
+        next = !c.marked;
+        return { ...c, marked: next };
+      }),
+    );
+    if (previous === undefined || next === undefined) return;
+    try {
+      const res = await fetch(`/api/cards/${id}/marked`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ marked: next }),
+      });
+      if (!res.ok) throw new Error();
+    } catch {
+      setCards((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, marked: previous! } : c)),
       );
     }
   }, []);
@@ -183,7 +164,7 @@ export function useCards() {
     removeCard,
     updateCard,
     cyclePickTier,
-    movePickRank,
+    toggleMarked,
     refresh,
   };
 }

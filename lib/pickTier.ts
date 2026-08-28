@@ -6,29 +6,16 @@ export const PICK_TIER_ORDER: PickTier[] = ["none", "safe", "target", "reach"];
 export const PICK_TIER_LABELS: Record<PickTier, string> = {
   none: "해제",
   reach: "상향",
-  target: "적정",
+  target: "소신",
   safe: "안정",
 };
 
+// 안정(초록) - 소신(노랑) - 상향(퍼플) 순서로 원형 배지 색을 매긴다.
 export const PICK_TIER_COLORS: Record<PickTier, string> = {
   none: "",
   safe: "#4ade80",
   target: "#facc15",
-  reach: "#ff4500",
-};
-
-// 상향은 클로버 아이콘으로, 안정/적정은 PICK_TIER_COLORS 원형 배지로 표시한다.
-export const PICK_TIER_REACH_ICON = "🍀";
-
-// 롱프레스로 등급을 한 단계 올릴 때마다 pick_rank에 누적으로 더해주는 값
-// (안정→적정→상향 순서로 지나가며 100, 200, 300씩 더해짐). 상향에서 한 번 더
-// 눌러 해제로 돌아갈 때는 그 사이 쌓인 전체 합(100+200+300=600)을 빼서 한 바퀴
-// 돌면 처음 값으로 정확히 되돌아오게 한다.
-export const PICK_TIER_RANK_DELTA: Record<PickTier, number> = {
-  none: -600,
-  safe: 100,
-  target: 200,
-  reach: 300,
+  reach: "#a855f7",
 };
 
 export function nextPickTier(tier: PickTier): PickTier {
