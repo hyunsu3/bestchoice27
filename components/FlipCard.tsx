@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, type PointerEvent } from "react";
 import { getAutoHex } from "@/lib/cardColor";
-import { PICK_TIER_COLORS } from "@/lib/pickTier";
+import { PICK_TIER_COLORS, PICK_TIER_EMOJIS } from "@/lib/pickTier";
 import type { UniversityCard } from "@/lib/types";
 import { useUniversityColors } from "@/lib/universityColors";
 import CardFrontFace from "./CardFrontFace";
@@ -79,7 +79,9 @@ export default function FlipCard({
 
   return (
     <div
-      className={`rounded-2xl ${card.marked ? "ring-2 ring-yellow-400 sm:ring-[5px]" : ""}`}
+      className={`rounded-2xl ${card.marked ? "ring-2 ring-yellow-400 sm:ring-[5px]" : ""} ${
+        card.held ? "opacity-40 grayscale" : ""
+      }`}
     >
       <div
         className="flip-card aspect-[3/4]"
@@ -113,13 +115,28 @@ export default function FlipCard({
                 : undefined
             }
           >
-            {card.pickTier !== "none" && (
-              <span
-                aria-hidden
-                className="absolute right-2 top-2 h-3.5 w-3.5 rounded-full sm:right-3 sm:top-3 sm:h-4 sm:w-4"
-                style={{ backgroundColor: PICK_TIER_COLORS[card.pickTier] }}
-              />
-            )}
+            <div className="absolute right-2 top-2 z-[60] flex flex-col items-end gap-1 sm:right-3 sm:top-3">
+              {card.held && (
+                <span
+                  aria-hidden
+                  className="rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-bold text-white"
+                >
+                  보류
+                </span>
+              )}
+              {card.pickTier !== "none" &&
+                (PICK_TIER_EMOJIS[card.pickTier] ? (
+                  <span aria-hidden className="text-xl leading-none drop-shadow">
+                    {PICK_TIER_EMOJIS[card.pickTier]}
+                  </span>
+                ) : (
+                  <span
+                    aria-hidden
+                    className="h-3.5 w-3.5 rounded-full sm:h-4 sm:w-4"
+                    style={{ backgroundColor: PICK_TIER_COLORS[card.pickTier] }}
+                  />
+                ))}
+            </div>
             {onToggleMarked && (
               <button
                 type="button"

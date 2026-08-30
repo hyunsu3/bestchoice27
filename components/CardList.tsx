@@ -51,12 +51,14 @@ export default function CardList({
   onDelete,
   onCyclePickTier,
   onToggleMarked,
+  onSetHeld,
 }: {
   cards: UniversityCard[];
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
   onCyclePickTier: (id: string) => void;
   onToggleMarked: (id: string) => void;
+  onSetHeld: (id: string, held: boolean) => void;
 }) {
   const [sortMode, setSortMode] = useState<SortMode>("name");
   const [sortDesc, setSortDesc] = useState(false);
@@ -82,8 +84,13 @@ export default function CardList({
 
   const sortedCards = useMemo(() => {
     const base = [...cards].sort((a, b) => compareCards(a, b, sortMode, sortDesc));
-    if (!prioritizeMarked) return base;
-    return [...base.filter((c) => c.marked), ...base.filter((c) => !c.marked)];
+    const active = base.filter((c) => !c.held);
+    const held = base.filter((c) => c.held);
+    const ordered = prioritizeMarked
+      ? [...active.filter((c) => c.marked), ...active.filter((c) => !c.marked)]
+      : active;
+    // 보류 카드는 정렬/우선순위와 무관하게 항상 맨 뒤로.
+    return [...ordered, ...held];
   }, [cards, sortMode, sortDesc, prioritizeMarked]);
 
   if (cards.length === 0) {
@@ -143,6 +150,7 @@ export default function CardList({
           onClose={() => setViewingId(null)}
           onEdit={() => onEdit(viewingCard.id)}
           onDelete={() => onDelete(viewingCard.id)}
+          onSetHeld={(held) => onSetHeld(viewingCard.id, held)}
           initialFlipped
         />
       )}

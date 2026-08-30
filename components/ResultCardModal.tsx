@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { getAutoHex } from "@/lib/cardColor";
 import { renderWithBold, renderWithSmall } from "@/lib/formatText";
-import { PICK_TIER_COLORS } from "@/lib/pickTier";
+import { PICK_TIER_COLORS, PICK_TIER_EMOJIS } from "@/lib/pickTier";
 import type { UniversityCard } from "@/lib/types";
 import { useUniversityColors } from "@/lib/universityColors";
 import CardFrontFace from "./CardFrontFace";
@@ -14,12 +14,14 @@ export default function ResultCardModal({
   onClose,
   onEdit,
   onDelete,
+  onSetHeld,
   initialFlipped = false,
 }: {
   card: UniversityCard;
   onClose: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
+  onSetHeld?: (held: boolean) => void;
   initialFlipped?: boolean;
 }) {
   const [flipped, setFlipped] = useState(initialFlipped);
@@ -96,7 +98,7 @@ export default function ResultCardModal({
             <div
               className={`flip-card-face flip-card-front cursor-pointer text-white result-card-flat ${
                 !colorsReady ? "animate-pulse bg-zinc-300 dark:bg-zinc-700" : ""
-              }`}
+              } ${card.held ? "grayscale" : ""}`}
               style={
                 colorsReady
                   ? {
@@ -107,6 +109,28 @@ export default function ResultCardModal({
                   : undefined
               }
             >
+              <div className="absolute left-2 top-2 z-[60] flex flex-col items-start gap-1 sm:left-3 sm:top-3">
+                {card.held && (
+                  <span
+                    aria-hidden
+                    className="rounded-full bg-black/60 px-2.5 py-1 text-xs font-bold text-white"
+                  >
+                    보류
+                  </span>
+                )}
+                {card.pickTier !== "none" &&
+                  (PICK_TIER_EMOJIS[card.pickTier] ? (
+                    <span aria-hidden className="text-2xl leading-none drop-shadow">
+                      {PICK_TIER_EMOJIS[card.pickTier]}
+                    </span>
+                  ) : (
+                    <span
+                      aria-hidden
+                      className="h-4 w-4 rounded-full sm:h-5 sm:w-5"
+                      style={{ backgroundColor: PICK_TIER_COLORS[card.pickTier] }}
+                    />
+                  ))}
+              </div>
               <div className="mt-3 ml-1 flex h-[90%] flex-col">
                 {colorsReady && <CardFrontFace card={card} size="lg" />}
               </div>
@@ -119,13 +143,18 @@ export default function ResultCardModal({
                   </p>
                   <h3 className="mt-1 flex items-center gap-1.5 text-xl font-black leading-tight text-black dark:text-white sm:text-2xl">
                     {renderWithSmall(card.universityName)}
-                    {card.pickTier !== "none" && (
-                      <span
-                        aria-hidden
-                        className="h-3 w-3 shrink-0 rounded-full sm:h-3.5 sm:w-3.5"
-                        style={{ backgroundColor: PICK_TIER_COLORS[card.pickTier] }}
-                      />
-                    )}
+                    {card.pickTier !== "none" &&
+                      (PICK_TIER_EMOJIS[card.pickTier] ? (
+                        <span aria-hidden className="shrink-0 text-xl leading-none">
+                          {PICK_TIER_EMOJIS[card.pickTier]}
+                        </span>
+                      ) : (
+                        <span
+                          aria-hidden
+                          className="h-3 w-3 shrink-0 rounded-full sm:h-3.5 sm:w-3.5"
+                          style={{ backgroundColor: PICK_TIER_COLORS[card.pickTier] }}
+                        />
+                      ))}
                   </h3>
                   <p className="mt-1 text-base font-semibold text-black/80 dark:text-white/80 sm:text-lg">
                     {card.department}
@@ -200,37 +229,79 @@ export default function ResultCardModal({
               </div>
             </div>
           </div>
-          {(onEdit || onDelete) && !flipped && (
-            <div className="absolute bottom-[1.65rem] left-1/2 z-10 flex -translate-x-1/2 gap-1">
-              {onEdit && (
+          {(onEdit || onDelete || onSetHeld) && !flipped && (
+            <div className="absolute bottom-[1.65rem] left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-1.5">
+              <div className="flex gap-1">
+                {onEdit && (
+                  <button
+                    type="button"
+                    aria-label="카드 수정"
+                    title="카드 수정"
+                    className="rounded-full border border-black/10 bg-white/90 px-4 py-2 text-sm font-semibold text-black/70 shadow-sm hover:bg-white hover:text-indigo-500 dark:border-white/10 dark:bg-zinc-800/90 dark:text-white/70 dark:hover:text-indigo-400 sm:text-base"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEdit();
+                    }}
+                  >
+                    수정
+                  </button>
+                )}
+                {onSetHeld && !card.held && (
+                  <button
+                    type="button"
+                    aria-label="카드 보류"
+                    title="카드 보류"
+                    className="rounded-full border border-black/10 bg-white/90 px-4 py-2 text-sm font-semibold text-black/70 shadow-sm hover:bg-white hover:text-rose-500 dark:border-white/10 dark:bg-zinc-800/90 dark:text-white/70 dark:hover:text-rose-400 sm:text-base"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (
+                        window.confirm(
+                          "이 카드를 보류할까요? 목록 맨 뒤로 이동하고 흐리게 표시돼요.",
+                        )
+                      ) {
+                        onSetHeld(true);
+                        onClose();
+                      }
+                    }}
+                  >
+                    보류
+                  </button>
+                )}
+                {onSetHeld && card.held && (
+                  <button
+                    type="button"
+                    aria-label="카드 보류 해제"
+                    title="카드 보류 해제"
+                    className="rounded-full border border-black/10 bg-white/90 px-4 py-2 text-sm font-semibold text-black/70 shadow-sm hover:bg-white hover:text-indigo-500 dark:border-white/10 dark:bg-zinc-800/90 dark:text-white/70 dark:hover:text-indigo-400 sm:text-base"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSetHeld(false);
+                      onClose();
+                    }}
+                  >
+                    복구
+                  </button>
+                )}
+              </div>
+              {onDelete && card.held && (
                 <button
                   type="button"
-                  aria-label="카드 수정"
-                  title="카드 수정"
-                  className="rounded-full border border-black/10 bg-white/90 px-4 py-2 text-sm font-semibold text-black/70 shadow-sm hover:bg-white hover:text-indigo-500 dark:border-white/10 dark:bg-zinc-800/90 dark:text-white/70 dark:hover:text-indigo-400 sm:text-base"
+                  aria-label="카드 완전 삭제"
+                  title="카드 완전 삭제"
+                  className="text-xs font-medium text-black/40 underline decoration-dotted hover:text-rose-500 dark:text-white/40 dark:hover:text-rose-400"
                   onClick={(e) => {
                     e.stopPropagation();
-                    onEdit();
-                  }}
-                >
-                  수정
-                </button>
-              )}
-              {onDelete && (
-                <button
-                  type="button"
-                  aria-label="카드 삭제"
-                  title="카드 삭제"
-                  className="rounded-full border border-black/10 bg-white/90 px-4 py-2 text-sm font-semibold text-black/70 shadow-sm hover:bg-white hover:text-rose-500 dark:border-white/10 dark:bg-zinc-800/90 dark:text-white/70 dark:hover:text-rose-400 sm:text-base"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (window.confirm("이 카드를 삭제할까요?")) {
+                    if (
+                      window.confirm(
+                        "이 카드를 완전히 삭제할까요? 이 작업은 되돌릴 수 없어요.",
+                      )
+                    ) {
                       onDelete();
                       onClose();
                     }
                   }}
                 >
-                  삭제
+                  완전 삭제
                 </button>
               )}
             </div>

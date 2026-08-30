@@ -92,7 +92,9 @@ export default function VsMatch({ cards }: { cards: UniversityCard[] }) {
   }
 
   function goToSelect() {
-    setExcludedIds(new Set());
+    // 보류 처리한 카드는 이번 대결에서도 기본적으로 빠진 상태로 시작한다.
+    // 원하면 선택 화면에서 다시 탭해 이번 판에만 참여시킬 수 있다.
+    setExcludedIds(new Set(cards.filter((c) => c.held).map((c) => c.id)));
     setPhase("select");
   }
 

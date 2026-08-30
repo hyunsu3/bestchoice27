@@ -17,6 +17,7 @@ type CardRow = {
   view_count: number;
   pick_tier: PickTier;
   marked: boolean;
+  held: boolean;
 };
 
 function toCard(row: CardRow): UniversityCard {
@@ -36,6 +37,7 @@ function toCard(row: CardRow): UniversityCard {
     viewCount: row.view_count ?? 0,
     pickTier: row.pick_tier ?? "none",
     marked: row.marked ?? false,
+    held: row.held ?? false,
   };
 }
 
@@ -135,6 +137,20 @@ export async function setCardMarked(
   const { data, error } = await supabaseAdmin
     .from("cards")
     .update({ marked })
+    .eq("id", id)
+    .select()
+    .single();
+  if (error) throw error;
+  return toCard(data as CardRow);
+}
+
+export async function setCardHeld(
+  id: string,
+  held: boolean,
+): Promise<UniversityCard> {
+  const { data, error } = await supabaseAdmin
+    .from("cards")
+    .update({ held })
     .eq("id", id)
     .select()
     .single();

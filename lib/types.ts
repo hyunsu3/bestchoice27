@@ -1,4 +1,4 @@
-export type PickTier = "none" | "reach" | "target" | "safe";
+export type PickTier = "none" | "reach" | "target" | "safe" | "cosmicReach";
 
 export interface UniversityCard {
   id: string;
@@ -16,9 +16,10 @@ export interface UniversityCard {
   viewCount: number;
   pickTier: PickTier;
   marked: boolean;
+  held: boolean;
 }
 
 export type NewUniversityCard = Omit<
   UniversityCard,
-  "id" | "createdAt" | "viewCount" | "pickTier" | "marked"
+  "id" | "createdAt" | "viewCount" | "pickTier" | "marked" | "held"
 >;

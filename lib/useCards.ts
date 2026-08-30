@@ -157,6 +157,30 @@ export function useCards() {
     }
   }, []);
 
+  const setHeld = useCallback(async (id: string, held: boolean) => {
+    let previous: boolean | undefined;
+    setCards((prev) =>
+      prev.map((c) => {
+        if (c.id !== id) return c;
+        previous = c.held;
+        return { ...c, held };
+      }),
+    );
+    if (previous === undefined) return;
+    try {
+      const res = await fetch(`/api/cards/${id}/held`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ held }),
+      });
+      if (!res.ok) throw new Error();
+    } catch {
+      setCards((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, held: previous! } : c)),
+      );
+    }
+  }, []);
+
   return {
     cards,
     hydrated,
@@ -165,6 +189,7 @@ export function useCards() {
     updateCard,
     cyclePickTier,
     toggleMarked,
+    setHeld,
     refresh,
   };
 }

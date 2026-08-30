@@ -2,7 +2,13 @@ import { NextResponse } from "next/server";
 import { setCardPickTier } from "@/lib/cardsRepo";
 import type { PickTier } from "@/lib/types";
 
-const VALID_TIERS: PickTier[] = ["none", "reach", "target", "safe"];
+const VALID_TIERS: PickTier[] = [
+  "none",
+  "reach",
+  "target",
+  "safe",
+  "cosmicReach",
+];
 
 export async function POST(
   request: Request,

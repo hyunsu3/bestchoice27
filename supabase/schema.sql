@@ -33,6 +33,8 @@ update cards set pick_tier = 'target' where is_favorite and pick_tier = 'none';
 -- 값. 모든 카드는 0에서 시작하고, 앞으로 보내면 +1, 뒤로 보내면 -1씩 바뀐다.
 alter table cards add column if not exists pick_rank double precision not null default 0;
 update cards set pick_rank = 0;
+-- 완전 삭제 대신 보류(held) 처리: 목록 맨 뒤로 보내고 흐리게 표시한다.
+alter table cards add column if not exists held boolean not null default false;
 
 alter table cards enable row level security;
 
