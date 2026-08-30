@@ -126,7 +126,7 @@ export default function FlipCard({
               )}
               {card.pickTier !== "none" &&
                 (PICK_TIER_EMOJIS[card.pickTier] ? (
-                  <span aria-hidden className="text-xl leading-none drop-shadow">
+                  <span aria-hidden className="text-3xl leading-none drop-shadow">
                     {PICK_TIER_EMOJIS[card.pickTier]}
                   </span>
                 ) : (

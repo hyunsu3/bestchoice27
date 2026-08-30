@@ -120,7 +120,7 @@ export default function ResultCardModal({
                 )}
                 {card.pickTier !== "none" &&
                   (PICK_TIER_EMOJIS[card.pickTier] ? (
-                    <span aria-hidden className="text-2xl leading-none drop-shadow">
+                    <span aria-hidden className="text-4xl leading-none drop-shadow">
                       {PICK_TIER_EMOJIS[card.pickTier]}
                     </span>
                   ) : (
@@ -145,7 +145,7 @@ export default function ResultCardModal({
                     {renderWithSmall(card.universityName)}
                     {card.pickTier !== "none" &&
                       (PICK_TIER_EMOJIS[card.pickTier] ? (
-                        <span aria-hidden className="shrink-0 text-xl leading-none">
+                        <span aria-hidden className="shrink-0 text-3xl leading-none">
                           {PICK_TIER_EMOJIS[card.pickTier]}
                         </span>
                       ) : (
