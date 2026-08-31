@@ -73,7 +73,7 @@ export default function ResultCardModal({
 
   return createPortal(
     <div className="fixed inset-0 z-50 overflow-y-auto" onClick={onClose}>
-      <div className="fixed inset-0 bg-black/90 sm:bg-black/60" />
+      <div className="modal-dim fixed inset-0 bg-black/70 backdrop-blur-sm sm:bg-black/45" />
       <div className="flex min-h-full items-center justify-center p-2">
         <div
           className="flip-card result-card-shell relative"

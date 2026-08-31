@@ -158,6 +158,19 @@ body {
   }
 }
 
+/* 팝업 딤(배경 어둡게) 페이드인: 갑자기 확 어두워지는 대신 부드럽게 */
+@keyframes modal-dim-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.modal-dim {
+  animation: modal-dim-in 0.25s ease-out;
+}
+
 /* VS battle fly-in animation */
 .vs-card {
   opacity: 0;
