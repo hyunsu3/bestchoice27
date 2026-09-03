@@ -23,6 +23,7 @@ export default function FlipCard({
 }) {
   const { colors, ready: colorsReady } = useUniversityColors();
   const customColor = colors[card.universityName.trim()];
+  const tierColor = card.pickTier !== "none" ? PICK_TIER_COLORS[card.pickTier] : undefined;
 
   const pressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pressStartRef = useRef<{ x: number; y: number } | null>(null);
@@ -79,9 +80,10 @@ export default function FlipCard({
 
   return (
     <div
-      className={`rounded-2xl ${card.marked ? "ring-2 ring-yellow-400 sm:ring-[5px]" : ""} ${
-        card.held ? "opacity-40 grayscale" : ""
-      }`}
+      className={`rounded-2xl ${card.marked ? "ring-2 ring-pink-400 sm:ring-[5px]" : ""} ${
+        tierColor ? "outline outline-2 outline-offset-0 sm:outline-[5px]" : ""
+      } ${card.held ? "opacity-40 grayscale" : ""}`}
+      style={tierColor ? ({ outlineColor: tierColor } as React.CSSProperties) : undefined}
     >
       <div
         className="flip-card aspect-[3/4]"
