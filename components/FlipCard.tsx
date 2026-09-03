@@ -23,12 +23,6 @@ export default function FlipCard({
 }) {
   const { colors, ready: colorsReady } = useUniversityColors();
   const customColor = colors[card.universityName.trim()];
-  // 선택(마킹)된 카드만 테두리를 두른다: 등급이 있으면 그 등급 색, 없으면 기본 핑크.
-  const borderColor = card.marked
-    ? card.pickTier !== "none"
-      ? PICK_TIER_COLORS[card.pickTier]
-      : "#eeeeee"
-    : undefined;
 
   const pressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pressStartRef = useRef<{ x: number; y: number } | null>(null);
@@ -85,10 +79,9 @@ export default function FlipCard({
 
   return (
     <div
-      className={`rounded-2xl ${borderColor ? "ring-2 sm:ring-[5px]" : ""} ${
+      className={`rounded-2xl ${card.marked ? "ring-2 ring-[#c0c0c0] sm:ring-[5px]" : ""} ${
         card.held ? "opacity-40 grayscale" : ""
       }`}
-      style={borderColor ? ({ "--tw-ring-color": borderColor } as React.CSSProperties) : undefined}
     >
       <div
         className="flip-card aspect-[3/4]"
