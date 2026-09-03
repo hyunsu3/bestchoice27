@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, type PointerEvent } from "react";
 import { getAutoHex } from "@/lib/cardColor";
-import { PICK_TIER_COLORS, PICK_TIER_EMOJIS } from "@/lib/pickTier";
+import { PICK_TIER_COLORS, PICK_TIER_EMOJIS, PICK_TIER_LABELS } from "@/lib/pickTier";
 import type { UniversityCard } from "@/lib/types";
 import { useUniversityColors } from "@/lib/universityColors";
 import CardFrontFace from "./CardFrontFace";
@@ -23,7 +23,12 @@ export default function FlipCard({
 }) {
   const { colors, ready: colorsReady } = useUniversityColors();
   const customColor = colors[card.universityName.trim()];
-  const tierColor = card.pickTier !== "none" ? PICK_TIER_COLORS[card.pickTier] : undefined;
+  // 선택(마킹)된 카드만 테두리를 두른다: 등급이 있으면 그 등급 색, 없으면 기본 핑크.
+  const borderColor = card.marked
+    ? card.pickTier !== "none"
+      ? PICK_TIER_COLORS[card.pickTier]
+      : "#eeeeee"
+    : undefined;
 
   const pressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pressStartRef = useRef<{ x: number; y: number } | null>(null);
@@ -80,10 +85,10 @@ export default function FlipCard({
 
   return (
     <div
-      className={`rounded-2xl ${card.marked ? "ring-2 ring-pink-400 sm:ring-[5px]" : ""} ${
-        tierColor ? "outline outline-2 outline-offset-0 sm:outline-[5px]" : ""
-      } ${card.held ? "opacity-40 grayscale" : ""}`}
-      style={tierColor ? ({ outlineColor: tierColor } as React.CSSProperties) : undefined}
+      className={`rounded-2xl ${borderColor ? "ring-2 sm:ring-[5px]" : ""} ${
+        card.held ? "opacity-40 grayscale" : ""
+      }`}
+      style={borderColor ? ({ "--tw-ring-color": borderColor } as React.CSSProperties) : undefined}
     >
       <div
         className="flip-card aspect-[3/4]"
@@ -134,10 +139,23 @@ export default function FlipCard({
                 ) : (
                   <span
                     aria-hidden
-                    className="h-3.5 w-3.5 rounded-full sm:h-4 sm:w-4"
-                    style={{ backgroundColor: PICK_TIER_COLORS[card.pickTier] }}
-                  />
+                    className="flex h-6 w-6 items-center justify-center rounded-full text-[9px] font-bold leading-none sm:h-8 sm:w-8 sm:text-[11px]"
+                    style={{
+                      backgroundColor: PICK_TIER_COLORS[card.pickTier],
+                      color: card.pickTier === "target" ? "#000" : "#fff",
+                    }}
+                  >
+                    {PICK_TIER_LABELS[card.pickTier]}
+                  </span>
                 ))}
+              {card.minRequirement && card.minRequirement.trim() !== "없음" && (
+                <span
+                  aria-hidden
+                  className="flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-[9px] font-bold leading-none text-white sm:h-8 sm:w-8 sm:text-[11px]"
+                >
+                  최저
+                </span>
+              )}
             </div>
             {onToggleMarked && (
               <button

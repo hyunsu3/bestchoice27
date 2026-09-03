@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { getAutoHex } from "@/lib/cardColor";
 import { renderWithBold, renderWithSmall } from "@/lib/formatText";
-import { PICK_TIER_COLORS, PICK_TIER_EMOJIS } from "@/lib/pickTier";
+import { PICK_TIER_COLORS, PICK_TIER_EMOJIS, PICK_TIER_LABELS } from "@/lib/pickTier";
 import type { UniversityCard } from "@/lib/types";
 import { useUniversityColors } from "@/lib/universityColors";
 import CardFrontFace from "./CardFrontFace";
@@ -126,10 +126,23 @@ export default function ResultCardModal({
                   ) : (
                     <span
                       aria-hidden
-                      className="h-4 w-4 rounded-full sm:h-5 sm:w-5"
-                      style={{ backgroundColor: PICK_TIER_COLORS[card.pickTier] }}
-                    />
+                      className="flex h-6 w-6 items-center justify-center rounded-full text-[9px] font-bold leading-none sm:h-8 sm:w-8 sm:text-[11px]"
+                      style={{
+                        backgroundColor: PICK_TIER_COLORS[card.pickTier],
+                        color: card.pickTier === "target" ? "#000" : "#fff",
+                      }}
+                    >
+                      {PICK_TIER_LABELS[card.pickTier]}
+                    </span>
                   ))}
+                {card.minRequirement && card.minRequirement.trim() !== "없음" && (
+                  <span
+                    aria-hidden
+                    className="flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-[9px] font-bold leading-none text-white sm:h-8 sm:w-8 sm:text-[11px]"
+                  >
+                    최저
+                  </span>
+                )}
               </div>
               <div className="mt-3 ml-1 flex h-[90%] flex-col">
                 {colorsReady && <CardFrontFace card={card} size="lg" />}
@@ -151,9 +164,14 @@ export default function ResultCardModal({
                       ) : (
                         <span
                           aria-hidden
-                          className="h-3 w-3 shrink-0 rounded-full sm:h-3.5 sm:w-3.5"
-                          style={{ backgroundColor: PICK_TIER_COLORS[card.pickTier] }}
-                        />
+                          className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[8px] font-bold leading-none sm:h-5 sm:w-5 sm:text-[9px]"
+                          style={{
+                            backgroundColor: PICK_TIER_COLORS[card.pickTier],
+                            color: card.pickTier === "target" ? "#000" : "#fff",
+                          }}
+                        >
+                          {PICK_TIER_LABELS[card.pickTier]}
+                        </span>
                       ))}
                   </h3>
                   <p className="mt-1 text-base font-semibold text-black/80 dark:text-white/80 sm:text-lg">
