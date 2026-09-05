@@ -121,6 +121,16 @@ body {
   aspect-ratio: 3 / 5;
   width: min(92vw, 24rem);
 }
+@media (min-width: 640px) {
+  .result-card-shell {
+    width: min(75vw, 34rem);
+  }
+}
+@media (min-width: 1024px) {
+  .result-card-shell {
+    width: min(50vw, 40rem);
+  }
+}
 .flip-card-back {
   transform: rotateY(-180deg);
   /* inset shadow instead of border: a real border gets clipped mid-rotation
