@@ -157,7 +157,7 @@ export default function CardList({
               : "border border-black/10 text-black/60 hover:text-black dark:border-white/10 dark:text-white/60 dark:hover:text-white"
           }`}
         >
-          🏷️ 카드순서 우선
+          <span aria-hidden className="inline-block rotate-90 text-base">🚦</span> 안정소신상향
         </button>
       </div>
       <div className="grid grid-cols-2 gap-5 sm:gap-7 lg:grid-cols-4">
