@@ -74,8 +74,8 @@ export default function CardList({
   // "선택"(핀 표시) 우선순위 토글: 어떤 기본 정렬을 쓰든, 켜져 있으면 그
   // 정렬 순서 안에서 핀 꽂힌 카드만 맨 앞으로 끌어온다.
   const [prioritizeMarked, setPrioritizeMarked] = useState(true);
-  // "카드순서"(안정-소신-상향-우주상향 등급) 우선순위 토글. 기본은 꺼짐.
-  const [prioritizeTierOrder, setPrioritizeTierOrder] = useState(false);
+  // "카드순서"(안정-소신-상향-우주상향 등급) 우선순위 토글. 기본은 켜짐.
+  const [prioritizeTierOrder, setPrioritizeTierOrder] = useState(true);
   const [viewingId, setViewingId] = useState<string | null>(null);
   const viewingCard = cards.find((c) => c.id === viewingId) ?? null;
 
