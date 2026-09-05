@@ -109,43 +109,52 @@ export default function ResultCardModal({
                   : undefined
               }
             >
-              <div className="absolute left-2 top-2 z-[60] flex flex-col items-start gap-1 sm:left-3 sm:top-3">
-                {card.held && (
+              {card.held && (
+                <div className="absolute left-2 top-2 z-[60] sm:left-3 sm:top-3">
                   <span
                     aria-hidden
                     className="rounded-full bg-black/60 px-2.5 py-1 text-xs font-bold text-white"
                   >
                     보류
                   </span>
-                )}
-                {card.pickTier !== "none" &&
-                  (PICK_TIER_EMOJIS[card.pickTier] ? (
-                    <span aria-hidden className="text-4xl leading-none drop-shadow">
-                      {PICK_TIER_EMOJIS[card.pickTier]}
-                    </span>
-                  ) : (
-                    <span
-                      aria-hidden
-                      className="flex h-6 w-6 items-center justify-center rounded-full text-[9px] font-bold leading-none sm:h-8 sm:w-8 sm:text-[11px]"
-                      style={{
-                        backgroundColor: PICK_TIER_COLORS[card.pickTier],
-                        color: card.pickTier === "target" ? "#000" : "#fff",
-                      }}
-                    >
-                      {PICK_TIER_LABELS[card.pickTier]}
-                    </span>
-                  ))}
-                {card.minRequirement && card.minRequirement.trim() !== "없음" && (
-                  <span
-                    aria-hidden
-                    className="flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-[9px] font-bold leading-none text-white sm:h-8 sm:w-8 sm:text-[11px]"
-                  >
-                    최저
-                  </span>
-                )}
-              </div>
+                </div>
+              )}
               <div className="mt-3 ml-1 flex h-[90%] flex-col">
-                {colorsReady && <CardFrontFace card={card} size="lg" />}
+                {colorsReady && (
+                  <CardFrontFace
+                    card={card}
+                    size="lg"
+                    badgesBelowName={
+                      <>
+                        {card.pickTier !== "none" &&
+                          (PICK_TIER_EMOJIS[card.pickTier] ? (
+                            <span aria-hidden className="text-4xl leading-none drop-shadow">
+                              {PICK_TIER_EMOJIS[card.pickTier]}
+                            </span>
+                          ) : (
+                            <span
+                              aria-hidden
+                              className="flex h-6 w-6 items-center justify-center rounded-full text-[9px] font-bold leading-none sm:h-8 sm:w-8 sm:text-[11px]"
+                              style={{
+                                backgroundColor: PICK_TIER_COLORS[card.pickTier],
+                                color: card.pickTier === "target" ? "#000" : "#fff",
+                              }}
+                            >
+                              {PICK_TIER_LABELS[card.pickTier]}
+                            </span>
+                          ))}
+                        {card.minRequirement && card.minRequirement.trim() !== "없음" && (
+                          <span
+                            aria-hidden
+                            className="flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-[9px] font-bold leading-none text-white sm:h-8 sm:w-8 sm:text-[11px]"
+                          >
+                            최저
+                          </span>
+                        )}
+                      </>
+                    }
+                  />
+                )}
               </div>
             </div>
             <div className="flip-card-face result-card-face result-card-flat flip-card-back cursor-pointer bg-white dark:bg-zinc-900">

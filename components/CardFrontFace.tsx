@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { renderWithSmall } from "@/lib/formatText";
 import type { UniversityCard } from "@/lib/types";
 
@@ -33,9 +34,11 @@ const SIZE_STYLES = {
 export default function CardFrontFace({
   card,
   size = "md",
+  badgesBelowName,
 }: {
   card: UniversityCard;
   size?: keyof typeof SIZE_STYLES;
+  badgesBelowName?: ReactNode;
 }) {
   const s = SIZE_STYLES[size];
 
@@ -51,6 +54,9 @@ export default function CardFrontFace({
       <h3 className={`font-black leading-tight drop-shadow-sm ${s.name}`}>
         {renderWithSmall(card.universityName)}
       </h3>
+      {badgesBelowName && (
+        <div className="mt-1.5 flex flex-wrap items-center gap-1.5">{badgesBelowName}</div>
+      )}
       <div
         className={`mt-auto rounded-2xl bg-black/15 backdrop-blur-sm ${s.infoBox}`}
       >
