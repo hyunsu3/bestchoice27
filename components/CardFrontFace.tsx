@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import { renderWithSmall } from "@/lib/formatText";
-import type { TrendPaths } from "@/lib/trendChart";
 import type { UniversityCard } from "@/lib/types";
 
 // "md" scales down on narrow mobile grid cards (2-col) and grows back to
@@ -36,12 +35,10 @@ export default function CardFrontFace({
   card,
   size = "md",
   badgesBelowName,
-  trend,
 }: {
   card: UniversityCard;
   size?: keyof typeof SIZE_STYLES;
   badgesBelowName?: ReactNode;
-  trend?: TrendPaths | null;
 }) {
   const s = SIZE_STYLES[size];
 
@@ -61,38 +58,8 @@ export default function CardFrontFace({
         <div className="mt-1.5 flex flex-wrap items-center gap-1.5">{badgesBelowName}</div>
       )}
       <div
-        className={`relative isolate mt-auto overflow-hidden rounded-2xl bg-black/15 backdrop-blur-sm ${s.infoBox}`}
+        className={`mt-auto rounded-2xl bg-black/15 backdrop-blur-sm ${s.infoBox}`}
       >
-        {trend && (
-          <svg
-            aria-hidden
-            viewBox={trend.viewBox}
-            preserveAspectRatio="none"
-            className="pointer-events-none absolute inset-0 z-[-1] h-full w-full opacity-45"
-          >
-            <path d={trend.area} fill="white" fillOpacity={0.25} stroke="none" />
-            <path
-              d={trend.line}
-              fill="none"
-              stroke="white"
-              strokeWidth={1.6}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        )}
-        {trend && (
-          <span
-            aria-hidden
-            className="pointer-events-none absolute z-[-1] -translate-x-1/2 -translate-y-full whitespace-nowrap text-[10px] font-bold leading-none text-white/80"
-            style={{
-              left: `${trend.lastXPercent}%`,
-              top: `${trend.lastYPercent}%`,
-            }}
-          >
-            {trend.lastValue}명
-          </span>
-        )}
         <p className={`text-center font-bold leading-tight text-white ${s.dept}`}>
           {card.department}
         </p>

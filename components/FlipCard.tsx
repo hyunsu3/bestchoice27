@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useRef, type PointerEvent } from "react";
+import { useEffect, useRef, type PointerEvent } from "react";
 import { getAutoHex } from "@/lib/cardColor";
 import { getDeadlineStatus } from "@/lib/deadlineInfo";
 import { PICK_TIER_COLORS, PICK_TIER_EMOJIS, PICK_TIER_LABELS } from "@/lib/pickTier";
-import { buildTrendPaths } from "@/lib/trendChart";
-import type { ApplicationStat, UniversityCard } from "@/lib/types";
+import type { UniversityCard } from "@/lib/types";
 import { useUniversityColors } from "@/lib/universityColors";
 import CardFrontFace from "./CardFrontFace";
 
@@ -14,13 +13,11 @@ const LONG_PRESS_MOVE_TOLERANCE = 10;
 
 export default function FlipCard({
   card,
-  stats,
   onOpen,
   onCyclePickTier,
   onToggleMarked,
 }: {
   card: UniversityCard;
-  stats?: ApplicationStat[];
   onOpen: () => void;
   onCyclePickTier?: () => void;
   onToggleMarked?: () => void;
@@ -28,7 +25,6 @@ export default function FlipCard({
   const { colors, ready: colorsReady } = useUniversityColors();
   const customColor = colors[card.universityName.trim()];
   const deadline = getDeadlineStatus(card);
-  const trend = useMemo(() => buildTrendPaths(stats, card), [stats, card]);
 
   const pressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pressStartRef = useRef<{ x: number; y: number } | null>(null);
@@ -186,7 +182,7 @@ export default function FlipCard({
                 📌
               </button>
             )}
-            {colorsReady && <CardFrontFace card={card} trend={trend} />}
+            {colorsReady && <CardFrontFace card={card} />}
             {card.interviewDate && (
               <p className="mt-1.5 pl-[1em] text-[10px] text-white/60 sm:mt-3 sm:text-xs">
                 면접 {card.interviewDate}

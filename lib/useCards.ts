@@ -3,12 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { authorizedFetch } from "./authorizedFetch";
 import { nextPickTier } from "./pickTier";
-import type {
-  ApplicationStat,
-  NewUniversityCard,
-  PickTier,
-  UniversityCard,
-} from "./types";
+import type { NewUniversityCard, PickTier, UniversityCard } from "./types";
 
 const LEGACY_STORAGE_KEY = "bestchoice.cards.v1";
 const MIGRATED_KEY = "bestchoice.cards.migrated.v1";
@@ -61,9 +56,6 @@ async function migrateLegacyCards() {
 export function useCards() {
   const [cards, setCards] = useState<UniversityCard[]>([]);
   const [hydrated, setHydrated] = useState(false);
-  const [statsByCardId, setStatsByCardId] = useState<
-    Record<string, ApplicationStat[]>
-  >({});
 
   const refresh = useCallback(async () => {
     const res = await fetch("/api/cards", { cache: "no-store" });
@@ -72,20 +64,13 @@ export function useCards() {
     setCards(data);
   }, []);
 
-  const refreshStats = useCallback(async () => {
-    const res = await fetch("/api/cards/stats", { cache: "no-store" });
-    if (!res.ok) return;
-    const data = (await res.json()) as Record<string, ApplicationStat[]>;
-    setStatsByCardId(data);
-  }, []);
-
   useEffect(() => {
     (async () => {
       await migrateLegacyCards();
-      await Promise.all([refresh(), refreshStats()]);
+      await refresh();
       setHydrated(true);
     })();
-  }, [refresh, refreshStats]);
+  }, [refresh]);
 
   const addCard = useCallback(async (card: NewUniversityCard) => {
     const res = await authorizedFetch("/api/cards", {
@@ -205,7 +190,6 @@ export function useCards() {
   return {
     cards,
     hydrated,
-    statsByCardId,
     addCard,
     removeCard,
     updateCard,
@@ -213,6 +197,5 @@ export function useCards() {
     toggleMarked,
     setHeld,
     refresh,
-    refreshStats,
   };
 }

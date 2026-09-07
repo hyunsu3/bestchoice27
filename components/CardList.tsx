@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { ApplicationStat, PickTier, UniversityCard } from "@/lib/types";
+import type { PickTier, UniversityCard } from "@/lib/types";
 import FlipCard from "./FlipCard";
 import ResultCardModal from "./ResultCardModal";
 
@@ -56,7 +56,6 @@ function compareCards(
 
 export default function CardList({
   cards,
-  statsByCardId,
   onEdit,
   onDelete,
   onCyclePickTier,
@@ -64,7 +63,6 @@ export default function CardList({
   onSetHeld,
 }: {
   cards: UniversityCard[];
-  statsByCardId?: Record<string, ApplicationStat[]>;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
   onCyclePickTier: (id: string) => void;
@@ -167,7 +165,6 @@ export default function CardList({
           <FlipCard
             key={card.id}
             card={card}
-            stats={statsByCardId?.[card.id]}
             onOpen={() => openCard(card)}
             onCyclePickTier={() => onCyclePickTier(card.id)}
             onToggleMarked={() => onToggleMarked(card.id)}

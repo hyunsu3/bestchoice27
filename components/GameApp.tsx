@@ -19,7 +19,6 @@ export default function GameApp() {
   const {
     cards,
     hydrated,
-    statsByCardId,
     addCard,
     removeCard,
     updateCard,
@@ -89,7 +88,6 @@ export default function GameApp() {
         {tab === "list" && (
           <CardList
             cards={cards}
-            statsByCardId={statsByCardId}
             onEdit={startEdit}
             onDelete={removeCard}
             onCyclePickTier={cyclePickTier}
