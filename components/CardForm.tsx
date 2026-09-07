@@ -23,6 +23,7 @@ const emptyForm: NewUniversityCard = {
   admissionSummary: "",
   resultSummary: "",
   departmentLink: "",
+  applicationPeriod: "",
   ratio2026: "",
   ratio2025: "",
   ratio2024: "",
@@ -54,6 +55,7 @@ export default function CardForm({
           admissionSummary: editingCard.admissionSummary,
           resultSummary: editingCard.resultSummary,
           departmentLink: editingCard.departmentLink,
+          applicationPeriod: editingCard.applicationPeriod,
           ratio2026: editingCard.ratio2026,
           ratio2025: editingCard.ratio2025,
           ratio2024: editingCard.ratio2024,
@@ -90,6 +92,7 @@ export default function CardForm({
       admissionSummary: form.admissionSummary.trim(),
       resultSummary: form.resultSummary.trim(),
       departmentLink: form.departmentLink.trim(),
+      applicationPeriod: form.applicationPeriod.trim(),
       ratio2026: form.ratio2026.trim(),
       ratio2025: form.ratio2025.trim(),
       ratio2024: form.ratio2024.trim(),
@@ -162,6 +165,18 @@ export default function CardForm({
           value={form.departmentLink}
           onChange={(e) => update("departmentLink", e.target.value)}
           placeholder="예: https://dept.university.ac.kr"
+        />
+      </Field>
+      <Field
+        label="원서 접수 기간"
+        full
+        hint="카드리스트 앞면에 면접일 아래 노란색으로 표시돼요"
+      >
+        <input
+          className="input"
+          value={form.applicationPeriod}
+          onChange={(e) => update("applicationPeriod", e.target.value)}
+          placeholder="예: 9/7 10시~ 9/11 18시"
         />
       </Field>
       <Field label="면접일">

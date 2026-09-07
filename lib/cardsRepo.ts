@@ -13,6 +13,7 @@ type CardRow = {
   admission_summary: string;
   result_summary: string;
   department_link: string;
+  application_period: string;
   ratio_2026: string;
   ratio_2025: string;
   ratio_2024: string;
@@ -38,6 +39,7 @@ function toCard(row: CardRow): UniversityCard {
     admissionSummary: row.admission_summary,
     resultSummary: row.result_summary,
     departmentLink: row.department_link ?? "",
+    applicationPeriod: row.application_period ?? "",
     ratio2026: row.ratio_2026 ?? "",
     ratio2025: row.ratio_2025 ?? "",
     ratio2024: row.ratio_2024 ?? "",
@@ -63,6 +65,7 @@ function toRow(card: NewUniversityCard) {
     admission_summary: card.admissionSummary,
     result_summary: card.resultSummary,
     department_link: card.departmentLink,
+    application_period: card.applicationPeriod,
     ratio_2026: card.ratio2026,
     ratio_2025: card.ratio2025,
     ratio_2024: card.ratio2024,

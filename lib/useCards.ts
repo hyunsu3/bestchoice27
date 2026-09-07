@@ -32,6 +32,7 @@ async function migrateLegacyCards() {
         admissionSummary: c.admissionSummary,
         resultSummary: c.resultSummary,
         departmentLink: c.departmentLink ?? "",
+        applicationPeriod: c.applicationPeriod ?? "",
         ratio2026: c.ratio2026 ?? "",
         ratio2025: c.ratio2025 ?? "",
         ratio2024: c.ratio2024 ?? "",

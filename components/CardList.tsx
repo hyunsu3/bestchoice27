@@ -146,7 +146,7 @@ export default function CardList({
               : "border border-black/10 text-black/60 hover:text-black dark:border-white/10 dark:text-white/60 dark:hover:text-white"
           }`}
         >
-          📌 선택 우선
+          <span aria-hidden className="inline-block text-base">📌</span> 선택 우선
         </button>
         <button
           onClick={() => setPrioritizeTierOrder((v) => !v)}

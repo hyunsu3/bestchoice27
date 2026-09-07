@@ -12,6 +12,7 @@ export interface UniversityCard {
   admissionSummary: string;
   resultSummary: string;
   departmentLink: string;
+  applicationPeriod: string;
   ratio2026: string;
   ratio2025: string;
   ratio2024: string;

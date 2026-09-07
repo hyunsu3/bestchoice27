@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, type PointerEvent } from "react";
 import { getAutoHex } from "@/lib/cardColor";
+import { getDeadlineStatus } from "@/lib/deadlineInfo";
 import { PICK_TIER_COLORS, PICK_TIER_EMOJIS, PICK_TIER_LABELS } from "@/lib/pickTier";
 import type { UniversityCard } from "@/lib/types";
 import { useUniversityColors } from "@/lib/universityColors";
@@ -23,6 +24,7 @@ export default function FlipCard({
 }) {
   const { colors, ready: colorsReady } = useUniversityColors();
   const customColor = colors[card.universityName.trim()];
+  const deadline = getDeadlineStatus(card);
 
   const pressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pressStartRef = useRef<{ x: number; y: number } | null>(null);
@@ -116,6 +118,20 @@ export default function FlipCard({
             }
           >
             <div className="absolute right-2 top-2 z-[60] flex flex-col items-end gap-1 sm:right-3 sm:top-3">
+              {deadline && (
+                <span
+                  aria-hidden
+                  className={`rounded-full px-2 py-0.5 text-[10px] font-bold leading-none text-white sm:text-xs ${
+                    deadline.diffDays <= 3 ? "bg-rose-500" : "bg-black/60"
+                  }`}
+                >
+                  {deadline.diffDays > 0
+                    ? `D-${deadline.diffDays}`
+                    : deadline.diffDays === 0
+                      ? "오늘마감"
+                      : "마감"}
+                </span>
+              )}
               {card.held && (
                 <span
                   aria-hidden
@@ -144,7 +160,7 @@ export default function FlipCard({
               {card.minRequirement && card.minRequirement.trim() !== "없음" && (
                 <span
                   aria-hidden
-                  className="flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-[9px] font-bold leading-none text-white sm:h-8 sm:w-8 sm:text-[11px]"
+                  className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-[9px] font-bold leading-none text-white sm:h-8 sm:w-8 sm:text-[11px]"
                 >
                   최저
                 </span>
@@ -170,6 +186,11 @@ export default function FlipCard({
             {card.interviewDate && (
               <p className="mt-1.5 pl-[1em] text-[10px] text-white/60 sm:mt-3 sm:text-xs">
                 면접 {card.interviewDate}
+              </p>
+            )}
+            {card.applicationPeriod && (
+              <p className="mt-1 pl-[1em] text-[10px] font-semibold text-yellow-300 sm:text-xs">
+                {card.applicationPeriod}
               </p>
             )}
           </div>

@@ -38,6 +38,9 @@ alter table cards add column if not exists held boolean not null default false;
 
 -- 연도별 경쟁률(최종 경쟁률 등, "12.3:1" 같은 자유 형식 텍스트)과 원서 접수
 -- 마감 일시. 마감일은 D-day 계산을 위해 date/time 입력값을 그대로 저장한다.
+-- 원서 접수 기간(자유 텍스트, 예: "9/7 10시~ 9/11 18시"). 카드리스트 앞면에
+-- 면접일 아래 노란색으로 노출된다.
+alter table cards add column if not exists application_period text not null default '';
 alter table cards add column if not exists ratio_2026 text not null default '';
 alter table cards add column if not exists ratio_2025 text not null default '';
 alter table cards add column if not exists ratio_2024 text not null default '';

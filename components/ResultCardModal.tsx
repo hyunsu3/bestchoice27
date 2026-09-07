@@ -147,7 +147,7 @@ export default function ResultCardModal({
                         {card.minRequirement && card.minRequirement.trim() !== "없음" && (
                           <span
                             aria-hidden
-                            className="flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-[9px] font-bold leading-none text-white sm:h-8 sm:w-8 sm:text-[11px]"
+                            className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-[9px] font-bold leading-none text-white sm:h-8 sm:w-8 sm:text-[11px]"
                           >
                             최저
                           </span>
@@ -198,8 +198,20 @@ export default function ResultCardModal({
                       수능최저 {card.minRequirement}
                     </p>
                   )}
-                  {(card.interviewDate || card.resultAnnouncementDate || card.departmentLink) && (
+                  {(card.applicationPeriod ||
+                    card.interviewDate ||
+                    card.resultAnnouncementDate ||
+                    card.departmentLink) && (
                     <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                      {card.applicationPeriod && (
+                        <span
+                          aria-label={`원서 접수 기간 ${card.applicationPeriod}`}
+                          className="inline-flex items-center gap-1 rounded-full bg-yellow-400/20 px-2.5 py-1 text-xs font-semibold text-yellow-700 dark:bg-yellow-400/15 dark:text-yellow-300 sm:text-sm"
+                        >
+                          <span aria-hidden>📝</span>
+                          지원 {card.applicationPeriod}
+                        </span>
+                      )}
                       {card.interviewDate && (
                         <span
                           aria-label={`면접일 ${card.interviewDate}`}

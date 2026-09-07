@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { authorizedFetch } from "@/lib/authorizedFetch";
+import { getDeadlineStatus } from "@/lib/deadlineInfo";
 import type { ApplicationStat, UniversityCard } from "@/lib/types";
 
 const CHART_W = 300;
@@ -40,15 +41,9 @@ function formatRatio(count: number, capacity: number | null): string | null {
 }
 
 function deadlineInfo(card: UniversityCard): { label: string; urgent: boolean } | null {
-  if (!card.applyDeadlineDate) return null;
-  const deadline = new Date(
-    `${card.applyDeadlineDate}T${card.applyDeadlineTime || "00:00"}:00`,
-  );
-  if (Number.isNaN(deadline.getTime())) return null;
-  const diffMs = deadline.getTime() - Date.now();
-  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-  const timeLabel = card.applyDeadlineTime ? ` ${card.applyDeadlineTime}` : "";
-  const dateLabel = `${card.applyDeadlineDate.slice(5).replace("-", "/")}${timeLabel}`;
+  const status = getDeadlineStatus(card);
+  if (!status) return null;
+  const { diffDays, dateLabel } = status;
   if (diffDays > 0) return { label: `D-${diffDays} · ${dateLabel}`, urgent: diffDays <= 3 };
   if (diffDays === 0) return { label: `오늘 마감 · ${dateLabel}`, urgent: true };
   return { label: `마감 · ${dateLabel}`, urgent: false };
@@ -310,9 +305,6 @@ export default function ApplicationStatsPanel({ card }: { card: UniversityCard }
             >
               <span>
                 {formatDateTime(s.recordedAt)} · {s.applicantCount}명
-                {formatRatio(s.applicantCount, capacity)
-                  ? ` · ${formatRatio(s.applicantCount, capacity)}`
-                  : ""}
               </span>
               <button
                 type="button"
