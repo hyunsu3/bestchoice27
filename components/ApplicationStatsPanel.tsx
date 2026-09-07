@@ -233,7 +233,13 @@ export default function ApplicationStatsPanel({ card }: { card: UniversityCard }
                 <text
                   x={lastPoint.x}
                   y={Math.max(lastPoint.y - 8, 8)}
-                  textAnchor="middle"
+                  textAnchor={
+                    lastPoint.x > CHART_W - 50
+                      ? "end"
+                      : lastPoint.x < 50
+                        ? "start"
+                        : "middle"
+                  }
                   className="fill-black/70 text-[9px] font-bold dark:fill-white/70"
                 >
                   {lastPoint.stat.applicantCount}명
