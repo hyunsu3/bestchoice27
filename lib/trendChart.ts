@@ -46,7 +46,9 @@ export function buildTrendPaths(
       : Math.max(...stats.map((s) => s.applicantCount), 1);
   const points = stats.map((s) => ({
     x: ((s.recordedAt - minT) / span) * VIEW_W,
-    y: VIEW_H - (s.applicantCount / maxCount) * (VIEW_H - TOP_PAD),
+    // 정원을 넘는 지원자 수는 100%(그래프 맨 위)에서 그대로 눌러 담아, 박스
+    // 바깥으로 밀려나 그래프 자체가 안 보이는 일이 없게 한다.
+    y: VIEW_H - Math.min(s.applicantCount / maxCount, 1) * (VIEW_H - TOP_PAD),
   }));
   const line = points.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ");
   const area = `${line} L${points[points.length - 1].x},${VIEW_H} L${points[0].x},${VIEW_H} Z`;
