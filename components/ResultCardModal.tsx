@@ -99,7 +99,7 @@ export default function ResultCardModal({
             <div
               className={`flip-card-face flip-card-front cursor-pointer text-white result-card-flat ${
                 !colorsReady ? "animate-pulse bg-zinc-300 dark:bg-zinc-700" : ""
-              } ${card.held ? "grayscale" : ""}`}
+              } ${card.held ? "opacity-70" : ""}`}
               style={
                 colorsReady
                   ? {
@@ -114,7 +114,7 @@ export default function ResultCardModal({
                 <div className="absolute left-2 top-2 z-[60] sm:left-3 sm:top-3">
                   <span
                     aria-hidden
-                    className="rounded-full bg-black/60 px-2.5 py-1 text-xs font-bold text-white"
+                    className="rounded-full bg-red-600 px-2.5 py-1 text-xs font-bold text-white"
                   >
                     보류
                   </span>

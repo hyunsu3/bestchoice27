@@ -31,6 +31,22 @@ export async function listApplicationStats(
   return (data as StatRow[]).map(toStat);
 }
 
+export async function listApplicationStatsByCard(): Promise<
+  Record<string, ApplicationStat[]>
+> {
+  const { data, error } = await supabaseAdmin
+    .from("application_stats")
+    .select("*")
+    .order("recorded_at", { ascending: true });
+  if (error) throw error;
+  const grouped: Record<string, ApplicationStat[]> = {};
+  for (const row of data as StatRow[]) {
+    const stat = toStat(row);
+    (grouped[stat.cardId] ??= []).push(stat);
+  }
+  return grouped;
+}
+
 export async function insertApplicationStat(
   cardId: string,
   stat: NewApplicationStat,
