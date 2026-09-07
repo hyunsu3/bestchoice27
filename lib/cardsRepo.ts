@@ -13,6 +13,11 @@ type CardRow = {
   admission_summary: string;
   result_summary: string;
   department_link: string;
+  ratio_2026: string;
+  ratio_2025: string;
+  ratio_2024: string;
+  apply_deadline_date: string;
+  apply_deadline_time: string;
   created_at: string;
   view_count: number;
   pick_tier: PickTier;
@@ -33,6 +38,11 @@ function toCard(row: CardRow): UniversityCard {
     admissionSummary: row.admission_summary,
     resultSummary: row.result_summary,
     departmentLink: row.department_link ?? "",
+    ratio2026: row.ratio_2026 ?? "",
+    ratio2025: row.ratio_2025 ?? "",
+    ratio2024: row.ratio_2024 ?? "",
+    applyDeadlineDate: row.apply_deadline_date ?? "",
+    applyDeadlineTime: row.apply_deadline_time ?? "",
     createdAt: new Date(row.created_at).getTime(),
     viewCount: row.view_count ?? 0,
     pickTier: row.pick_tier ?? "none",
@@ -53,6 +63,11 @@ function toRow(card: NewUniversityCard) {
     admission_summary: card.admissionSummary,
     result_summary: card.resultSummary,
     department_link: card.departmentLink,
+    ratio_2026: card.ratio2026,
+    ratio_2025: card.ratio2025,
+    ratio_2024: card.ratio2024,
+    apply_deadline_date: card.applyDeadlineDate,
+    apply_deadline_time: card.applyDeadlineTime,
   };
 }
 

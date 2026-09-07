@@ -23,6 +23,11 @@ const emptyForm: NewUniversityCard = {
   admissionSummary: "",
   resultSummary: "",
   departmentLink: "",
+  ratio2026: "",
+  ratio2025: "",
+  ratio2024: "",
+  applyDeadlineDate: "",
+  applyDeadlineTime: "",
 };
 
 export default function CardForm({
@@ -49,6 +54,11 @@ export default function CardForm({
           admissionSummary: editingCard.admissionSummary,
           resultSummary: editingCard.resultSummary,
           departmentLink: editingCard.departmentLink,
+          ratio2026: editingCard.ratio2026,
+          ratio2025: editingCard.ratio2025,
+          ratio2024: editingCard.ratio2024,
+          applyDeadlineDate: editingCard.applyDeadlineDate,
+          applyDeadlineTime: editingCard.applyDeadlineTime,
         }
       : emptyForm,
   );
@@ -80,6 +90,11 @@ export default function CardForm({
       admissionSummary: form.admissionSummary.trim(),
       resultSummary: form.resultSummary.trim(),
       departmentLink: form.departmentLink.trim(),
+      ratio2026: form.ratio2026.trim(),
+      ratio2025: form.ratio2025.trim(),
+      ratio2024: form.ratio2024.trim(),
+      applyDeadlineDate: form.applyDeadlineDate.trim(),
+      applyDeadlineTime: form.applyDeadlineTime.trim(),
     };
     setSubmitting(true);
     setError(null);
@@ -175,6 +190,41 @@ export default function CardForm({
           value={form.minRequirement}
           onChange={(e) => update("minRequirement", e.target.value)}
           placeholder="예: 국,수,영,탐(2) 중 3개 합 6 (한국사 4)"
+        />
+      </Field>
+      <Field label="연도별 경쟁률" full hint="예: 12.3:1 형태로 입력해요. 비교 카드에서 함께 표시돼요">
+        <div className="grid grid-cols-3 gap-2">
+          <YearRatioInput
+            year="2024"
+            value={form.ratio2024}
+            onChange={(v) => update("ratio2024", v)}
+          />
+          <YearRatioInput
+            year="2025"
+            value={form.ratio2025}
+            onChange={(v) => update("ratio2025", v)}
+          />
+          <YearRatioInput
+            year="2026"
+            value={form.ratio2026}
+            onChange={(v) => update("ratio2026", v)}
+          />
+        </div>
+      </Field>
+      <Field label="원서 접수 마감일">
+        <input
+          type="date"
+          className="input"
+          value={form.applyDeadlineDate}
+          onChange={(e) => update("applyDeadlineDate", e.target.value)}
+        />
+      </Field>
+      <Field label="마감 시각">
+        <input
+          type="time"
+          className="input"
+          value={form.applyDeadlineTime}
+          onChange={(e) => update("applyDeadlineTime", e.target.value)}
         />
       </Field>
       <Field
@@ -282,6 +332,28 @@ export default function CardForm({
         )}
       </div>
     </form>
+  );
+}
+
+function YearRatioInput({
+  year,
+  value,
+  onChange,
+}: {
+  year: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="flex flex-col gap-1 text-xs">
+      <span className="font-medium text-black/60 dark:text-white/60">{year}</span>
+      <input
+        className="input"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="예: 12.3:1"
+      />
+    </label>
   );
 }
 

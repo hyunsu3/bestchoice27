@@ -32,6 +32,11 @@ async function migrateLegacyCards() {
         admissionSummary: c.admissionSummary,
         resultSummary: c.resultSummary,
         departmentLink: c.departmentLink ?? "",
+        ratio2026: c.ratio2026 ?? "",
+        ratio2025: c.ratio2025 ?? "",
+        ratio2024: c.ratio2024 ?? "",
+        applyDeadlineDate: c.applyDeadlineDate ?? "",
+        applyDeadlineTime: c.applyDeadlineTime ?? "",
       }));
       const res = await fetch("/api/cards/bulk", {
         method: "POST",

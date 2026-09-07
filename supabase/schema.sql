@@ -36,7 +36,30 @@ update cards set pick_rank = 0;
 -- 완전 삭제 대신 보류(held) 처리: 목록 맨 뒤로 보내고 흐리게 표시한다.
 alter table cards add column if not exists held boolean not null default false;
 
+-- 연도별 경쟁률(최종 경쟁률 등, "12.3:1" 같은 자유 형식 텍스트)과 원서 접수
+-- 마감 일시. 마감일은 D-day 계산을 위해 date/time 입력값을 그대로 저장한다.
+alter table cards add column if not exists ratio_2026 text not null default '';
+alter table cards add column if not exists ratio_2025 text not null default '';
+alter table cards add column if not exists ratio_2024 text not null default '';
+alter table cards add column if not exists apply_deadline_date text not null default '';
+alter table cards add column if not exists apply_deadline_time text not null default '';
+
 alter table cards enable row level security;
+
+-- 지원현황 추이 기록: 카드(학과)별로 특정 일시에 확인한 누적 지원자 수를
+-- 쌓아두고, 모집인원과 함께 경쟁률 추이 그래프를 그리는 데 쓴다.
+create table if not exists application_stats (
+  id uuid primary key default gen_random_uuid(),
+  card_id uuid not null references cards(id) on delete cascade,
+  recorded_at timestamptz not null,
+  applicant_count integer not null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists application_stats_card_id_idx
+  on application_stats(card_id, recorded_at);
+
+alter table application_stats enable row level security;
 
 create or replace function increment_card_view(card_id uuid)
 returns integer

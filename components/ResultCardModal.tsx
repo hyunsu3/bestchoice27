@@ -7,6 +7,7 @@ import { renderWithBold, renderWithSmall } from "@/lib/formatText";
 import { PICK_TIER_COLORS, PICK_TIER_EMOJIS, PICK_TIER_LABELS } from "@/lib/pickTier";
 import type { UniversityCard } from "@/lib/types";
 import { useUniversityColors } from "@/lib/universityColors";
+import ApplicationStatsPanel from "./ApplicationStatsPanel";
 import CardFrontFace from "./CardFrontFace";
 
 export default function ResultCardModal({
@@ -251,6 +252,7 @@ export default function ResultCardModal({
                     <dd className="whitespace-pre-wrap">
                       {card.resultSummary ? renderWithBold(card.resultSummary) : "-"}
                     </dd>
+                    <ApplicationStatsPanel card={card} />
                   </div>
                 </dl>
               </div>
