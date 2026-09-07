@@ -310,7 +310,7 @@ export default function ApplicationStatsPanel({ card }: { card: UniversityCard }
                 type="button"
                 aria-label="기록 삭제"
                 title="기록 삭제"
-                className="shrink-0 text-black/30 hover:text-rose-500 dark:text-white/30 dark:hover:text-rose-400"
+                className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-sm font-bold leading-none text-black/50 hover:bg-rose-500/15 hover:text-rose-500 dark:text-white/50 dark:hover:text-rose-400"
                 onClick={() => handleDelete(s.id)}
               >
                 ×
