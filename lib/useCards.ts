@@ -163,6 +163,32 @@ export function useCards() {
     }
   }, []);
 
+  const toggleApplied = useCallback(async (id: string) => {
+    let previous: boolean | undefined;
+    let next: boolean | undefined;
+    setCards((prev) =>
+      prev.map((c) => {
+        if (c.id !== id) return c;
+        previous = c.applied;
+        next = !c.applied;
+        return { ...c, applied: next };
+      }),
+    );
+    if (previous === undefined || next === undefined) return;
+    try {
+      const res = await fetch(`/api/cards/${id}/applied`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ applied: next }),
+      });
+      if (!res.ok) throw new Error();
+    } catch {
+      setCards((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, applied: previous! } : c)),
+      );
+    }
+  }, []);
+
   const setHeld = useCallback(async (id: string, held: boolean) => {
     let previous: boolean | undefined;
     setCards((prev) =>
@@ -195,6 +221,7 @@ export function useCards() {
     updateCard,
     cyclePickTier,
     toggleMarked,
+    toggleApplied,
     setHeld,
     refresh,
   };

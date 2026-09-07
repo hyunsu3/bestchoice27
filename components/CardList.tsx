@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { PickTier, UniversityCard } from "@/lib/types";
+import type { UniversityCard } from "@/lib/types";
 import FlipCard from "./FlipCard";
 import ResultCardModal from "./ResultCardModal";
 
@@ -12,15 +12,6 @@ const SORT_OPTIONS: { id: SortMode; label: string }[] = [
   { id: "admissionType", label: "전형별" },
   { id: "capacity", label: "모집인원" },
 ];
-
-// 카드순서 우선 정렬 기준: 안정 - 소신 - 상향 - 우주상향. 등급 미지정 카드는 맨 뒤로.
-const PICK_TIER_ORDER_RANK: Record<PickTier, number> = {
-  safe: 0,
-  target: 1,
-  reach: 2,
-  cosmicReach: 3,
-  none: 4,
-};
 
 function parseCapacity(capacity: string): number {
   const match = capacity.match(/\d+/);
@@ -60,6 +51,7 @@ export default function CardList({
   onDelete,
   onCyclePickTier,
   onToggleMarked,
+  onToggleApplied,
   onSetHeld,
 }: {
   cards: UniversityCard[];
@@ -67,6 +59,7 @@ export default function CardList({
   onDelete: (id: string) => void;
   onCyclePickTier: (id: string) => void;
   onToggleMarked: (id: string) => void;
+  onToggleApplied: (id: string) => void;
   onSetHeld: (id: string, held: boolean) => void;
 }) {
   const [sortMode, setSortMode] = useState<SortMode>("name");
@@ -74,8 +67,6 @@ export default function CardList({
   // "선택"(핀 표시) 우선순위 토글: 어떤 기본 정렬을 쓰든, 켜져 있으면 그
   // 정렬 순서 안에서 핀 꽂힌 카드만 맨 앞으로 끌어온다.
   const [prioritizeMarked, setPrioritizeMarked] = useState(true);
-  // "카드순서"(안정-소신-상향-우주상향 등급) 우선순위 토글. 기본은 켜짐.
-  const [prioritizeTierOrder, setPrioritizeTierOrder] = useState(true);
   const [viewingId, setViewingId] = useState<string | null>(null);
   const viewingCard = cards.find((c) => c.id === viewingId) ?? null;
 
@@ -94,12 +85,7 @@ export default function CardList({
   }
 
   const sortedCards = useMemo(() => {
-    let base = [...cards].sort((a, b) => compareCards(a, b, sortMode, sortDesc));
-    if (prioritizeTierOrder) {
-      base = [...base].sort(
-        (a, b) => PICK_TIER_ORDER_RANK[a.pickTier] - PICK_TIER_ORDER_RANK[b.pickTier],
-      );
-    }
+    const base = [...cards].sort((a, b) => compareCards(a, b, sortMode, sortDesc));
     const active = base.filter((c) => !c.held);
     const held = base.filter((c) => c.held);
     const ordered = prioritizeMarked
@@ -107,7 +93,7 @@ export default function CardList({
       : active;
     // 보류 카드는 정렬/우선순위와 무관하게 항상 맨 뒤로.
     return [...ordered, ...held];
-  }, [cards, sortMode, sortDesc, prioritizeMarked, prioritizeTierOrder]);
+  }, [cards, sortMode, sortDesc, prioritizeMarked]);
 
   if (cards.length === 0) {
     return (
@@ -148,17 +134,6 @@ export default function CardList({
         >
           <span aria-hidden className="inline-block text-base">📌</span> 선택 우선
         </button>
-        <button
-          onClick={() => setPrioritizeTierOrder((v) => !v)}
-          aria-pressed={prioritizeTierOrder}
-          className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
-            prioritizeTierOrder
-              ? "bg-yellow-400 text-black"
-              : "border border-black/10 text-black/60 hover:text-black dark:border-white/10 dark:text-white/60 dark:hover:text-white"
-          }`}
-        >
-          <span aria-hidden className="inline-block rotate-90 text-base">🚦</span> 안정소신상향
-        </button>
       </div>
       <div className="grid grid-cols-2 gap-5 sm:gap-7 lg:grid-cols-4">
         {sortedCards.map((card) => (
@@ -168,6 +143,7 @@ export default function CardList({
             onOpen={() => openCard(card)}
             onCyclePickTier={() => onCyclePickTier(card.id)}
             onToggleMarked={() => onToggleMarked(card.id)}
+            onToggleApplied={() => onToggleApplied(card.id)}
           />
         ))}
       </div>

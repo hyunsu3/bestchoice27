@@ -24,6 +24,7 @@ type CardRow = {
   pick_tier: PickTier;
   marked: boolean;
   held: boolean;
+  applied: boolean;
 };
 
 function toCard(row: CardRow): UniversityCard {
@@ -50,6 +51,7 @@ function toCard(row: CardRow): UniversityCard {
     pickTier: row.pick_tier ?? "none",
     marked: row.marked ?? false,
     held: row.held ?? false,
+    applied: row.applied ?? false,
   };
 }
 
@@ -169,6 +171,20 @@ export async function setCardHeld(
   const { data, error } = await supabaseAdmin
     .from("cards")
     .update({ held })
+    .eq("id", id)
+    .select()
+    .single();
+  if (error) throw error;
+  return toCard(data as CardRow);
+}
+
+export async function setCardApplied(
+  id: string,
+  applied: boolean,
+): Promise<UniversityCard> {
+  const { data, error } = await supabaseAdmin
+    .from("cards")
+    .update({ applied })
     .eq("id", id)
     .select()
     .single();

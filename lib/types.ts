@@ -23,11 +23,12 @@ export interface UniversityCard {
   pickTier: PickTier;
   marked: boolean;
   held: boolean;
+  applied: boolean;
 }
 
 export type NewUniversityCard = Omit<
   UniversityCard,
-  "id" | "createdAt" | "viewCount" | "pickTier" | "marked" | "held"
+  "id" | "createdAt" | "viewCount" | "pickTier" | "marked" | "held" | "applied"
 >;
 
 export interface ApplicationStat {

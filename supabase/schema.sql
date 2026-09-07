@@ -35,6 +35,8 @@ alter table cards add column if not exists pick_rank double precision not null d
 update cards set pick_rank = 0;
 -- 완전 삭제 대신 보류(held) 처리: 목록 맨 뒤로 보내고 흐리게 표시한다.
 alter table cards add column if not exists held boolean not null default false;
+-- 지원완료 여부: 선택(marked)과 별개로 카드 테두리를 초록색으로 표시한다.
+alter table cards add column if not exists applied boolean not null default false;
 
 -- 연도별 경쟁률(최종 경쟁률 등, "12.3:1" 같은 자유 형식 텍스트)과 원서 접수
 -- 마감 일시. 마감일은 D-day 계산을 위해 date/time 입력값을 그대로 저장한다.

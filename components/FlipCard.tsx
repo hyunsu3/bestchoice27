@@ -2,8 +2,6 @@
 
 import { useEffect, useRef, type PointerEvent } from "react";
 import { getAutoHex } from "@/lib/cardColor";
-import { getDeadlineStatus } from "@/lib/deadlineInfo";
-import { PICK_TIER_COLORS, PICK_TIER_EMOJIS, PICK_TIER_LABELS } from "@/lib/pickTier";
 import type { UniversityCard } from "@/lib/types";
 import { useUniversityColors } from "@/lib/universityColors";
 import CardFrontFace from "./CardFrontFace";
@@ -16,15 +14,16 @@ export default function FlipCard({
   onOpen,
   onCyclePickTier,
   onToggleMarked,
+  onToggleApplied,
 }: {
   card: UniversityCard;
   onOpen: () => void;
   onCyclePickTier?: () => void;
   onToggleMarked?: () => void;
+  onToggleApplied?: () => void;
 }) {
   const { colors, ready: colorsReady } = useUniversityColors();
   const customColor = colors[card.universityName.trim()];
-  const deadline = getDeadlineStatus(card);
 
   const pressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pressStartRef = useRef<{ x: number; y: number } | null>(null);
@@ -81,9 +80,13 @@ export default function FlipCard({
 
   return (
     <div
-      className={`rounded-2xl ${card.marked ? "ring-2 ring-[#FEE500] sm:ring-[5px]" : ""} ${
-        card.held ? "opacity-70" : ""
-      }`}
+      className={`rounded-2xl ${
+        card.applied
+          ? "ring-2 ring-green-500 sm:ring-[5px]"
+          : card.marked
+            ? "ring-2 ring-[#FEE500] sm:ring-[5px]"
+            : ""
+      } ${card.held ? "opacity-70" : ""}`}
     >
       <div
         className="flip-card aspect-[3/4]"
@@ -118,45 +121,6 @@ export default function FlipCard({
             }
           >
             <div className="absolute right-2 top-2 z-[60] flex flex-col items-end gap-1 sm:right-3 sm:top-3">
-              {deadline && (
-                <span
-                  aria-hidden
-                  className={`rounded-full px-2 py-0.5 text-[10px] font-bold leading-none text-white sm:text-xs ${
-                    deadline.diffDays <= 3 ? "bg-rose-500" : "bg-black/60"
-                  }`}
-                >
-                  {deadline.diffDays > 0
-                    ? `D-${deadline.diffDays}`
-                    : deadline.diffDays === 0
-                      ? "오늘마감"
-                      : "마감"}
-                </span>
-              )}
-              {card.held && (
-                <span
-                  aria-hidden
-                  className="rounded-full bg-red-600 px-2 py-0.5 text-[10px] font-bold text-white"
-                >
-                  보류
-                </span>
-              )}
-              {card.pickTier !== "none" &&
-                (PICK_TIER_EMOJIS[card.pickTier] ? (
-                  <span aria-hidden className="text-3xl leading-none drop-shadow">
-                    {PICK_TIER_EMOJIS[card.pickTier]}
-                  </span>
-                ) : (
-                  <span
-                    aria-hidden
-                    className="flex h-6 w-6 items-center justify-center rounded-full text-[9px] font-bold leading-none sm:h-8 sm:w-8 sm:text-[11px]"
-                    style={{
-                      backgroundColor: PICK_TIER_COLORS[card.pickTier],
-                      color: card.pickTier === "target" ? "#000" : "#fff",
-                    }}
-                  >
-                    {PICK_TIER_LABELS[card.pickTier]}
-                  </span>
-                ))}
               {card.minRequirement && card.minRequirement.trim() !== "없음" && (
                 <span
                   aria-hidden
@@ -189,7 +153,26 @@ export default function FlipCard({
               </p>
             )}
             {card.applicationPeriod && (
-              <p className="mt-1 pl-[1em] text-[10px] font-semibold text-yellow-300 sm:text-xs">
+              <p className="mt-1 pl-[1em] text-[10px] font-semibold text-white/60 sm:text-xs">
+                {onToggleApplied && (
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    aria-label={card.applied ? "지원완료 해제" : "지원완료로 표시"}
+                    title={card.applied ? "지원완료 해제" : "지원완료로 표시"}
+                    className={`mr-1 cursor-pointer ${
+                      card.applied ? "text-green-400" : "text-white/60"
+                    }`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onToggleApplied();
+                    }}
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onPointerUp={(e) => e.stopPropagation()}
+                  >
+                    {card.applied ? "✔" : "☐"}
+                  </span>
+                )}
                 {card.applicationPeriod}
               </p>
             )}
