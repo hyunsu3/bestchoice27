@@ -176,6 +176,11 @@ export default function FlipCard({
                 {card.applicationPeriod}
               </p>
             )}
+            {card.latestRatioText && (
+              <p className="mt-1 pl-[1em] text-[10px] text-white/60 sm:text-xs">
+                경쟁률 {card.latestRatioText}
+              </p>
+            )}
           </div>
         </div>
       </div>

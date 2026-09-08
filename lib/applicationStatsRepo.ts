@@ -48,6 +48,22 @@ export async function insertApplicationStat(
   return toStat(data as StatRow);
 }
 
+export async function listLatestApplicationStatByCard(): Promise<
+  Map<string, ApplicationStat>
+> {
+  const { data, error } = await supabaseAdmin
+    .from("application_stats")
+    .select("*")
+    .order("recorded_at", { ascending: false });
+  if (error) throw error;
+  const latest = new Map<string, ApplicationStat>();
+  for (const row of data as StatRow[]) {
+    const stat = toStat(row);
+    if (!latest.has(stat.cardId)) latest.set(stat.cardId, stat);
+  }
+  return latest;
+}
+
 export async function deleteApplicationStatById(id: string): Promise<void> {
   const { error } = await supabaseAdmin
     .from("application_stats")

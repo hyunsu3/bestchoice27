@@ -1,14 +1,35 @@
 import { NextResponse } from "next/server";
 import { isAuthorized } from "@/lib/auth";
+import { listLatestApplicationStatByCard } from "@/lib/applicationStatsRepo";
 import { insertCard, listCards } from "@/lib/cardsRepo";
 import type { NewUniversityCard } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
+function parseCapacityNumber(capacity: string): number | null {
+  const match = capacity.match(/\d+/);
+  return match ? Number(match[0]) : null;
+}
+
 export async function GET() {
   try {
-    const cards = await listCards();
-    return NextResponse.json(cards, {
+    const [cards, latestStats] = await Promise.all([
+      listCards(),
+      listLatestApplicationStatByCard(),
+    ]);
+    const cardsWithRatio = cards.map((card) => {
+      const stat = latestStats.get(card.id);
+      if (!stat) return card;
+      const capacity = parseCapacityNumber(card.capacity);
+      return {
+        ...card,
+        latestApplicantCount: stat.applicantCount,
+        latestRatioText: capacity
+          ? `${(stat.applicantCount / capacity).toFixed(1)}:1`
+          : null,
+      };
+    });
+    return NextResponse.json(cardsWithRatio, {
       headers: { "Cache-Control": "no-store, must-revalidate" },
     });
   } catch (error) {

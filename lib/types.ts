@@ -24,11 +24,23 @@ export interface UniversityCard {
   marked: boolean;
   held: boolean;
   applied: boolean;
+  // 지원현황 기록 중 가장 최근 값에서 계산한 경쟁률. 카드 목록에 표시하기
+  // 위한 파생값이라 DB에는 저장하지 않고 /api/cards 응답에서만 채운다.
+  latestApplicantCount?: number | null;
+  latestRatioText?: string | null;
 }
 
 export type NewUniversityCard = Omit<
   UniversityCard,
-  "id" | "createdAt" | "viewCount" | "pickTier" | "marked" | "held" | "applied"
+  | "id"
+  | "createdAt"
+  | "viewCount"
+  | "pickTier"
+  | "marked"
+  | "held"
+  | "applied"
+  | "latestApplicantCount"
+  | "latestRatioText"
 >;
 
 export interface ApplicationStat {
