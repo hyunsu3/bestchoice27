@@ -146,12 +146,12 @@ export default function FlipCard({
                 📌
               </button>
             )}
-            {colorsReady && (
-              <CardFrontFace card={card} latestRatioText={card.latestRatioText} />
-            )}
-            {card.interviewDate && (
+            {colorsReady && <CardFrontFace card={card} />}
+            {(card.interviewDate || card.latestRatioText) && (
               <p className="mt-1.5 pl-[1em] text-[10px] text-white/60 sm:mt-3 sm:text-xs">
-                면접 {card.interviewDate}
+                {card.interviewDate && `면접 ${card.interviewDate}`}
+                {card.interviewDate && card.latestRatioText && " "}
+                {card.latestRatioText && `(${card.latestRatioText})`}
               </p>
             )}
             {card.applicationPeriod && (
