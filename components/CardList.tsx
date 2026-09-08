@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { UniversityCard } from "@/lib/types";
 import FlipCard from "./FlipCard";
 import ResultCardModal from "./ResultCardModal";
@@ -12,6 +12,26 @@ const SORT_OPTIONS: { id: SortMode; label: string }[] = [
   { id: "admissionType", label: "전형별" },
   { id: "capacity", label: "모집인원" },
 ];
+
+// 정렬/필터 옵션을 브라우저에 저장해서 새로고침해도 유지되게 한다.
+const SORT_PREFS_KEY = "cardList:sortPrefs:v1";
+
+type SortPrefs = {
+  sortMode: SortMode;
+  sortDesc: boolean;
+  prioritizeMarked: boolean;
+  prioritizeMinRequirement: boolean;
+  includeHeld: boolean;
+};
+
+function loadSortPrefs(): Partial<SortPrefs> {
+  try {
+    const raw = window.localStorage.getItem(SORT_PREFS_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
 
 function parseCapacity(capacity: string): number {
   const match = capacity.match(/\d+/);
@@ -79,8 +99,41 @@ export default function CardList({
   // "+보류카드" 토글: 켜져 있으면 보류 카드도 다른 카드와 동일하게 정렬에 포함시킨다.
   // 기본은 꺼짐(보류 카드는 항상 맨 뒤).
   const [includeHeld, setIncludeHeld] = useState(false);
+  const [prefsLoaded, setPrefsLoaded] = useState(false);
   const [viewingId, setViewingId] = useState<string | null>(null);
   const viewingCard = cards.find((c) => c.id === viewingId) ?? null;
+
+  // 저장된 정렬/필터 옵션을 처음 마운트될 때 한 번 불러온다.
+  useEffect(() => {
+    const prefs = loadSortPrefs();
+    if (prefs.sortMode) setSortMode(prefs.sortMode);
+    if (typeof prefs.sortDesc === "boolean") setSortDesc(prefs.sortDesc);
+    if (typeof prefs.prioritizeMarked === "boolean") setPrioritizeMarked(prefs.prioritizeMarked);
+    if (typeof prefs.prioritizeMinRequirement === "boolean")
+      setPrioritizeMinRequirement(prefs.prioritizeMinRequirement);
+    if (typeof prefs.includeHeld === "boolean") setIncludeHeld(prefs.includeHeld);
+    setPrefsLoaded(true);
+  }, []);
+
+  // 옵션이 바뀔 때마다 저장한다. 불러오기 전에 저장하면 기본값으로 덮어써버리므로
+  // prefsLoaded가 true가 된 이후부터만 저장한다.
+  useEffect(() => {
+    if (!prefsLoaded) return;
+    try {
+      window.localStorage.setItem(
+        SORT_PREFS_KEY,
+        JSON.stringify({
+          sortMode,
+          sortDesc,
+          prioritizeMarked,
+          prioritizeMinRequirement,
+          includeHeld,
+        }),
+      );
+    } catch {
+      // 저장 실패는 무시 (예: 시크릿 모드에서 storage 접근 제한)
+    }
+  }, [prefsLoaded, sortMode, sortDesc, prioritizeMarked, prioritizeMinRequirement, includeHeld]);
 
   function openCard(card: UniversityCard) {
     setViewingId(card.id);
@@ -207,8 +260,14 @@ export default function CardList({
         <ResultCardModal
           card={viewingCard}
           onClose={() => setViewingId(null)}
-          onEdit={() => onEdit(viewingCard.id)}
-          onDuplicate={() => onDuplicate(viewingCard.id)}
+          onEdit={() => {
+            setViewingId(null);
+            onEdit(viewingCard.id);
+          }}
+          onDuplicate={() => {
+            setViewingId(null);
+            onDuplicate(viewingCard.id);
+          }}
           onDelete={() => onDelete(viewingCard.id)}
           onSetHeld={(held) => onSetHeld(viewingCard.id, held)}
           initialFlipped

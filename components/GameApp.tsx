@@ -99,7 +99,7 @@ export default function GameApp() {
             onCancelEdit={stopEdit}
           />
         )}
-        {tab === "list" && (
+        <div hidden={tab !== "list"}>
           <CardList
             cards={cards}
             onEdit={startEdit}
@@ -110,7 +110,7 @@ export default function GameApp() {
             onToggleApplied={toggleApplied}
             onSetHeld={setHeld}
           />
-        )}
+        </div>
         {tab === "vs" && hydrated && <VsMatch cards={cards} />}
       </main>
     </div>

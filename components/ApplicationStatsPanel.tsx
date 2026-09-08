@@ -7,7 +7,7 @@ import type { ApplicationStat, UniversityCard } from "@/lib/types";
 
 const CHART_W = 300;
 const CHART_H = 96;
-const PAD = { top: 14, right: 10, bottom: 10, left: 10 };
+const PAD = { top: 14, right: 10, bottom: 16, left: 10 };
 const PLOT_W = CHART_W - PAD.left - PAD.right;
 const PLOT_H = CHART_H - PAD.top - PAD.bottom;
 
@@ -82,8 +82,9 @@ export default function ApplicationStatsPanel({ card }: { card: UniversityCard }
     { year: "2026", value: card.ratio2026 },
   ].filter((r) => r.value.trim() !== "");
 
-  const { points, deadlineX } = useMemo(() => {
-    if (!stats || stats.length === 0) return { points: [], deadlineX: null as number | null };
+  const { points, deadlineX, dateTicks } = useMemo(() => {
+    if (!stats || stats.length === 0)
+      return { points: [], deadlineX: null as number | null, dateTicks: [] as { x: number; label: string }[] };
     const times = stats.map((s) => s.recordedAt);
     const minT = Math.min(...times);
     let maxT = Math.max(...times);
@@ -108,7 +109,34 @@ export default function ApplicationStatsPanel({ card }: { card: UniversityCard }
       deadlineMs !== null && range > 0 && deadlineMs >= minT
         ? PAD.left + Math.min((deadlineMs - minT) / range, 1) * PLOT_W
         : null;
-    return { points, deadlineX };
+
+    // 날짜가 바뀌는 자정 지점마다 세로선을 그어서 어느 기록이 어느 날짜인지
+    // 한눈에 보이게 한다. 기간이 길면 라벨이 겹치지 않도록 일정 간격으로만 표시.
+    const dateTicks: { x: number; label: string }[] = [];
+    if (range > 0) {
+      const DAY_MS = 24 * 60 * 60 * 1000;
+      const firstMidnight = new Date(minT);
+      firstMidnight.setHours(0, 0, 0, 0);
+      let cursor = firstMidnight.getTime();
+      if (cursor <= minT) cursor += DAY_MS;
+      const dayStarts: number[] = [];
+      while (cursor < maxT) {
+        dayStarts.push(cursor);
+        cursor += DAY_MS;
+      }
+      const MAX_TICKS = 6;
+      const step = Math.max(1, Math.ceil(dayStarts.length / MAX_TICKS));
+      for (let i = 0; i < dayStarts.length; i += step) {
+        const t = dayStarts[i];
+        const d = new Date(t);
+        dateTicks.push({
+          x: PAD.left + ((t - minT) / range) * PLOT_W,
+          label: `${d.getMonth() + 1}/${d.getDate()}`,
+        });
+      }
+    }
+
+    return { points, deadlineX, dateTicks };
   }, [stats, deadlineMs, capacity]);
 
   const pathD = points.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ");
@@ -212,6 +240,27 @@ export default function ApplicationStatsPanel({ card }: { card: UniversityCard }
                   className="stroke-black/10 dark:stroke-white/10"
                   strokeWidth={1}
                 />
+              ))}
+              {dateTicks.map((tick) => (
+                <g key={tick.x}>
+                  <line
+                    x1={tick.x}
+                    x2={tick.x}
+                    y1={PAD.top}
+                    y2={PAD.top + PLOT_H}
+                    className="stroke-black/10 dark:stroke-white/10"
+                    strokeWidth={1}
+                    strokeDasharray="2 2"
+                  />
+                  <text
+                    x={tick.x}
+                    y={CHART_H - 3}
+                    textAnchor="middle"
+                    className="fill-black/40 text-[7px] dark:fill-white/40"
+                  >
+                    {tick.label}
+                  </text>
+                </g>
               ))}
               {points.length > 1 && (
                 <path
