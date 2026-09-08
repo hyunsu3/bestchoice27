@@ -152,7 +152,7 @@ export default function FlipCard({
                 면접 {card.interviewDate}
               </p>
             )}
-            {card.applicationPeriod && (
+            {(card.applicationPeriod || card.latestRatioText) && (
               <p className="mt-1 pl-[1em] text-[10px] font-semibold text-white/60 sm:text-xs">
                 {onToggleApplied && (
                   <span
@@ -174,11 +174,12 @@ export default function FlipCard({
                   </span>
                 )}
                 {card.applicationPeriod}
-              </p>
-            )}
-            {card.latestRatioText && (
-              <p className="mt-1 pl-[1em] text-[10px] text-white/60 sm:text-xs">
-                경쟁률 {card.latestRatioText}
+                {card.latestRatioText && (
+                  <span className="font-normal">
+                    {card.applicationPeriod ? " · " : ""}
+                    경쟁률 {card.latestRatioText}
+                  </span>
+                )}
               </p>
             )}
           </div>
