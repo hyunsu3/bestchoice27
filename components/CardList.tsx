@@ -67,6 +67,9 @@ export default function CardList({
   // "선택"(핀 표시) 우선순위 토글: 어떤 기본 정렬을 쓰든, 켜져 있으면 그
   // 정렬 순서 안에서 핀 꽂힌 카드만 맨 앞으로 끌어온다.
   const [prioritizeMarked, setPrioritizeMarked] = useState(true);
+  // "수능최저" 우선순위 토글: 켜져 있으면 수능최저가 있는 카드를 앞으로
+  // 끌어온다. 기본은 꺼짐.
+  const [prioritizeMinRequirement, setPrioritizeMinRequirement] = useState(false);
   const [viewingId, setViewingId] = useState<string | null>(null);
   const viewingCard = cards.find((c) => c.id === viewingId) ?? null;
 
@@ -88,12 +91,18 @@ export default function CardList({
     const base = [...cards].sort((a, b) => compareCards(a, b, sortMode, sortDesc));
     const active = base.filter((c) => !c.held);
     const held = base.filter((c) => c.held);
-    const ordered = prioritizeMarked
-      ? [...active.filter((c) => c.marked), ...active.filter((c) => !c.marked)]
-      : active;
+    const hasMinRequirement = (c: UniversityCard) =>
+      !!c.minRequirement && c.minRequirement.trim() !== "없음";
+    const priorityScore = (c: UniversityCard) =>
+      (prioritizeMarked && c.marked ? 2 : 0) +
+      (prioritizeMinRequirement && hasMinRequirement(c) ? 1 : 0);
+    const ordered =
+      prioritizeMarked || prioritizeMinRequirement
+        ? [...active].sort((a, b) => priorityScore(b) - priorityScore(a))
+        : active;
     // 보류 카드는 정렬/우선순위와 무관하게 항상 맨 뒤로.
     return [...ordered, ...held];
-  }, [cards, sortMode, sortDesc, prioritizeMarked]);
+  }, [cards, sortMode, sortDesc, prioritizeMarked, prioritizeMinRequirement]);
 
   if (cards.length === 0) {
     return (
@@ -133,6 +142,17 @@ export default function CardList({
           }`}
         >
           <span aria-hidden className="inline-block text-base">📌</span> 선택 우선
+        </button>
+        <button
+          onClick={() => setPrioritizeMinRequirement((v) => !v)}
+          aria-pressed={prioritizeMinRequirement}
+          className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+            prioritizeMinRequirement
+              ? "bg-blue-500 text-white"
+              : "border border-black/10 text-black/60 hover:text-black dark:border-white/10 dark:text-white/60 dark:hover:text-white"
+          }`}
+        >
+          수능최저
         </button>
       </div>
       <div className="grid grid-cols-2 gap-5 sm:gap-7 lg:grid-cols-4">
