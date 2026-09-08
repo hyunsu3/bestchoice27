@@ -128,13 +128,20 @@ body {
 @media (min-width: 640px) {
   .result-card-shell {
     width: min(75vw, 34rem);
-    height: min(90vh, 46rem);
+    height: min(90vh, 60rem);
   }
 }
 @media (min-width: 1024px) {
   .result-card-shell {
     width: min(50vw, 40rem);
-    height: min(90vh, 50rem);
+    height: min(90vh, 64rem);
+  }
+}
+/* 세로 공간이 좁은 화면(작은 창, 태블릿 가로 모드 등)에서는 90% 여백을
+   두면 카드가 너무 작아지므로, 화면 높이를 가득 채운다. */
+@media (min-width: 640px) and (max-height: 700px) {
+  .result-card-shell {
+    height: 100vh;
   }
 }
 .flip-card-back {
