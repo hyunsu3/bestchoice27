@@ -14,6 +14,7 @@ export default function ResultCardModal({
   card,
   onClose,
   onEdit,
+  onDuplicate,
   onDelete,
   onSetHeld,
   initialFlipped = false,
@@ -21,6 +22,7 @@ export default function ResultCardModal({
   card: UniversityCard;
   onClose: () => void;
   onEdit?: () => void;
+  onDuplicate?: () => void;
   onDelete?: () => void;
   onSetHeld?: (held: boolean) => void;
   initialFlipped?: boolean;
@@ -270,7 +272,7 @@ export default function ResultCardModal({
               </div>
             </div>
           </div>
-          {(onEdit || onDelete || onSetHeld) && !flipped && (
+          {(onEdit || onDuplicate || onDelete || onSetHeld) && !flipped && (
             <div className="absolute bottom-[1.65rem] left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-1.5">
               <div className="flex gap-1">
                 {onEdit && (
@@ -285,6 +287,20 @@ export default function ResultCardModal({
                     }}
                   >
                     수정
+                  </button>
+                )}
+                {onDuplicate && (
+                  <button
+                    type="button"
+                    aria-label="카드 복사 등록"
+                    title="카드 복사 등록"
+                    className="rounded-full border border-black/10 bg-white/90 px-4 py-2 text-sm font-semibold text-black/70 shadow-sm hover:bg-white hover:text-indigo-500 dark:border-white/10 dark:bg-zinc-800/90 dark:text-white/70 dark:hover:text-indigo-400 sm:text-base"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDuplicate();
+                    }}
+                  >
+                    📋 복사
                   </button>
                 )}
                 {onSetHeld && !card.held && (

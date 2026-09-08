@@ -48,6 +48,7 @@ function compareCards(
 export default function CardList({
   cards,
   onEdit,
+  onDuplicate,
   onDelete,
   onCyclePickTier,
   onToggleMarked,
@@ -56,6 +57,7 @@ export default function CardList({
 }: {
   cards: UniversityCard[];
   onEdit: (id: string) => void;
+  onDuplicate: (id: string) => void;
   onDelete: (id: string) => void;
   onCyclePickTier: (id: string) => void;
   onToggleMarked: (id: string) => void;
@@ -70,6 +72,9 @@ export default function CardList({
   // "수능최저" 우선순위 토글: 켜져 있으면 수능최저가 있는 카드를 앞으로
   // 끌어온다. 기본은 꺼짐.
   const [prioritizeMinRequirement, setPrioritizeMinRequirement] = useState(false);
+  // "+보류카드" 토글: 켜져 있으면 보류 카드도 다른 카드와 동일하게 정렬에 포함시킨다.
+  // 기본은 꺼짐(보류 카드는 항상 맨 뒤).
+  const [includeHeld, setIncludeHeld] = useState(false);
   const [viewingId, setViewingId] = useState<string | null>(null);
   const viewingCard = cards.find((c) => c.id === viewingId) ?? null;
 
@@ -89,20 +94,24 @@ export default function CardList({
 
   const sortedCards = useMemo(() => {
     const base = [...cards].sort((a, b) => compareCards(a, b, sortMode, sortDesc));
-    const active = base.filter((c) => !c.held);
-    const held = base.filter((c) => c.held);
     const hasMinRequirement = (c: UniversityCard) =>
       !!c.minRequirement && c.minRequirement.trim() !== "없음";
     const priorityScore = (c: UniversityCard) =>
       (prioritizeMarked && c.marked ? 2 : 0) +
       (prioritizeMinRequirement && hasMinRequirement(c) ? 1 : 0);
-    const ordered =
+    const applyPriority = (list: UniversityCard[]) =>
       prioritizeMarked || prioritizeMinRequirement
-        ? [...active].sort((a, b) => priorityScore(b) - priorityScore(a))
-        : active;
-    // 보류 카드는 정렬/우선순위와 무관하게 항상 맨 뒤로.
-    return [...ordered, ...held];
-  }, [cards, sortMode, sortDesc, prioritizeMarked, prioritizeMinRequirement]);
+        ? [...list].sort((a, b) => priorityScore(b) - priorityScore(a))
+        : list;
+    // "+보류카드"가 켜져 있으면 보류 카드도 다른 카드와 동일하게 정렬/우선순위에 포함.
+    if (includeHeld) {
+      return applyPriority(base);
+    }
+    // 기본: 보류 카드는 정렬/우선순위와 무관하게 항상 맨 뒤로.
+    const active = base.filter((c) => !c.held);
+    const held = base.filter((c) => c.held);
+    return [...applyPriority(active), ...held];
+  }, [cards, sortMode, sortDesc, prioritizeMarked, prioritizeMinRequirement, includeHeld]);
 
   if (cards.length === 0) {
     return (
@@ -133,26 +142,49 @@ export default function CardList({
         ))}
         <span className="mx-1 h-4 w-px bg-black/10 dark:bg-white/10" />
         <button
-          onClick={() => setPrioritizeMarked((v) => !v)}
+          onClick={() =>
+            setPrioritizeMarked((v) => {
+              const next = !v;
+              if (next) setIncludeHeld(false);
+              return next;
+            })
+          }
           aria-pressed={prioritizeMarked}
-          className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+          className={`inline-flex h-7 items-center gap-1 rounded-full px-3.5 text-xs font-semibold transition-colors ${
             prioritizeMarked
               ? "bg-yellow-400 text-black"
               : "border border-black/10 text-black/60 hover:text-black dark:border-white/10 dark:text-white/60 dark:hover:text-white"
           }`}
         >
-          <span aria-hidden className="inline-block text-base">📌</span> 선택 우선
+          <span aria-hidden className="text-base leading-none">📌</span> 선택 우선
         </button>
         <button
           onClick={() => setPrioritizeMinRequirement((v) => !v)}
           aria-pressed={prioritizeMinRequirement}
-          className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+          className={`inline-flex h-7 items-center rounded-full px-3.5 text-xs font-semibold transition-colors ${
             prioritizeMinRequirement
               ? "bg-blue-500 text-white"
               : "border border-black/10 text-black/60 hover:text-black dark:border-white/10 dark:text-white/60 dark:hover:text-white"
           }`}
         >
           수능최저
+        </button>
+        <button
+          onClick={() =>
+            setIncludeHeld((v) => {
+              const next = !v;
+              if (next) setPrioritizeMarked(false);
+              return next;
+            })
+          }
+          aria-pressed={includeHeld}
+          className={`inline-flex h-7 items-center rounded-full px-3.5 text-xs font-semibold transition-colors ${
+            includeHeld
+              ? "bg-emerald-500 text-white"
+              : "border border-black/10 text-black/60 hover:text-black dark:border-white/10 dark:text-white/60 dark:hover:text-white"
+          }`}
+        >
+          보류카드 포함
         </button>
       </div>
       <div className="grid grid-cols-2 gap-5 sm:gap-7 lg:grid-cols-4">
@@ -172,6 +204,7 @@ export default function CardList({
           card={viewingCard}
           onClose={() => setViewingId(null)}
           onEdit={() => onEdit(viewingCard.id)}
+          onDuplicate={() => onDuplicate(viewingCard.id)}
           onDelete={() => onDelete(viewingCard.id)}
           onSetHeld={(held) => onSetHeld(viewingCard.id, held)}
           initialFlipped

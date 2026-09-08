@@ -29,15 +29,25 @@ export default function GameApp() {
   } = useCards();
   const [tab, setTab] = useState<Tab>("list");
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [duplicateSourceId, setDuplicateSourceId] = useState<string | null>(null);
   const editingCard = cards.find((c) => c.id === editingId) ?? null;
+  const duplicateSource = cards.find((c) => c.id === duplicateSourceId) ?? null;
 
   function startEdit(id: string) {
+    setDuplicateSourceId(null);
     setEditingId(id);
+    setTab("register");
+  }
+
+  function startDuplicate(id: string) {
+    setEditingId(null);
+    setDuplicateSourceId(id);
     setTab("register");
   }
 
   function stopEdit() {
     setEditingId(null);
+    setDuplicateSourceId(null);
     setTab("list");
   }
 
@@ -56,6 +66,7 @@ export default function GameApp() {
             key={t.id}
             onClick={() => {
               setEditingId(null);
+              setDuplicateSourceId(null);
               setTab(t.id);
             }}
             className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
@@ -73,10 +84,12 @@ export default function GameApp() {
       <main>
         {tab === "register" && (
           <CardForm
-            key={editingId ?? "new"}
+            key={editingId ? `edit-${editingId}` : duplicateSourceId ? `dup-${duplicateSourceId}` : "new"}
             editingCard={editingCard}
+            duplicateFrom={duplicateSource}
             onAdd={async (card) => {
               await addCard(card);
+              setDuplicateSourceId(null);
               setTab("list");
             }}
             onUpdate={async (id, patch) => {
@@ -90,6 +103,7 @@ export default function GameApp() {
           <CardList
             cards={cards}
             onEdit={startEdit}
+            onDuplicate={startDuplicate}
             onDelete={removeCard}
             onCyclePickTier={cyclePickTier}
             onToggleMarked={toggleMarked}

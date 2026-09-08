@@ -33,34 +33,37 @@ const emptyForm: NewUniversityCard = {
 
 export default function CardForm({
   editingCard,
+  duplicateFrom,
   onAdd,
   onUpdate,
   onCancelEdit,
 }: {
   editingCard?: UniversityCard | null;
+  duplicateFrom?: UniversityCard | null;
   onAdd: (card: NewUniversityCard) => void | Promise<void>;
   onUpdate?: (id: string, card: NewUniversityCard) => void | Promise<void>;
   onCancelEdit?: () => void;
 }) {
+  const source = editingCard ?? duplicateFrom;
   const [form, setForm] = useState<NewUniversityCard>(() =>
-    editingCard
+    source
       ? {
-          universityName: editingCard.universityName,
-          department: editingCard.department,
-          admissionType: editingCard.admissionType,
-          capacity: editingCard.capacity,
-          minRequirement: editingCard.minRequirement,
-          interviewDate: editingCard.interviewDate,
-          resultAnnouncementDate: editingCard.resultAnnouncementDate,
-          admissionSummary: editingCard.admissionSummary,
-          resultSummary: editingCard.resultSummary,
-          departmentLink: editingCard.departmentLink,
-          applicationPeriod: editingCard.applicationPeriod,
-          ratio2026: editingCard.ratio2026,
-          ratio2025: editingCard.ratio2025,
-          ratio2024: editingCard.ratio2024,
-          applyDeadlineDate: editingCard.applyDeadlineDate,
-          applyDeadlineTime: editingCard.applyDeadlineTime,
+          universityName: source.universityName,
+          department: source.department,
+          admissionType: source.admissionType,
+          capacity: source.capacity,
+          minRequirement: source.minRequirement,
+          interviewDate: source.interviewDate,
+          resultAnnouncementDate: source.resultAnnouncementDate,
+          admissionSummary: source.admissionSummary,
+          resultSummary: source.resultSummary,
+          departmentLink: source.departmentLink,
+          applicationPeriod: source.applicationPeriod,
+          ratio2026: source.ratio2026,
+          ratio2025: source.ratio2025,
+          ratio2024: source.ratio2024,
+          applyDeadlineDate: source.applyDeadlineDate,
+          applyDeadlineTime: source.applyDeadlineTime,
         }
       : emptyForm,
   );
