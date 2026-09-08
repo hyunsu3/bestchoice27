@@ -27,7 +27,11 @@ function compareCards(
   const dir = desc ? -1 : 1;
   switch (mode) {
     case "name":
-      return dir * a.universityName.localeCompare(b.universityName, "ko");
+      return (
+        dir * a.universityName.localeCompare(b.universityName, "ko") ||
+        dir * a.department.localeCompare(b.department, "ko") ||
+        dir * a.admissionType.localeCompare(b.admissionType, "ko")
+      );
     case "admissionType":
       return (
         dir * a.admissionType.localeCompare(b.admissionType, "ko") ||

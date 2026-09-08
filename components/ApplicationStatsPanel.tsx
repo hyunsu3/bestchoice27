@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { authorizedFetch } from "@/lib/authorizedFetch";
-import { getDeadlineStatus } from "@/lib/deadlineInfo";
+import { getDeadlineStatus, getDeadlineTimestamp } from "@/lib/deadlineInfo";
 import type { ApplicationStat, UniversityCard } from "@/lib/types";
 
 const CHART_W = 300;
@@ -75,27 +75,41 @@ export default function ApplicationStatsPanel({ card }: { card: UniversityCard }
 
   const capacity = parseCapacityNumber(card.capacity);
   const deadline = deadlineInfo(card);
+  const deadlineMs = getDeadlineTimestamp(card);
   const yearRatios: { year: string; value: string }[] = [
     { year: "2024", value: card.ratio2024 },
     { year: "2025", value: card.ratio2025 },
     { year: "2026", value: card.ratio2026 },
   ].filter((r) => r.value.trim() !== "");
 
-  const points = useMemo(() => {
-    if (!stats || stats.length === 0) return [];
+  const { points, deadlineX } = useMemo(() => {
+    if (!stats || stats.length === 0) return { points: [], deadlineX: null as number | null };
     const times = stats.map((s) => s.recordedAt);
     const minT = Math.min(...times);
-    const maxT = Math.max(...times);
-    const maxCount = Math.max(...stats.map((s) => s.applicantCount), 1);
-    return stats.map((s, i) => {
+    let maxT = Math.max(...times);
+    // 마감일이 입력되어 있고 아직 남아있다면, 그래프 오른쪽 끝을 마감일까지 늘려서
+    // 실제 마감까지 얼마나 남았는지 한눈에 보이게 한다. 마감일이 없거나 이미
+    // 지난 경우엔 기존처럼 마지막 기록까지만 그린다.
+    if (deadlineMs && deadlineMs > maxT) maxT = deadlineMs;
+    const range = maxT - minT;
+    // 세로축은 기본적으로 정원(1배수)을 최대값으로 삼는다. 지원자 수가 정원을
+    // 넘어서는 기록이 있을 때만 그 값까지 축을 늘린다.
+    const maxApplicants = Math.max(...stats.map((s) => s.applicantCount), 1);
+    const maxCount = capacity ? Math.max(capacity, maxApplicants) : maxApplicants;
+    const points = stats.map((s, i) => {
       const x =
-        stats.length === 1
+        range === 0
           ? PAD.left + PLOT_W / 2
-          : PAD.left + ((s.recordedAt - minT) / (maxT - minT || 1)) * PLOT_W;
+          : PAD.left + ((s.recordedAt - minT) / range) * PLOT_W;
       const y = PAD.top + PLOT_H - (s.applicantCount / maxCount) * PLOT_H;
       return { x, y, stat: s, isLast: i === stats.length - 1 };
     });
-  }, [stats]);
+    const deadlineX =
+      deadlineMs !== null && range > 0 && deadlineMs >= minT
+        ? PAD.left + Math.min((deadlineMs - minT) / range, 1) * PLOT_W
+        : null;
+    return { points, deadlineX };
+  }, [stats, deadlineMs, capacity]);
 
   const pathD = points.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ");
   const lastPoint = points[points.length - 1];
@@ -208,6 +222,27 @@ export default function ApplicationStatsPanel({ card }: { card: UniversityCard }
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
+              )}
+              {deadlineX !== null && (
+                <g>
+                  <line
+                    x1={deadlineX}
+                    x2={deadlineX}
+                    y1={PAD.top}
+                    y2={PAD.top + PLOT_H}
+                    className="stroke-rose-500/60 dark:stroke-rose-400/60"
+                    strokeWidth={1}
+                    strokeDasharray="3 2"
+                  />
+                  <text
+                    x={deadlineX}
+                    y={PAD.top - 4}
+                    textAnchor={deadlineX > CHART_W - 30 ? "end" : "middle"}
+                    className="fill-rose-500 text-[8px] font-bold dark:fill-rose-400"
+                  >
+                    마감
+                  </text>
+                </g>
               )}
               {points.map((p, i) => (
                 <g key={p.stat.id}>
