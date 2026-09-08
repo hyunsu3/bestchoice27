@@ -35,10 +35,12 @@ export default function CardFrontFace({
   card,
   size = "md",
   badgesBelowName,
+  latestRatioText,
 }: {
   card: UniversityCard;
   size?: keyof typeof SIZE_STYLES;
   badgesBelowName?: ReactNode;
+  latestRatioText?: string | null;
 }) {
   const s = SIZE_STYLES[size];
 
@@ -71,6 +73,11 @@ export default function CardFrontFace({
             className={`mt-1.5 text-center font-semibold leading-tight text-white/90 ${s.minReq}`}
           >
             수능최저 {card.minRequirement}
+          </p>
+        )}
+        {latestRatioText && (
+          <p className="mt-1.5 text-center text-[8px] font-normal leading-tight text-white/40 sm:text-[10px]">
+            경쟁률 {latestRatioText}
           </p>
         )}
       </div>
