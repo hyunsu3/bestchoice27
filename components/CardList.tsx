@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { UniversityCard } from "@/lib/types";
 import FlipCard from "./FlipCard";
 import ResultCardModal from "./ResultCardModal";
@@ -22,6 +22,7 @@ type SortPrefs = {
   prioritizeMarked: boolean;
   prioritizeMinRequirement: boolean;
   includeHeld: boolean;
+  prioritizeApplied: boolean;
 };
 
 function loadSortPrefs(): Partial<SortPrefs> {
@@ -99,9 +100,28 @@ export default function CardList({
   // "+보류카드" 토글: 켜져 있으면 보류 카드도 다른 카드와 동일하게 정렬에 포함시킨다.
   // 기본은 꺼짐(보류 카드는 항상 맨 뒤).
   const [includeHeld, setIncludeHeld] = useState(false);
+  // "최종 선택" 토글: 켜져 있으면 지원완료 카드를 맨 앞으로 끌어온다.
+  // 켜질 때 "1차 선택"은 자동으로 꺼진다. 기본은 꺼짐.
+  const [prioritizeApplied, setPrioritizeApplied] = useState(false);
   const [prefsLoaded, setPrefsLoaded] = useState(false);
   const [viewingId, setViewingId] = useState<string | null>(null);
   const viewingCard = cards.find((c) => c.id === viewingId) ?? null;
+
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function showToast(message: string) {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setToastMessage(message);
+    toastTimerRef.current = setTimeout(() => setToastMessage(null), 2400);
+  }
+
+  useEffect(
+    () => () => {
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    },
+    [],
+  );
 
   // 저장된 정렬/필터 옵션을 처음 마운트될 때 한 번 불러온다.
   useEffect(() => {
@@ -112,6 +132,8 @@ export default function CardList({
     if (typeof prefs.prioritizeMinRequirement === "boolean")
       setPrioritizeMinRequirement(prefs.prioritizeMinRequirement);
     if (typeof prefs.includeHeld === "boolean") setIncludeHeld(prefs.includeHeld);
+    if (typeof prefs.prioritizeApplied === "boolean")
+      setPrioritizeApplied(prefs.prioritizeApplied);
     setPrefsLoaded(true);
   }, []);
 
@@ -128,12 +150,21 @@ export default function CardList({
           prioritizeMarked,
           prioritizeMinRequirement,
           includeHeld,
+          prioritizeApplied,
         }),
       );
     } catch {
       // 저장 실패는 무시 (예: 시크릿 모드에서 storage 접근 제한)
     }
-  }, [prefsLoaded, sortMode, sortDesc, prioritizeMarked, prioritizeMinRequirement, includeHeld]);
+  }, [
+    prefsLoaded,
+    sortMode,
+    sortDesc,
+    prioritizeMarked,
+    prioritizeMinRequirement,
+    includeHeld,
+    prioritizeApplied,
+  ]);
 
   function openCard(card: UniversityCard) {
     setViewingId(card.id);
@@ -155,9 +186,10 @@ export default function CardList({
       !!c.minRequirement && c.minRequirement.trim() !== "없음";
     const priorityScore = (c: UniversityCard) =>
       (prioritizeMarked && c.marked ? 2 : 0) +
+      (prioritizeApplied && c.applied ? 2 : 0) +
       (prioritizeMinRequirement && hasMinRequirement(c) ? 1 : 0);
     const applyPriority = (list: UniversityCard[]) =>
-      prioritizeMarked || prioritizeMinRequirement
+      prioritizeMarked || prioritizeMinRequirement || prioritizeApplied
         ? [...list].sort((a, b) => priorityScore(b) - priorityScore(a))
         : list;
     // "+보류카드"가 켜져 있으면 보류 카드도 다른 카드와 동일하게 정렬/우선순위에 포함.
@@ -168,7 +200,15 @@ export default function CardList({
     const active = base.filter((c) => !c.held);
     const held = base.filter((c) => c.held);
     return [...applyPriority(active), ...held];
-  }, [cards, sortMode, sortDesc, prioritizeMarked, prioritizeMinRequirement, includeHeld]);
+  }, [
+    cards,
+    sortMode,
+    sortDesc,
+    prioritizeMarked,
+    prioritizeMinRequirement,
+    includeHeld,
+    prioritizeApplied,
+  ]);
 
   if (cards.length === 0) {
     return (
@@ -202,19 +242,45 @@ export default function CardList({
           onClick={() =>
             setPrioritizeMarked((v) => {
               const next = !v;
-              if (next) setIncludeHeld(false);
+              if (next) {
+                setIncludeHeld(false);
+                setPrioritizeApplied(false);
+              }
               return next;
             })
           }
           aria-pressed={prioritizeMarked}
           className={`inline-flex h-7 items-center gap-1 rounded-full px-3.5 text-xs font-semibold transition-colors ${
             prioritizeMarked
-              ? "bg-yellow-400 text-black"
+              ? "bg-[#FEE500] text-black"
               : "border border-black/10 text-black/60 hover:text-black dark:border-white/10 dark:text-white/60 dark:hover:text-white"
           }`}
         >
-          <span aria-hidden className="text-base leading-none">📌</span> 선택 우선
+          <span aria-hidden className="text-base leading-none">📌</span> 1차 선택
         </button>
+        <button
+          onClick={() =>
+            setPrioritizeApplied((v) => {
+              const next = !v;
+              if (next) {
+                setPrioritizeMarked(false);
+                if (!cards.some((c) => c.applied)) {
+                  showToast("원서 지원을 준비하고 있어요!");
+                }
+              }
+              return next;
+            })
+          }
+          aria-pressed={prioritizeApplied}
+          className={`inline-flex h-7 items-center gap-1 rounded-full px-3.5 text-xs font-semibold transition-colors ${
+            prioritizeApplied
+              ? "bg-green-600 text-white"
+              : "border border-black/10 text-black/60 hover:text-black dark:border-white/10 dark:text-white/60 dark:hover:text-white"
+          }`}
+        >
+          <span aria-hidden className="text-lg font-bold leading-none">🍀</span> 최종 선택
+        </button>
+        <span className="mx-1 h-4 w-px bg-black/10 dark:bg-white/10" />
         <button
           onClick={() => setPrioritizeMinRequirement((v) => !v)}
           aria-pressed={prioritizeMinRequirement}
@@ -237,9 +303,17 @@ export default function CardList({
           aria-pressed={includeHeld}
           className={`inline-flex h-7 items-center rounded-full px-3.5 text-xs font-semibold transition-colors ${
             includeHeld
-              ? "bg-emerald-500 text-white"
+              ? "bg-zinc-500 text-white"
               : "border border-black/10 text-black/60 hover:text-black dark:border-white/10 dark:text-white/60 dark:hover:text-white"
           }`}
+          style={
+            includeHeld
+              ? {
+                  backgroundImage:
+                    "repeating-linear-gradient(45deg, rgba(255,255,255,0.16) 0px, rgba(255,255,255,0.16) 2px, transparent 2px, transparent 7px), repeating-linear-gradient(-45deg, rgba(0,0,0,0.16) 0px, rgba(0,0,0,0.16) 2px, transparent 2px, transparent 7px)",
+                }
+              : undefined
+          }
         >
           보류카드 포함
         </button>
@@ -272,6 +346,29 @@ export default function CardList({
           onSetHeld={(held) => onSetHeld(viewingCard.id, held)}
           initialFlipped
         />
+      )}
+      {toastMessage && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="pointer-events-none fixed inset-x-0 bottom-6 z-[100] flex justify-center px-4"
+        >
+          <div className="toast-pop relative rounded-full bg-green-600 px-5 py-2 text-sm font-semibold text-white shadow-lg">
+            <span aria-hidden className="absolute -left-3 -top-3 -rotate-12 text-base">
+              🍀
+            </span>
+            <span aria-hidden className="absolute -right-4 -top-2 rotate-12 text-sm">
+              🍀
+            </span>
+            <span aria-hidden className="absolute -bottom-3 -left-4 rotate-6 text-sm">
+              🍀
+            </span>
+            <span aria-hidden className="absolute -bottom-3 -right-3 -rotate-6 text-base">
+              🍀
+            </span>
+            🍀 {toastMessage}
+          </div>
+        </div>
       )}
     </div>
   );

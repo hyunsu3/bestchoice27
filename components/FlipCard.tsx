@@ -81,11 +81,7 @@ export default function FlipCard({
   return (
     <div
       className={`rounded-2xl ${
-        card.applied
-          ? "ring-2 ring-green-500 sm:ring-[5px]"
-          : card.marked
-            ? "ring-2 ring-[#FEE500] sm:ring-[5px]"
-            : ""
+        card.marked ? "ring-2 ring-[#FEE500] sm:ring-[5px]" : ""
       } ${card.held ? "opacity-70" : ""}`}
     >
       <div
@@ -109,7 +105,7 @@ export default function FlipCard({
           <div
             className={`flip-card-face flip-card-front text-white ${
               !colorsReady ? "animate-pulse bg-zinc-300 dark:bg-zinc-700" : ""
-            }`}
+            } ${card.applied ? "has-applied-bar" : ""}`}
             style={
               colorsReady
                 ? {
@@ -135,7 +131,9 @@ export default function FlipCard({
                 type="button"
                 aria-label={card.marked ? "카드 테두리 표시 끄기" : "카드 테두리 표시 켜기"}
                 title={card.marked ? "테두리 표시 끄기" : "테두리 표시 켜기"}
-                className="absolute bottom-2 right-2 z-50 flex h-6 w-6 items-center justify-center rounded-full bg-black/20 text-sm leading-none text-white/70 hover:bg-black/30 sm:bottom-3 sm:right-3 sm:h-7 sm:w-7 sm:text-base"
+                className={`absolute right-2 z-50 flex h-6 w-6 items-center justify-center rounded-full bg-black/20 text-sm leading-none text-white/70 hover:bg-black/30 sm:right-3 sm:h-7 sm:w-7 sm:text-base ${
+                  card.applied ? "bottom-8 sm:bottom-9" : "bottom-2 sm:bottom-3"
+                }`}
                 onClick={(e) => {
                   e.stopPropagation();
                   onToggleMarked();
@@ -177,6 +175,14 @@ export default function FlipCard({
                 )}
                 {card.applicationPeriod}
               </p>
+            )}
+            {card.applied && (
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-x-0 bottom-0 bg-green-600 py-1 text-center text-[10px] font-bold tracking-wide text-white sm:py-1.5 sm:text-xs"
+              >
+                ✔ 지원완료
+              </div>
             )}
           </div>
         </div>
