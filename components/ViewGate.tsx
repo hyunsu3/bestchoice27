@@ -39,6 +39,10 @@ export default function ViewGate({ children }: { children: ReactNode }) {
               autoFocus
               type="password"
               inputMode="numeric"
+              name="access-code"
+              autoComplete="off"
+              data-1p-ignore
+              data-lpignore="true"
               value={value}
               onChange={(e) => setValue(e.target.value)}
               className="input w-full"

@@ -1,5 +1,11 @@
+"use client";
+
+import dynamic from "next/dynamic";
 import GameApp from "@/components/GameApp";
-import ViewGate from "@/components/ViewGate";
+
+const ViewGate = dynamic(() => import("@/components/ViewGate"), {
+  ssr: false,
+});
 
 export default function Home() {
   return (

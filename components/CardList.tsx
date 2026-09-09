@@ -5,12 +5,11 @@ import type { UniversityCard } from "@/lib/types";
 import FlipCard from "./FlipCard";
 import ResultCardModal from "./ResultCardModal";
 
-type SortMode = "name" | "admissionType" | "capacity";
+type SortMode = "name" | "admissionType";
 
 const SORT_OPTIONS: { id: SortMode; label: string }[] = [
   { id: "name", label: "가나다" },
   { id: "admissionType", label: "전형별" },
-  { id: "capacity", label: "모집인원" },
 ];
 
 // 정렬/필터 옵션을 브라우저에 저장해서 새로고침해도 유지되게 한다.
@@ -34,11 +33,6 @@ function loadSortPrefs(): Partial<SortPrefs> {
   }
 }
 
-function parseCapacity(capacity: string): number {
-  const match = capacity.match(/\d+/);
-  return match ? Number(match[0]) : Infinity;
-}
-
 function compareCards(
   a: UniversityCard,
   b: UniversityCard,
@@ -58,15 +52,6 @@ function compareCards(
         dir * a.admissionType.localeCompare(b.admissionType, "ko") ||
         dir * a.universityName.localeCompare(b.universityName, "ko")
       );
-    case "capacity": {
-      const ca = parseCapacity(a.capacity);
-      const cb = parseCapacity(b.capacity);
-      // 인원 미입력 카드는 방향과 무관하게 항상 맨 뒤로.
-      if (ca === Infinity && cb === Infinity) return 0;
-      if (ca === Infinity) return 1;
-      if (cb === Infinity) return -1;
-      return dir * (cb - ca); // 기본(▼): 큰 인원부터
-    }
   }
 }
 
@@ -126,7 +111,8 @@ export default function CardList({
   // 저장된 정렬/필터 옵션을 처음 마운트될 때 한 번 불러온다.
   useEffect(() => {
     const prefs = loadSortPrefs();
-    if (prefs.sortMode) setSortMode(prefs.sortMode);
+    if (prefs.sortMode === "name" || prefs.sortMode === "admissionType")
+      setSortMode(prefs.sortMode);
     if (typeof prefs.sortDesc === "boolean") setSortDesc(prefs.sortDesc);
     if (typeof prefs.prioritizeMarked === "boolean") setPrioritizeMarked(prefs.prioritizeMarked);
     if (typeof prefs.prioritizeMinRequirement === "boolean")
@@ -265,7 +251,7 @@ export default function CardList({
               if (next) {
                 setPrioritizeMarked(false);
                 if (!cards.some((c) => c.applied)) {
-                  showToast("원서 지원을 준비하고 있어요!");
+                  showToast("원서를 준비중입니다");
                 }
               }
               return next;
