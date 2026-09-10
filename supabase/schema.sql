@@ -37,6 +37,10 @@ update cards set pick_rank = 0;
 alter table cards add column if not exists held boolean not null default false;
 -- 지원완료 여부: 선택(marked)과 별개로 카드 테두리를 초록색으로 표시한다.
 alter table cards add column if not exists applied boolean not null default false;
+-- 지원 상태를 미지원(0)/지원예정(1)/지원완료(2) 3단계로 확장. 기존 applied
+-- 값은 지원완료(2)로 그대로 옮겨서 데이터 손실 없이 이어간다.
+alter table cards add column if not exists application_status smallint not null default 0;
+update cards set application_status = 2 where applied and application_status = 0;
 
 -- 연도별 경쟁률(최종 경쟁률 등, "12.3:1" 같은 자유 형식 텍스트)과 원서 접수
 -- 마감 일시. 마감일은 D-day 계산을 위해 date/time 입력값을 그대로 저장한다.

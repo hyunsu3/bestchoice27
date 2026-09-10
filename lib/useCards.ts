@@ -3,7 +3,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { authorizedFetch } from "./authorizedFetch";
 import { nextPickTier } from "./pickTier";
-import type { NewUniversityCard, PickTier, UniversityCard } from "./types";
+import type {
+  ApplicationStatus,
+  NewUniversityCard,
+  PickTier,
+  UniversityCard,
+} from "./types";
 
 const LEGACY_STORAGE_KEY = "bestchoice.cards.v1";
 const MIGRATED_KEY = "bestchoice.cards.migrated.v1";
@@ -163,15 +168,15 @@ export function useCards() {
     }
   }, []);
 
-  const toggleApplied = useCallback(async (id: string) => {
-    let previous: boolean | undefined;
-    let next: boolean | undefined;
+  const cycleApplied = useCallback(async (id: string) => {
+    let previous: ApplicationStatus | undefined;
+    let next: ApplicationStatus | undefined;
     setCards((prev) =>
       prev.map((c) => {
         if (c.id !== id) return c;
-        previous = c.applied;
-        next = !c.applied;
-        return { ...c, applied: next };
+        previous = c.applicationStatus;
+        next = ((c.applicationStatus + 1) % 3) as ApplicationStatus;
+        return { ...c, applicationStatus: next };
       }),
     );
     if (previous === undefined || next === undefined) return;
@@ -179,12 +184,14 @@ export function useCards() {
       const res = await fetch(`/api/cards/${id}/applied`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ applied: next }),
+        body: JSON.stringify({ status: next }),
       });
       if (!res.ok) throw new Error();
     } catch {
       setCards((prev) =>
-        prev.map((c) => (c.id === id ? { ...c, applied: previous! } : c)),
+        prev.map((c) =>
+          c.id === id ? { ...c, applicationStatus: previous! } : c,
+        ),
       );
     }
   }, []);
@@ -221,7 +228,7 @@ export function useCards() {
     updateCard,
     cyclePickTier,
     toggleMarked,
-    toggleApplied,
+    cycleApplied,
     setHeld,
     refresh,
   };

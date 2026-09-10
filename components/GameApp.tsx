@@ -24,7 +24,7 @@ export default function GameApp() {
     updateCard,
     cyclePickTier,
     toggleMarked,
-    toggleApplied,
+    cycleApplied,
     setHeld,
   } = useCards();
   const [tab, setTab] = useState<Tab>("list");
@@ -107,7 +107,7 @@ export default function GameApp() {
             onDelete={removeCard}
             onCyclePickTier={cyclePickTier}
             onToggleMarked={toggleMarked}
-            onToggleApplied={toggleApplied}
+            onCycleApplied={cycleApplied}
             onSetHeld={setHeld}
           />
         </div>

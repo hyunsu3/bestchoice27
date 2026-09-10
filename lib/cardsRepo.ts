@@ -1,5 +1,10 @@
 import { supabaseAdmin } from "./supabaseAdmin";
-import type { NewUniversityCard, PickTier, UniversityCard } from "./types";
+import type {
+  ApplicationStatus,
+  NewUniversityCard,
+  PickTier,
+  UniversityCard,
+} from "./types";
 
 type CardRow = {
   id: string;
@@ -24,7 +29,7 @@ type CardRow = {
   pick_tier: PickTier;
   marked: boolean;
   held: boolean;
-  applied: boolean;
+  application_status: number;
 };
 
 function toCard(row: CardRow): UniversityCard {
@@ -51,7 +56,7 @@ function toCard(row: CardRow): UniversityCard {
     pickTier: row.pick_tier ?? "none",
     marked: row.marked ?? false,
     held: row.held ?? false,
-    applied: row.applied ?? false,
+    applicationStatus: (row.application_status ?? 0) as ApplicationStatus,
   };
 }
 
@@ -178,13 +183,13 @@ export async function setCardHeld(
   return toCard(data as CardRow);
 }
 
-export async function setCardApplied(
+export async function setCardApplicationStatus(
   id: string,
-  applied: boolean,
+  applicationStatus: ApplicationStatus,
 ): Promise<UniversityCard> {
   const { data, error } = await supabaseAdmin
     .from("cards")
-    .update({ applied })
+    .update({ application_status: applicationStatus })
     .eq("id", id)
     .select()
     .single();

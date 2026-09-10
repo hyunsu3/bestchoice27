@@ -62,7 +62,7 @@ export default function CardList({
   onDelete,
   onCyclePickTier,
   onToggleMarked,
-  onToggleApplied,
+  onCycleApplied,
   onSetHeld,
 }: {
   cards: UniversityCard[];
@@ -71,7 +71,7 @@ export default function CardList({
   onDelete: (id: string) => void;
   onCyclePickTier: (id: string) => void;
   onToggleMarked: (id: string) => void;
-  onToggleApplied: (id: string) => void;
+  onCycleApplied: (id: string) => void;
   onSetHeld: (id: string, held: boolean) => void;
 }) {
   const [sortMode, setSortMode] = useState<SortMode>("name");
@@ -172,7 +172,13 @@ export default function CardList({
       !!c.minRequirement && c.minRequirement.trim() !== "없음";
     const priorityScore = (c: UniversityCard) =>
       (prioritizeMarked && c.marked ? 2 : 0) +
-      (prioritizeApplied && c.applied ? 2 : 0) +
+      (prioritizeApplied
+        ? c.applicationStatus === 2
+          ? 2
+          : c.applicationStatus === 1
+            ? 1
+            : 0
+        : 0) +
       (prioritizeMinRequirement && hasMinRequirement(c) ? 1 : 0);
     const applyPriority = (list: UniversityCard[]) =>
       prioritizeMarked || prioritizeMinRequirement || prioritizeApplied
@@ -250,7 +256,7 @@ export default function CardList({
               const next = !v;
               if (next) {
                 setPrioritizeMarked(false);
-                if (!cards.some((c) => c.applied)) {
+                if (!cards.some((c) => c.applicationStatus === 2)) {
                   showToast("원서를 준비중입니다");
                 }
               }
@@ -312,7 +318,7 @@ export default function CardList({
             onOpen={() => openCard(card)}
             onCyclePickTier={() => onCyclePickTier(card.id)}
             onToggleMarked={() => onToggleMarked(card.id)}
-            onToggleApplied={() => onToggleApplied(card.id)}
+            onCycleApplied={() => onCycleApplied(card.id)}
           />
         ))}
       </div>

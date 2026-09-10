@@ -2,28 +2,49 @@
 
 import { useEffect, useRef, type PointerEvent } from "react";
 import { getAutoHex } from "@/lib/cardColor";
-import type { UniversityCard } from "@/lib/types";
+import type { ApplicationStatus, UniversityCard } from "@/lib/types";
 import { useUniversityColors } from "@/lib/universityColors";
 import CardFrontFace from "./CardFrontFace";
 
 const LONG_PRESS_MS = 1000;
 const LONG_PRESS_MOVE_TOLERANCE = 10;
 
+// 지원 상태별 체크 아이콘/글자색/하단 바 색. 클릭할 때마다 0 → 1 → 2 → 0 순서로 돈다.
+const APPLICATION_STATUS_META: Record<
+  ApplicationStatus,
+  { glyph: string; label: string; textClass: string; barClass: string }
+> = {
+  0: { glyph: "☐", label: "미지원", textClass: "text-white/60", barClass: "" },
+  1: {
+    glyph: "◐",
+    label: "지원예정",
+    textClass: "text-amber-400",
+    barClass: "bg-amber-500",
+  },
+  2: {
+    glyph: "✔",
+    label: "지원완료",
+    textClass: "text-green-400",
+    barClass: "bg-green-600",
+  },
+};
+
 export default function FlipCard({
   card,
   onOpen,
   onCyclePickTier,
   onToggleMarked,
-  onToggleApplied,
+  onCycleApplied,
 }: {
   card: UniversityCard;
   onOpen: () => void;
   onCyclePickTier?: () => void;
   onToggleMarked?: () => void;
-  onToggleApplied?: () => void;
+  onCycleApplied?: () => void;
 }) {
   const { colors, ready: colorsReady } = useUniversityColors();
   const customColor = colors[card.universityName.trim()];
+  const statusMeta = APPLICATION_STATUS_META[card.applicationStatus];
 
   const pressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pressStartRef = useRef<{ x: number; y: number } | null>(null);
@@ -105,7 +126,7 @@ export default function FlipCard({
           <div
             className={`flip-card-face flip-card-front text-white ${
               !colorsReady ? "animate-pulse bg-zinc-300 dark:bg-zinc-700" : ""
-            } ${card.applied ? "has-applied-bar" : ""}`}
+            } ${card.applicationStatus !== 0 ? "has-applied-bar" : ""}`}
             style={
               colorsReady
                 ? {
@@ -132,7 +153,9 @@ export default function FlipCard({
                 aria-label={card.marked ? "카드 테두리 표시 끄기" : "카드 테두리 표시 켜기"}
                 title={card.marked ? "테두리 표시 끄기" : "테두리 표시 켜기"}
                 className={`absolute right-2 z-50 flex h-6 w-6 items-center justify-center rounded-full bg-black/20 text-sm leading-none text-white/70 hover:bg-black/30 sm:right-3 sm:h-7 sm:w-7 sm:text-base ${
-                  card.applied ? "bottom-8 sm:bottom-9" : "bottom-2 sm:bottom-3"
+                  card.applicationStatus !== 0
+                    ? "bottom-8 sm:bottom-9"
+                    : "bottom-2 sm:bottom-3"
                 }`}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -152,36 +175,34 @@ export default function FlipCard({
                 {card.latestRatioText && `(${card.latestRatioText})`}
               </p>
             )}
-            {card.applicationPeriod && (
+            {(card.applicationPeriod || onCycleApplied) && (
               <p className="mt-1 pl-[1em] text-[10px] font-semibold text-white/60 sm:text-xs">
-                {onToggleApplied && (
+                {onCycleApplied && (
                   <span
                     role="button"
                     tabIndex={0}
-                    aria-label={card.applied ? "지원완료 해제" : "지원완료로 표시"}
-                    title={card.applied ? "지원완료 해제" : "지원완료로 표시"}
-                    className={`mr-1 cursor-pointer ${
-                      card.applied ? "text-green-400" : "text-white/60"
-                    }`}
+                    aria-label={`지원 상태: ${statusMeta.label} (클릭하여 변경)`}
+                    title={`지원 상태: ${statusMeta.label} (클릭하여 변경)`}
+                    className={`mr-1 cursor-pointer ${statusMeta.textClass}`}
                     onClick={(e) => {
                       e.stopPropagation();
-                      onToggleApplied();
+                      onCycleApplied();
                     }}
                     onPointerDown={(e) => e.stopPropagation()}
                     onPointerUp={(e) => e.stopPropagation()}
                   >
-                    {card.applied ? "✔" : "☐"}
+                    {statusMeta.glyph}
                   </span>
                 )}
                 {card.applicationPeriod}
               </p>
             )}
-            {card.applied && (
+            {card.applicationStatus !== 0 && (
               <div
                 aria-hidden
-                className="pointer-events-none absolute inset-x-0 bottom-0 bg-green-600 py-1 text-center text-[10px] font-bold tracking-wide text-white sm:py-1.5 sm:text-xs"
+                className={`pointer-events-none absolute inset-x-0 bottom-0 py-1 text-center text-[10px] font-bold tracking-wide text-white sm:py-1.5 sm:text-xs ${statusMeta.barClass}`}
               >
-                ✔ 지원완료
+                {statusMeta.glyph} {statusMeta.label}
               </div>
             )}
           </div>
