@@ -133,6 +133,7 @@ export function useCards() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ pickTier: nextTier }),
+        keepalive: true,
       });
       if (!res.ok) throw new Error();
     } catch {
@@ -159,6 +160,7 @@ export function useCards() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ marked: next }),
+        keepalive: true,
       });
       if (!res.ok) throw new Error();
     } catch {
@@ -185,6 +187,7 @@ export function useCards() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: next }),
+        keepalive: true,
       });
       if (!res.ok) throw new Error();
     } catch {
@@ -211,6 +214,7 @@ export function useCards() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ held }),
+        keepalive: true,
       });
       if (!res.ok) throw new Error();
     } catch {
